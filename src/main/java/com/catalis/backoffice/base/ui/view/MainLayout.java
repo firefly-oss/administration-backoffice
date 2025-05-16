@@ -69,6 +69,12 @@ public final class MainLayout extends AppLayout {
 
         // Lending section
         SideNavItem lendingItem = new SideNavItem("Lending", "lending", VaadinIcon.MONEY.create());
+        SideNavItem loansItem = new SideNavItem("Loans", "lending/loans");
+        SideNavItem applicationsItem = new SideNavItem("Applications", "lending/applications");
+        SideNavItem reportsItem = new SideNavItem("Reports", "lending/reports");
+        lendingItem.addItem(loansItem);
+        lendingItem.addItem(applicationsItem);
+        lendingItem.addItem(reportsItem);
         nav.addItem(lendingItem);
 
         // ERP section
