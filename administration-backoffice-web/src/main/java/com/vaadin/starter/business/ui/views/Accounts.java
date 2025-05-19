@@ -3,6 +3,7 @@ package com.vaadin.starter.business.ui.views;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.catalis.administration.backoffice.interfaces.AccountsService;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
@@ -19,7 +20,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.starter.business.backend.BankAccount;
-import com.vaadin.starter.business.backend.DummyData;
+import com.vaadin.starter.business.backend.BankAccountMapper;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.Badge;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
@@ -40,6 +41,7 @@ import com.vaadin.starter.business.ui.util.css.TextOverflow;
 import com.vaadin.starter.business.ui.util.css.lumo.BadgeColor;
 import com.vaadin.starter.business.ui.util.css.lumo.BadgeShape;
 import com.vaadin.starter.business.ui.util.css.lumo.BadgeSize;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @PageTitle("Accounts")
 @Route(value = "accounts", layout = MainLayout.class)
@@ -49,8 +51,14 @@ public class Accounts extends ViewFrame {
 	private Grid<BankAccount> grid;
 	private Registration resizeListener;
 
-	public Accounts() {
-		setViewContent(createContent());
+	private final AccountsService accountsService;
+	private final BankAccountMapper bankAccountMapper;
+
+	@Autowired
+	public Accounts(AccountsService accountsService, BankAccountMapper bankAccountMapper) {
+        this.accountsService = accountsService;
+        this.bankAccountMapper = bankAccountMapper;
+        setViewContent(createContent());
 	}
 
 	private Component createContent() {
@@ -65,7 +73,7 @@ public class Accounts extends ViewFrame {
 		grid = new Grid<>();
 		grid.addSelectionListener(event -> event.getFirstSelectedItem().ifPresent(this::viewDetails));
 		grid.addThemeName("mobile");
-		grid.setDataProvider(DataProvider.ofCollection(DummyData.getBankAccounts()));
+		grid.setDataProvider(DataProvider.ofCollection(bankAccountMapper.toWebBankAccounts(accountsService.filterAccounts())));
 		grid.setId("accounts");
 		grid.setSizeFull();
 
