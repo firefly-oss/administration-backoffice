@@ -1,130 +1,44 @@
-# Backoffice Administration
+# Business App Starter with Spring Boot
 
-A comprehensive administration backoffice application built with Spring Boot and Vaadin.
+Business App is a starter for Vaadin with Spring Boot integration. 
 
-## Table of Contents
-- [Overview](#overview)
-- [Technology Stack](#technology-stack)
-- [Project Components](#project-components)
-  - [Backend Components](#backend-components)
-  - [Frontend Components](#frontend-components)
-- [Configuration](#configuration)
-- [Development](#development)
-- [Building for Production](#building-for-production)
-- [Testing](#testing)
+[Live demo](https://labs.vaadin.com/business/)
 
-## Overview
+The starter gives you a productivity boost and a head-start. You get an app shell with a typical hierarchical left-hand menu. The shell, the views and the components are all responsive and touch friendly, which makes them great for desktop and mobile use. The views are built with Java, which enhances Java developers' productivity by allowing them to do all in one language.
 
-This application provides a backoffice administration interface for managing various aspects of the business including accounts, clients, contracts, lending, and more. It's built using Spring Boot for the backend and Vaadin for the frontend UI.
+The app comes with multiple list views to edit master-detail data. Views can be divided horizontally or vertically to open up the details, and the details can also be split into multiple tabs for extra space. The details can also be opened fullscreen to maximize the use of space. Additionally there is an opt-in option for opening multiple application views in tabs within the app, for quick comparison or navigation between data. You enable this feature by setting MainLayout.navigationTabs to true.
 
-## Technology Stack
+You can read the detailed documentation in [Vaadin Docs](https://vaadin.com/docs/business-app/overview.html)
 
-- **Java**: Version 21
-- **Spring Boot**: Version 3.4.3
-  - Spring Data JPA
-  - Spring Boot Actuator
-  - Spring Boot Validation
-- **Vaadin**: Version 24.7.3
-- **Database**: H2 (for development)
-- **Build Tool**: Maven
+## Running the Project in Development Mode
 
-## Project Components
-
-### Backend Components
-
-The application is organized into the following main components:
-
-1. **Accounts Module** (`com.catalis.backoffice.accounts`)
-   - Manages user accounts and related functionality
-
-2. **Base Module** (`com.catalis.backoffice.base`)
-   - Contains base classes and utilities used across the application
-
-3. **Clients Module** (`com.catalis.backoffice.clients`)
-   - Handles client management and related operations
-
-4. **Common Module** (`com.catalis.backoffice.common`)
-   - Provides common utilities and shared functionality
-
-5. **Configurations Module** (`com.catalis.backoffice.configurations`)
-   - Manages application configurations and settings
-
-6. **Contracts Module** (`com.catalis.backoffice.contracts`)
-   - Handles contract management and related operations
-
-7. **Dashboard Module** (`com.catalis.backoffice.dashboard`)
-   - Provides dashboard views and analytics
-
-8. **ERP Module** (`com.catalis.backoffice.erp`)
-   - Integrates with Enterprise Resource Planning functionality
-
-9. **Lending Module** (`com.catalis.backoffice.lending`)
-   - Manages lending operations and related functionality
-
-10. **Security Module** (`com.catalis.backoffice.security`)
-    - Handles authentication, authorization, and security concerns
-
-11. **Task Management Module** (`com.catalis.backoffice.taskmanagement`)
-    - Provides task management functionality
-
-12. **UI Module** (`com.catalis.backoffice.ui`)
-    - Contains UI components and views
-
-### Frontend Components
-
-The frontend is built using Vaadin and includes:
-
-1. **Bank Theme** (`src/main/frontend/themes/bank-theme`)
-   - Custom theme for the application
-
-2. **Default Theme** (`src/main/frontend/themes/default`)
-   - Default Vaadin theme
-
-## Configuration
-
-The application is configured using Spring Boot's standard configuration mechanisms. Key configurations include:
-
-- Server port: 8083 (configurable via PORT environment variable)
-- Vaadin configuration for development mode
-- JPA configuration for database access
-
-## Development
-
-To start the application in development mode:
-
-1. Import the project into your IDE and run the `Application` class
-2. Alternatively, run from the command line:
-
-```bash
-./mvnw
+```
+mvn spring-boot:run
 ```
 
-The application will be available at http://localhost:8083
+Wait for the application to start
 
-## Building for Production
+Open http://localhost:8082/ to view the application.
 
-To build the application for production:
+## Running the Project in Production Mode
 
-```bash
-./mvnw -Pproduction package
+```
+mvn spring-boot:run -Pproduction
 ```
 
-This will create an optimized build with frontend resources processed for production use.
+The default mode when the application is built or started is 'development'. The 'production' mode is turned on by using the `production` profile when building or starting the app.
 
-## Testing
-
-The project uses:
-- Spring Boot Test for backend testing
-- ArchUnit for architecture testing
-
-Run tests using:
-
-```bash
-./mvnw test
+Note that if you switch between running in production mode and development mode, you need to do
 ```
-
-For integration tests:
-
-```bash
-./mvnw -Pintegration-test verify
+mvn clean
 ```
+before running in the other mode.
+
+## Database
+
+The application uses an in-memory H2 database by default. You can access the H2 console at http://localhost:8080/h2-console when the application is running.
+
+Connection details:
+- JDBC URL: jdbc:h2:mem:testdb
+- Username: sa
+- Password: password

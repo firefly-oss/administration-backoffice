@@ -1,0 +1,218 @@
+package com.vaadin.starter.business.ui.views.security;
+
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.starter.business.backend.DummyData;
+import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.ui.MainLayout;
+import com.vaadin.starter.business.ui.components.FlexBoxLayout;
+import com.vaadin.starter.business.ui.components.ListItem;
+import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawer;
+import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerFooter;
+import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerHeader;
+import com.vaadin.starter.business.ui.layout.size.Horizontal;
+import com.vaadin.starter.business.ui.layout.size.Right;
+import com.vaadin.starter.business.ui.layout.size.Top;
+import com.vaadin.starter.business.ui.layout.size.Vertical;
+import com.vaadin.starter.business.ui.util.LumoStyles;
+import com.vaadin.starter.business.ui.util.UIUtils;
+import com.vaadin.starter.business.ui.util.css.BoxSizing;
+import com.vaadin.starter.business.ui.views.SplitViewFrame;
+
+import java.util.Arrays;
+import java.util.List;
+
+@Route(value = "roles-permissions", layout = MainLayout.class)
+@PageTitle("Roles & Permissions")
+public class RolesPermissions extends SplitViewFrame {
+
+    private Grid<Role> grid;
+    private ListDataProvider<Role> dataProvider;
+
+    private DetailsDrawer detailsDrawer;
+    private DetailsDrawerHeader detailsDrawerHeader;
+
+    // Sample Role class for demonstration
+    private static class Role {
+        private String name;
+        private String description;
+        private boolean isActive;
+        private List<String> permissions;
+
+        public Role(String name, String description, boolean isActive, List<String> permissions) {
+            this.name = name;
+            this.description = description;
+            this.isActive = isActive;
+            this.permissions = permissions;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public boolean isActive() {
+            return isActive;
+        }
+
+        public List<String> getPermissions() {
+            return permissions;
+        }
+
+        public int getPermissionCount() {
+            return permissions.size();
+        }
+    }
+
+    // Sample data
+    private List<Role> getRoles() {
+        return Arrays.asList(
+            new Role("Admin", "Full system access", true, 
+                Arrays.asList("Create Users", "Edit Users", "Delete Users", "View Reports", "Manage System")),
+            new Role("Manager", "Department management", true, 
+                Arrays.asList("View Users", "Edit Users", "View Reports")),
+            new Role("User", "Regular user access", true, 
+                Arrays.asList("View Profile", "Edit Profile", "View Reports")),
+            new Role("Guest", "Limited access", false, 
+                Arrays.asList("View Public Content"))
+        );
+    }
+
+    public RolesPermissions() {
+        setViewContent(createContent());
+        setViewDetails(createDetailsDrawer());
+        setViewDetailsPosition(Position.BOTTOM);
+    }
+
+    private Component createContent() {
+        FlexBoxLayout content = new FlexBoxLayout(createGrid());
+        content.setBoxSizing(BoxSizing.BORDER_BOX);
+        content.setHeightFull();
+        content.setPadding(Horizontal.RESPONSIVE_X, Top.RESPONSIVE_X);
+        return content;
+    }
+
+    private Grid createGrid() {
+        grid = new Grid<>();
+        grid.addSelectionListener(event -> event.getFirstSelectedItem()
+                .ifPresent(this::showDetails));
+        dataProvider = DataProvider.ofCollection(getRoles());
+        grid.setDataProvider(dataProvider);
+        grid.setSizeFull();
+
+        grid.addColumn(Role::getName)
+                .setAutoWidth(true)
+                .setFlexGrow(0)
+                .setFrozen(true)
+                .setHeader("Role Name")
+                .setSortable(true);
+        grid.addColumn(Role::getDescription)
+                .setAutoWidth(true)
+                .setHeader("Description");
+        grid.addColumn(new ComponentRenderer<>(this::createActiveStatus))
+                .setAutoWidth(true)
+                .setFlexGrow(0)
+                .setHeader("Status")
+                .setTextAlign(ColumnTextAlign.END);
+        grid.addColumn(Role::getPermissionCount)
+                .setAutoWidth(true)
+                .setFlexGrow(0)
+                .setHeader("Permissions")
+                .setTextAlign(ColumnTextAlign.END);
+
+        return grid;
+    }
+
+    private Component createActiveStatus(Role role) {
+        Icon icon;
+        if (role.isActive()) {
+            icon = UIUtils.createPrimaryIcon(VaadinIcon.CHECK);
+        } else {
+            icon = UIUtils.createDisabledIcon(VaadinIcon.CLOSE);
+        }
+        return icon;
+    }
+
+    private DetailsDrawer createDetailsDrawer() {
+        detailsDrawer = new DetailsDrawer(DetailsDrawer.Position.BOTTOM);
+
+        // Header
+        detailsDrawerHeader = new DetailsDrawerHeader("");
+        detailsDrawerHeader.addCloseListener(buttonClickEvent -> detailsDrawer.hide());
+        detailsDrawer.setHeader(detailsDrawerHeader);
+
+        // Footer
+        DetailsDrawerFooter footer = new DetailsDrawerFooter();
+        footer.addSaveListener(e -> {
+            detailsDrawer.hide();
+            UIUtils.showNotification("Changes saved.");
+        });
+        footer.addCancelListener(e -> detailsDrawer.hide());
+        detailsDrawer.setFooter(footer);
+
+        return detailsDrawer;
+    }
+
+    private void showDetails(Role role) {
+        detailsDrawerHeader.setTitle(role.getName() + " Role");
+        detailsDrawer.setContent(createDetails(role));
+        detailsDrawer.show();
+    }
+
+    private FormLayout createDetails(Role role) {
+        TextField name = new TextField();
+        name.setValue(role.getName());
+        name.setWidthFull();
+
+        TextField description = new TextField();
+        description.setValue(role.getDescription());
+        description.setWidthFull();
+
+        RadioButtonGroup<String> status = new RadioButtonGroup<>();
+        status.setItems("Active", "Inactive");
+        status.setValue(role.isActive() ? "Active" : "Inactive");
+
+        CheckboxGroup<String> permissions = new CheckboxGroup<>();
+        permissions.setLabel("Permissions");
+        permissions.setItems(
+            "Create Users", "Edit Users", "Delete Users", 
+            "View Reports", "Edit Reports", "Delete Reports",
+            "Manage System", "Configure Settings", "View Audit Logs"
+        );
+        permissions.setValue(new java.util.HashSet<>(role.getPermissions()));
+
+        // Form layout
+        FormLayout form = new FormLayout();
+        form.addClassNames(LumoStyles.Padding.Bottom.L,
+                LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.S);
+        form.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1,
+                        FormLayout.ResponsiveStep.LabelsPosition.TOP),
+                new FormLayout.ResponsiveStep("600px", 2,
+                        FormLayout.ResponsiveStep.LabelsPosition.TOP));
+        form.addFormItem(name, "Role Name");
+        form.addFormItem(description, "Description");
+        form.addFormItem(status, "Status");
+        form.add(permissions);
+
+        return form;
+    }
+}
