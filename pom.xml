@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.catalis.backoffice</groupId>
-    <artifactId>backoffice-administration</artifactId>
+    <artifactId>administration-backoffice</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
