@@ -1,14 +1,19 @@
 package com.vaadin.starter.business.ui.views.products;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -17,6 +22,7 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.starter.business.ui.MainLayout;
@@ -47,6 +53,15 @@ public class ProductCatalog extends SplitViewFrame {
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
+
+    // Search form fields
+    private TextField idFilter;
+    private TextField nameFilter;
+    private ComboBox<String> categoryFilter;
+    private NumberField minPriceFilter;
+    private NumberField maxPriceFilter;
+    private ComboBox<String> statusFilter;
+    private DatePicker createdDateFilter;
 
     // Sample Product class for demonstration
     private static class Product {
@@ -125,14 +140,105 @@ public class ProductCatalog extends SplitViewFrame {
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
+
+        // Initialize filters
+        applyFilter();
     }
 
     private Component createContent() {
-        FlexBoxLayout content = new FlexBoxLayout(createGrid());
+        FlexBoxLayout content = new FlexBoxLayout(createSearchForm(), createGrid());
         content.setBoxSizing(BoxSizing.BORDER_BOX);
         content.setHeightFull();
         content.setPadding(Horizontal.RESPONSIVE_X, Top.RESPONSIVE_X);
+        content.setFlexDirection(FlexLayout.FlexDirection.COLUMN);
         return content;
+    }
+
+    private Component createSearchForm() {
+        // Create form layout
+        FormLayout formLayout = new FormLayout();
+        formLayout.addClassName(LumoStyles.Padding.Bottom.M);
+        formLayout.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1,
+                        FormLayout.ResponsiveStep.LabelsPosition.TOP),
+                new FormLayout.ResponsiveStep("600px", 2,
+                        FormLayout.ResponsiveStep.LabelsPosition.TOP),
+                new FormLayout.ResponsiveStep("900px", 3,
+                        FormLayout.ResponsiveStep.LabelsPosition.TOP));
+
+        // Initialize filter fields
+        idFilter = new TextField();
+        idFilter.setPlaceholder("Product ID");
+        idFilter.setClearButtonVisible(true);
+        idFilter.setValueChangeMode(ValueChangeMode.EAGER);
+        idFilter.addValueChangeListener(e -> applyFilter());
+
+        nameFilter = new TextField();
+        nameFilter.setPlaceholder("Product Name");
+        nameFilter.setClearButtonVisible(true);
+        nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
+        nameFilter.addValueChangeListener(e -> applyFilter());
+
+        categoryFilter = new ComboBox<>();
+        categoryFilter.setPlaceholder("Category");
+        categoryFilter.setItems("Accounts", "Loans", "Cards", "Investments", "Insurance", "Services");
+        categoryFilter.setClearButtonVisible(true);
+        categoryFilter.addValueChangeListener(e -> applyFilter());
+
+        minPriceFilter = new NumberField();
+        minPriceFilter.setPlaceholder("Min Price/Rate");
+        minPriceFilter.setClearButtonVisible(true);
+        minPriceFilter.addValueChangeListener(e -> applyFilter());
+
+        maxPriceFilter = new NumberField();
+        maxPriceFilter.setPlaceholder("Max Price/Rate");
+        maxPriceFilter.setClearButtonVisible(true);
+        maxPriceFilter.addValueChangeListener(e -> applyFilter());
+
+        statusFilter = new ComboBox<>();
+        statusFilter.setPlaceholder("Status");
+        statusFilter.setItems("Active", "Inactive");
+        statusFilter.setClearButtonVisible(true);
+        statusFilter.addValueChangeListener(e -> applyFilter());
+
+        createdDateFilter = new DatePicker();
+        createdDateFilter.setPlaceholder("Created After");
+        createdDateFilter.setClearButtonVisible(true);
+        createdDateFilter.addValueChangeListener(e -> applyFilter());
+
+        // Add fields to form
+        formLayout.addFormItem(idFilter, "Product ID");
+        formLayout.addFormItem(nameFilter, "Product Name");
+        formLayout.addFormItem(categoryFilter, "Category");
+        formLayout.addFormItem(minPriceFilter, "Min Price/Rate");
+        formLayout.addFormItem(maxPriceFilter, "Max Price/Rate");
+        formLayout.addFormItem(statusFilter, "Status");
+        formLayout.addFormItem(createdDateFilter, "Created After");
+
+        // Create buttons
+        Button searchButton = new Button("Search", VaadinIcon.SEARCH.create(), e -> applyFilter());
+        searchButton.getElement().getThemeList().add("primary");
+        searchButton.addClassName(LumoStyles.Margin.Right.S);
+
+        Button clearButton = new Button("Clear", VaadinIcon.CLOSE.create(), e -> clearFilter());
+        clearButton.getElement().getThemeList().add("tertiary");
+
+        // Add buttons to horizontal layout
+        HorizontalLayout buttonsLayout = new HorizontalLayout(searchButton, clearButton);
+        buttonsLayout.setSpacing(true);
+        buttonsLayout.setPadding(true);
+        buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+
+        // Create container for the form
+        Div formContainer = new Div(formLayout, buttonsLayout);
+        formContainer.addClassName(LumoStyles.Padding.Bottom.L);
+        formContainer.addClassName(LumoStyles.Padding.Horizontal.L);
+        formContainer.addClassName(LumoStyles.Padding.Top.M);
+        formContainer.getStyle().set("background-color", "var(--lumo-base-color)");
+        formContainer.getStyle().set("border-radius", "var(--lumo-border-radius-m)");
+        formContainer.getStyle().set("box-shadow", "var(--lumo-box-shadow-xs)");
+
+        return formContainer;
     }
 
     private Grid createGrid() {
@@ -274,7 +380,74 @@ public class ProductCatalog extends SplitViewFrame {
         form.addFormItem(status, "Status");
         form.addFormItem(description, "Description");
         form.addFormItem(productImage, "Product Image");
-        
+
         return form;
+    }
+
+    private void applyFilter() {
+        dataProvider.clearFilters();
+
+        // Apply ID filter if not empty
+        if (idFilter != null && idFilter.getValue() != null && !idFilter.getValue().isEmpty()) {
+            String idValue = idFilter.getValue();
+            dataProvider.setFilter(product -> product.getId().contains(idValue));
+        }
+
+        // Apply name filter if not empty
+        if (nameFilter != null && nameFilter.getValue() != null && !nameFilter.getValue().isEmpty()) {
+            String nameValue = nameFilter.getValue().toLowerCase();
+            dataProvider.addFilter(product -> 
+                product.getName().toLowerCase().contains(nameValue));
+        }
+
+        // Apply category filter if selected
+        if (categoryFilter != null && categoryFilter.getValue() != null) {
+            String categoryValue = categoryFilter.getValue();
+            dataProvider.addFilter(product -> 
+                product.getCategory().equals(categoryValue));
+        }
+
+        // Apply min price filter if set
+        if (minPriceFilter != null && minPriceFilter.getValue() != null) {
+            Double minPrice = minPriceFilter.getValue();
+            dataProvider.addFilter(product -> 
+                product.getPrice() >= minPrice);
+        }
+
+        // Apply max price filter if set
+        if (maxPriceFilter != null && maxPriceFilter.getValue() != null) {
+            Double maxPrice = maxPriceFilter.getValue();
+            dataProvider.addFilter(product -> 
+                product.getPrice() <= maxPrice);
+        }
+
+        // Apply status filter if selected
+        if (statusFilter != null && statusFilter.getValue() != null) {
+            boolean isActive = "Active".equals(statusFilter.getValue());
+            dataProvider.addFilter(product -> 
+                product.isActive() == isActive);
+        }
+
+        // Apply created date filter if selected
+        if (createdDateFilter != null && createdDateFilter.getValue() != null) {
+            LocalDate date = createdDateFilter.getValue();
+            dataProvider.addFilter(product -> 
+                product.getCreatedDate() != null && 
+                !product.getCreatedDate().isBefore(date));
+        }
+    }
+
+    private void clearFilter() {
+        // Clear all filter fields
+        if (idFilter != null) idFilter.clear();
+        if (nameFilter != null) nameFilter.clear();
+        if (categoryFilter != null) categoryFilter.clear();
+        if (minPriceFilter != null) minPriceFilter.clear();
+        if (maxPriceFilter != null) maxPriceFilter.clear();
+        if (statusFilter != null) statusFilter.clear();
+        if (createdDateFilter != null) createdDateFilter.clear();
+
+        // Reset filters
+        dataProvider.clearFilters();
     }
 }
