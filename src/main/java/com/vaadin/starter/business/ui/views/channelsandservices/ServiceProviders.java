@@ -20,6 +20,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.starter.business.backend.DummyData;
 import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.backend.ServiceProvider;
+import com.vaadin.starter.business.backend.service.ChannelsAndServicesService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.Initials;
@@ -42,18 +44,20 @@ import java.time.LocalDate;
 @PageTitle("Service Providers")
 public class ServiceProviders extends SplitViewFrame {
 
-    private Grid<Person> grid;
-    private ListDataProvider<Person> dataProvider;
+    private Grid<ServiceProvider> grid;
+    private ListDataProvider<ServiceProvider> dataProvider;
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
 
-    public ServiceProviders() {
+    private final ChannelsAndServicesService channelsAndServicesService;
+
+    public ServiceProviders(ChannelsAndServicesService channelsAndServicesService) {
+        this.channelsAndServicesService = channelsAndServicesService;
+
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
-
-        filter();
     }
 
     private Component createContent() {
@@ -68,11 +72,11 @@ public class ServiceProviders extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(DummyData.getPersons());
+        dataProvider = DataProvider.ofCollection(channelsAndServicesService.getServiceProviders());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
-        grid.addColumn(Person::getId)
+        grid.addColumn(ServiceProvider::getId)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setFrozen(true)
@@ -100,62 +104,38 @@ public class ServiceProviders extends SplitViewFrame {
         return grid;
     }
 
-    private Component createProviderInfo(Person person) {
-        String[] providers = {
-            "Global Payments Inc.", 
-            "Fiserv", 
-            "FIS Global", 
-            "Temenos", 
-            "Jack Henry & Associates", 
-            "Finastra"
-        };
-        
-        String provider = providers[(int)(Math.abs(person.getId()) % providers.length)];
-        
+    private Component createProviderInfo(ServiceProvider provider) {
         ListItem item = new ListItem(
-                new Initials(person.getInitials()), 
-                provider,
-                "Contact: " + person.getEmail());
+                new Initials(provider.getName().substring(0, 2)), 
+                provider.getName(),
+                "Contact: " + provider.getContactEmail());
         item.setPadding(Vertical.XS);
         item.setSpacing(Right.M);
         return item;
     }
 
-    private Component createStatus(Person person) {
-        boolean isActive = person.getRandomBoolean();
+    private Component createStatus(ServiceProvider provider) {
         Icon icon;
         String text;
 
-        if (isActive) {
+        if ("Active".equals(provider.getStatus())) {
             icon = UIUtils.createPrimaryIcon(VaadinIcon.CHECK);
             text = "Active";
         } else {
             icon = UIUtils.createDisabledIcon(VaadinIcon.CLOCK);
-            text = "Pending";
+            text = provider.getStatus();
         }
 
         Span span = new Span(icon, new Span(" " + text));
         return span;
     }
 
-    private Component createServiceType(Person person) {
-        String[] types = {
-            "Payment Processing", 
-            "Core Banking", 
-            "Credit Scoring", 
-            "KYC/AML", 
-            "Fraud Detection", 
-            "Digital Onboarding"
-        };
-        
-        String type = types[(int)(Math.abs(person.getId()) % types.length)];
-        return new Span(type);
+    private Component createServiceType(ServiceProvider provider) {
+        return new Span(provider.getServiceType());
     }
 
-    private Component createContractExpiry(Person person) {
-        // Create a date between 1 and 365 days from now
-        LocalDate expiryDate = LocalDate.now().plusDays(30 + person.getRandomInteger() % 335);
-        return new Span(UIUtils.formatDate(expiryDate));
+    private Component createContractExpiry(ServiceProvider provider) {
+        return new Span(UIUtils.formatDate(provider.getContractExpiry()));
     }
 
     private DetailsDrawer createDetailsDrawer() {
@@ -178,44 +158,33 @@ public class ServiceProviders extends SplitViewFrame {
         return detailsDrawer;
     }
 
-    private void showDetails(Person person) {
-        String[] providers = {
-            "Global Payments Inc.", 
-            "Fiserv", 
-            "FIS Global", 
-            "Temenos", 
-            "Jack Henry & Associates", 
-            "Finastra"
-        };
-        
-        String provider = providers[(int)(Math.abs(person.getId()) % providers.length)];
-        
-        detailsDrawerHeader.setTitle("Provider: " + provider);
-        detailsDrawer.setContent(createDetails(person, provider));
+    private void showDetails(ServiceProvider provider) {
+        detailsDrawerHeader.setTitle("Provider: " + provider.getName());
+        detailsDrawer.setContent(createDetails(provider));
         detailsDrawer.show();
     }
 
-    private FormLayout createDetails(Person person, String provider) {
+    private FormLayout createDetails(ServiceProvider provider) {
         TextField providerName = new TextField();
-        providerName.setValue(provider);
+        providerName.setValue(provider.getName());
         providerName.setWidthFull();
 
         TextField contactPerson = new TextField();
-        contactPerson.setValue(person.getName());
+        contactPerson.setValue(provider.getContactPerson());
         contactPerson.setWidthFull();
 
         TextField contactEmail = new TextField();
-        contactEmail.setValue(person.getEmail());
+        contactEmail.setValue(provider.getContactEmail());
         contactEmail.setWidthFull();
 
         TextArea description = new TextArea();
-        description.setValue("Service provider for financial services and technology solutions.");
+        description.setValue(provider.getDescription());
         description.setWidthFull();
         description.setMinHeight("100px");
 
         RadioButtonGroup<String> status = new RadioButtonGroup<>();
         status.setItems("Active", "Pending", "Terminated");
-        status.setValue(person.getRandomBoolean() ? "Active" : "Pending");
+        status.setValue(provider.getStatus());
 
         ComboBox<String> serviceType = new ComboBox<>();
         String[] types = {
@@ -227,20 +196,20 @@ public class ServiceProviders extends SplitViewFrame {
             "Digital Onboarding"
         };
         serviceType.setItems(types);
-        serviceType.setValue(types[(int)(Math.abs(person.getId()) % types.length)]);
+        serviceType.setValue(provider.getServiceType());
         serviceType.setWidthFull();
 
         DatePicker contractStart = new DatePicker();
-        contractStart.setValue(LocalDate.now().minusDays(person.getRandomInteger() % 365));
+        contractStart.setValue(provider.getContractStart());
         contractStart.setWidthFull();
 
         DatePicker contractExpiry = new DatePicker();
-        contractExpiry.setValue(LocalDate.now().plusDays(30 + person.getRandomInteger() % 335));
+        contractExpiry.setValue(provider.getContractExpiry());
         contractExpiry.setWidthFull();
 
         ComboBox<String> slaLevel = new ComboBox<>();
         slaLevel.setItems("Basic", "Standard", "Premium", "Enterprise");
-        slaLevel.setValue("Standard");
+        slaLevel.setValue(provider.getSlaLevel());
         slaLevel.setWidthFull();
 
         // Form layout
@@ -267,8 +236,6 @@ public class ServiceProviders extends SplitViewFrame {
         return form;
     }
 
-    private void filter() {
-        // We're using the same data source but could filter differently if needed
-        dataProvider.setFilterByValue(Person::getRole, Person.Role.MANAGER);
-    }
+    // No need for filtering in this view
+    // If filtering is needed, it can be implemented based on ServiceProvider properties
 }

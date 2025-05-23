@@ -1,7 +1,7 @@
-package com.vaadin.starter.business.backend.mapper;
+package com.vaadin.starter.business.backend.mapper.admintools;
 
 import com.vaadin.starter.business.backend.SystemComponent;
-import com.vaadin.starter.business.backend.dto.SystemComponentDTO;
+import com.vaadin.starter.business.backend.dto.admintools.SystemComponentDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;

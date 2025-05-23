@@ -17,8 +17,10 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.starter.business.backend.Channel;
 import com.vaadin.starter.business.backend.DummyData;
 import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.backend.service.ChannelsAndServicesService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.Initials;
@@ -35,22 +37,26 @@ import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.BoxSizing;
 import com.vaadin.starter.business.ui.views.SplitViewFrame;
 
+import java.util.ArrayList;
+
 @Route(value = "channel-integration", layout = MainLayout.class)
 @PageTitle("Channel Integration")
 public class ChannelIntegration extends SplitViewFrame {
 
-    private Grid<Person> grid;
-    private ListDataProvider<Person> dataProvider;
+    private Grid<Channel> grid;
+    private ListDataProvider<Channel> dataProvider;
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
 
-    public ChannelIntegration() {
+    private final ChannelsAndServicesService channelsAndServicesService;
+
+    public ChannelIntegration(ChannelsAndServicesService channelsAndServicesService) {
+        this.channelsAndServicesService = channelsAndServicesService;
+
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
-
-        filter();
     }
 
     private Component createContent() {
@@ -65,11 +71,11 @@ public class ChannelIntegration extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(DummyData.getPersons());
+        dataProvider = DataProvider.ofCollection(channelsAndServicesService.getChannels());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
-        grid.addColumn(Person::getId)
+        grid.addColumn(Channel::getId)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setFrozen(true)
@@ -97,30 +103,19 @@ public class ChannelIntegration extends SplitViewFrame {
         return grid;
     }
 
-    private Component createChannelInfo(Person person) {
-        String[] channels = {
-            "Mobile Banking App", 
-            "Web Portal", 
-            "ATM Network", 
-            "Branch Network", 
-            "Call Center", 
-            "Partner API"
-        };
-        
-        String channel = channels[(int)(Math.abs(person.getId()) % channels.length)];
-        
+    private Component createChannelInfo(Channel channel) {
         ListItem item = new ListItem(
-                new Initials(person.getInitials()), 
-                channel,
-                "Integration for " + person.getEmail());
+                new Initials(channel.getName().substring(0, 2)), 
+                channel.getName(),
+                channel.getDescription());
         item.setPadding(Vertical.XS);
         item.setSpacing(Right.M);
         return item;
     }
 
-    private Component createStatus(Person person) {
+    private Component createStatus(Channel channel) {
         Icon icon;
-        if (person.getRandomBoolean()) {
+        if (channel.isActive()) {
             icon = UIUtils.createPrimaryIcon(VaadinIcon.CHECK);
         } else {
             icon = UIUtils.createDisabledIcon(VaadinIcon.CLOSE);
@@ -128,21 +123,12 @@ public class ChannelIntegration extends SplitViewFrame {
         return icon;
     }
 
-    private Component createIntegrationType(Person person) {
-        String[] types = {
-            "API", 
-            "Webhook", 
-            "File Transfer", 
-            "Direct Database", 
-            "Message Queue"
-        };
-        
-        String type = types[(int)(Math.abs(person.getId()) % types.length)];
-        return new Span(type);
+    private Component createIntegrationType(Channel channel) {
+        return new Span(channel.getIntegrationType());
     }
 
-    private Component createLastUpdated(Person person) {
-        return new Span(UIUtils.formatDate(person.getLastModified()));
+    private Component createLastUpdated(Channel channel) {
+        return new Span(UIUtils.formatDate(channel.getLastUpdated().toLocalDate()));
     }
 
     private DetailsDrawer createDetailsDrawer() {
@@ -165,50 +151,39 @@ public class ChannelIntegration extends SplitViewFrame {
         return detailsDrawer;
     }
 
-    private void showDetails(Person person) {
-        String[] channels = {
-            "Mobile Banking App", 
-            "Web Portal", 
-            "ATM Network", 
-            "Branch Network", 
-            "Call Center", 
-            "Partner API"
-        };
-        
-        String channel = channels[(int)(Math.abs(person.getId()) % channels.length)];
-        
-        detailsDrawerHeader.setTitle("Channel: " + channel);
-        detailsDrawer.setContent(createDetails(person, channel));
+    private void showDetails(Channel channel) {
+        detailsDrawerHeader.setTitle("Channel: " + channel.getName());
+        detailsDrawer.setContent(createDetails(channel));
         detailsDrawer.show();
     }
 
-    private FormLayout createDetails(Person person, String channel) {
+    private FormLayout createDetails(Channel channel) {
         TextField channelName = new TextField();
-        channelName.setValue(channel);
+        channelName.setValue(channel.getName());
         channelName.setWidthFull();
 
         TextArea description = new TextArea();
-        description.setValue("Integration configuration for " + channel + " with backend systems.");
+        description.setValue(channel.getDescription());
         description.setWidthFull();
         description.setMinHeight("100px");
 
         RadioButtonGroup<String> status = new RadioButtonGroup<>();
         status.setItems("Active", "Inactive", "Maintenance");
-        status.setValue(person.getRandomBoolean() ? "Active" : "Inactive");
+        status.setValue(channel.isActive() ? "Active" : "Inactive");
 
         ComboBox<String> integrationType = new ComboBox<>();
         String[] types = {"API", "Webhook", "File Transfer", "Direct Database", "Message Queue"};
         integrationType.setItems(types);
-        integrationType.setValue(types[(int)(Math.abs(person.getId()) % types.length)]);
+        integrationType.setValue(channel.getIntegrationType());
         integrationType.setWidthFull();
 
         TextField endpoint = new TextField();
-        endpoint.setValue("https://api.example.com/v1/" + channel.toLowerCase().replace(" ", "-"));
+        endpoint.setValue(channel.getEndpoint());
         endpoint.setWidthFull();
 
         ComboBox<String> securityLevel = new ComboBox<>();
         securityLevel.setItems("Basic", "OAuth 2.0", "API Key", "JWT", "mTLS");
-        securityLevel.setValue("OAuth 2.0");
+        securityLevel.setValue(channel.getSecurityLevel());
         securityLevel.setWidthFull();
 
         // Form layout
@@ -232,8 +207,6 @@ public class ChannelIntegration extends SplitViewFrame {
         return form;
     }
 
-    private void filter() {
-        // We're using the same data source but could filter differently if needed
-        dataProvider.setFilterByValue(Person::getRole, Person.Role.MANAGER);
-    }
+    // No need for filtering in this view
+    // If filtering is needed, it can be implemented based on Channel properties
 }

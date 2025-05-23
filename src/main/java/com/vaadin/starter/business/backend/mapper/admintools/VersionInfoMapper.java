@@ -1,7 +1,7 @@
-package com.vaadin.starter.business.backend.mapper;
+package com.vaadin.starter.business.backend.mapper.admintools;
 
 import com.vaadin.starter.business.backend.VersionInfo;
-import com.vaadin.starter.business.backend.dto.VersionInfoDTO;
+import com.vaadin.starter.business.backend.dto.admintools.VersionInfoDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;

@@ -1,7 +1,7 @@
-package com.vaadin.starter.business.backend.mapper;
+package com.vaadin.starter.business.backend.mapper.admintools;
 
 import com.vaadin.starter.business.backend.MaintenanceTask;
-import com.vaadin.starter.business.backend.dto.MaintenanceTaskDTO;
+import com.vaadin.starter.business.backend.dto.admintools.MaintenanceTaskDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;

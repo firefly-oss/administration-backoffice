@@ -1,4 +1,4 @@
-package com.vaadin.starter.business.backend.dto;
+package com.vaadin.starter.business.backend.dto.accounts;
 
 import java.time.LocalDate;
 

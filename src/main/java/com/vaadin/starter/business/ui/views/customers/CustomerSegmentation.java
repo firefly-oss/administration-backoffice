@@ -18,6 +18,8 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.starter.business.backend.Segment;
+import com.vaadin.starter.business.backend.service.CustomersService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.ListItem;
@@ -34,8 +36,6 @@ import com.vaadin.starter.business.ui.util.css.BoxSizing;
 import com.vaadin.starter.business.ui.views.SplitViewFrame;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
 
 @Route(value = "customer-segmentation", layout = MainLayout.class)
 @PageTitle("Customer Segmentation")
@@ -47,92 +47,11 @@ public class CustomerSegmentation extends SplitViewFrame {
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
 
-    // Sample Segment class for demonstration
-    private static class Segment {
-        private String id;
-        private String name;
-        private String description;
-        private int customerCount;
-        private double averageBalance;
-        private String riskProfile;
-        private boolean isActive;
-        private LocalDate createdDate;
+    private final CustomersService customersService;
 
-        public Segment(String id, String name, String description, int customerCount, 
-                      double averageBalance, String riskProfile, boolean isActive, 
-                      LocalDate createdDate) {
-            this.id = id;
-            this.name = name;
-            this.description = description;
-            this.customerCount = customerCount;
-            this.averageBalance = averageBalance;
-            this.riskProfile = riskProfile;
-            this.isActive = isActive;
-            this.createdDate = createdDate;
-        }
+    public CustomerSegmentation(CustomersService customersService) {
+        this.customersService = customersService;
 
-        public String getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public int getCustomerCount() {
-            return customerCount;
-        }
-
-        public double getAverageBalance() {
-            return averageBalance;
-        }
-
-        public String getRiskProfile() {
-            return riskProfile;
-        }
-
-        public boolean isActive() {
-            return isActive;
-        }
-
-        public LocalDate getCreatedDate() {
-            return createdDate;
-        }
-    }
-
-    // Sample data
-    private List<Segment> getSegments() {
-        LocalDate now = LocalDate.now();
-        return Arrays.asList(
-            new Segment("SEG001", "High Net Worth", 
-                "Customers with assets over $1M", 
-                120, 1450000.00, "Low", true, now.minusDays(180)),
-            new Segment("SEG002", "Mass Affluent", 
-                "Customers with assets between $100K and $1M", 
-                850, 350000.00, "Medium", true, now.minusDays(180)),
-            new Segment("SEG003", "Retail Banking", 
-                "Regular retail banking customers", 
-                5600, 15000.00, "Medium", true, now.minusDays(180)),
-            new Segment("SEG004", "Small Business", 
-                "Small business owners and entrepreneurs", 
-                340, 75000.00, "Medium-High", true, now.minusDays(90)),
-            new Segment("SEG005", "Students", 
-                "College and university students", 
-                1200, 2500.00, "Low", true, now.minusDays(60)),
-            new Segment("SEG006", "Seniors", 
-                "Retired customers over 65", 
-                780, 120000.00, "Low", true, now.minusDays(120)),
-            new Segment("SEG007", "New Customers", 
-                "Customers who joined in the last 3 months", 
-                450, 8500.00, "Medium", true, now.minusDays(30))
-        );
-    }
-
-    public CustomerSegmentation() {
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
@@ -150,7 +69,7 @@ public class CustomerSegmentation extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(getSegments());
+        dataProvider = DataProvider.ofCollection(customersService.getSegments());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
@@ -298,7 +217,7 @@ public class CustomerSegmentation extends SplitViewFrame {
         form.addFormItem(status, "Status");
         form.addFormItem(marketingChannel, "Marketing Channel");
         form.addFormItem(productRecommendation, "Product Recommendation");
-        
+
         return form;
     }
 }
