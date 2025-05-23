@@ -12,6 +12,12 @@
 node_modules/
 src/main/frontend/generated/
 vite.generated.ts
+webpack.generated.js
+.vaadin/
+flow-build/
+frontend/generated/
+pnpm-lock.yaml
+package-lock.json
 
 # Compiled class file
 *.class

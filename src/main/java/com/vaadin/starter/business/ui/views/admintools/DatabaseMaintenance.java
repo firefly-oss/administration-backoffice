@@ -19,8 +19,8 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.starter.business.backend.DummyData;
-import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.backend.MaintenanceTask;
+import com.vaadin.starter.business.backend.service.AdminToolsService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.Initials;
@@ -39,23 +39,26 @@ import com.vaadin.starter.business.ui.views.SplitViewFrame;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "database-maintenance", layout = MainLayout.class)
 @PageTitle("Database Maintenance")
 public class DatabaseMaintenance extends SplitViewFrame {
 
-    private Grid<Person> grid;
-    private ListDataProvider<Person> dataProvider;
+    private Grid<MaintenanceTask> grid;
+    private ListDataProvider<MaintenanceTask> dataProvider;
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
+    
+    private final AdminToolsService adminToolsService;
 
-    public DatabaseMaintenance() {
+    @Autowired
+    public DatabaseMaintenance(AdminToolsService adminToolsService) {
+        this.adminToolsService = adminToolsService;
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
-
-        filter();
     }
 
     private Component createContent() {
@@ -70,11 +73,11 @@ public class DatabaseMaintenance extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(DummyData.getPersons());
+        dataProvider = DataProvider.ofCollection(adminToolsService.getMaintenanceTasks());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
-        grid.addColumn(Person::getId)
+        grid.addColumn(MaintenanceTask::getId)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setFrozen(true)
@@ -102,36 +105,25 @@ public class DatabaseMaintenance extends SplitViewFrame {
         return grid;
     }
 
-    private Component createTaskInfo(Person person) {
-        String[] tasks = {
-            "Database Backup", 
-            "Index Optimization", 
-            "Data Archiving", 
-            "Integrity Check", 
-            "Statistics Update", 
-            "Log Cleanup"
-        };
-        
-        String task = tasks[(int)(Math.abs(person.getId()) % tasks.length)];
+    private Component createTaskInfo(MaintenanceTask task) {
+        // Get the first letter of each word in the task name for initials
+        String taskName = task.getTaskName();
+        String initials = taskName.substring(0, 1);
+        if (taskName.contains(" ")) {
+            initials += taskName.substring(taskName.indexOf(" ") + 1, taskName.indexOf(" ") + 2);
+        }
         
         ListItem item = new ListItem(
-                new Initials(person.getInitials()), 
-                task,
-                "Managed by " + person.getEmail());
+                new Initials(initials), 
+                task.getTaskName(),
+                "Managed by " + task.getManagedBy());
         item.setPadding(Vertical.XS);
         item.setSpacing(Right.M);
         return item;
     }
 
-    private Component createStatus(Person person) {
-        String[] statuses = {
-            "Scheduled", 
-            "Running", 
-            "Completed", 
-            "Failed"
-        };
-        
-        String status = statuses[(int)(Math.abs(person.getId()) % statuses.length)];
+    private Component createStatus(MaintenanceTask task) {
+        String status = task.getStatus();
         Icon icon;
         String color;
 
@@ -159,38 +151,24 @@ public class DatabaseMaintenance extends SplitViewFrame {
         return span;
     }
 
-    private Component createDatabase(Person person) {
-        String[] databases = {
-            "Main Database", 
-            "Reporting DB", 
-            "Archive DB", 
-            "Customer DB", 
-            "Transaction DB"
-        };
-        
-        String database = databases[(int)(Math.abs(person.getId()) % databases.length)];
-        return new Span(database);
+    private Component createDatabase(MaintenanceTask task) {
+        return new Span(task.getDatabase());
     }
 
-    private Component createSchedule(Person person) {
-        // Create a schedule string like "Daily at 02:00" or "Weekly on Sunday"
-        String[] frequencies = {"Daily", "Weekly", "Monthly"};
-        String frequency = frequencies[(int)(Math.abs(person.getId()) % frequencies.length)];
+    private Component createSchedule(MaintenanceTask task) {
+        String frequency = task.getFrequency();
+        LocalTime time = task.getScheduledTime();
+        String timeStr = String.format("%02d:%02d", time.getHour(), time.getMinute());
         
-        String schedule;
         if (frequency.equals("Daily")) {
-            int hour = (int)(Math.abs(person.getId()) % 24);
-            schedule = "Daily at " + String.format("%02d", hour) + ":00";
+            return new Span("Daily at " + timeStr);
         } else if (frequency.equals("Weekly")) {
-            String[] days = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-            String day = days[(int)(Math.abs(person.getId()) % days.length)];
-            schedule = "Weekly on " + day;
+            return new Span("Weekly on Monday");  // Simplified, could be enhanced
+        } else if (frequency.equals("Monthly")) {
+            return new Span("Monthly on day 1");  // Simplified, could be enhanced
         } else {
-            int day = 1 + (int)(Math.abs(person.getId()) % 28);
-            schedule = "Monthly on day " + day;
+            return new Span(frequency);
         }
-        
-        return new Span(schedule);
     }
 
     private DetailsDrawer createDetailsDrawer() {
@@ -213,61 +191,50 @@ public class DatabaseMaintenance extends SplitViewFrame {
         return detailsDrawer;
     }
 
-    private void showDetails(Person person) {
-        String[] tasks = {
-            "Database Backup", 
-            "Index Optimization", 
-            "Data Archiving", 
-            "Integrity Check", 
-            "Statistics Update", 
-            "Log Cleanup"
-        };
-        
-        String task = tasks[(int)(Math.abs(person.getId()) % tasks.length)];
-        
-        detailsDrawerHeader.setTitle("Task: " + task);
-        detailsDrawer.setContent(createDetails(person, task));
+    private void showDetails(MaintenanceTask task) {
+        detailsDrawerHeader.setTitle("Task: " + task.getTaskName());
+        detailsDrawer.setContent(createDetails(task));
         detailsDrawer.show();
     }
 
-    private FormLayout createDetails(Person person, String task) {
+    private FormLayout createDetails(MaintenanceTask task) {
         TextField taskName = new TextField();
-        taskName.setValue(task);
+        taskName.setValue(task.getTaskName());
         taskName.setWidthFull();
 
         TextArea description = new TextArea();
-        description.setValue("Database maintenance task to ensure optimal performance and data integrity.");
+        description.setValue(task.getDescription());
         description.setWidthFull();
         description.setMinHeight("100px");
 
         ComboBox<String> status = new ComboBox<>();
         String[] statuses = {"Scheduled", "Running", "Completed", "Failed"};
         status.setItems(statuses);
-        status.setValue(statuses[(int)(Math.abs(person.getId()) % statuses.length)]);
+        status.setValue(task.getStatus());
         status.setWidthFull();
 
         ComboBox<String> database = new ComboBox<>();
         String[] databases = {"Main Database", "Reporting DB", "Archive DB", "Customer DB", "Transaction DB"};
         database.setItems(databases);
-        database.setValue(databases[(int)(Math.abs(person.getId()) % databases.length)]);
+        database.setValue(task.getDatabase());
         database.setWidthFull();
 
         ComboBox<String> frequency = new ComboBox<>();
         String[] frequencies = {"Daily", "Weekly", "Monthly", "On Demand"};
         frequency.setItems(frequencies);
-        frequency.setValue(frequencies[(int)(Math.abs(person.getId()) % frequencies.length)]);
+        frequency.setValue(task.getFrequency());
         frequency.setWidthFull();
 
         TimePicker scheduledTime = new TimePicker();
-        scheduledTime.setValue(LocalTime.of((int)(Math.abs(person.getId()) % 24), 0));
+        scheduledTime.setValue(task.getScheduledTime());
         scheduledTime.setWidthFull();
 
         TextField duration = new TextField();
-        duration.setValue((5 + (int)(Math.abs(person.getId()) % 55)) + " minutes");
+        duration.setValue(task.getDuration());
         duration.setWidthFull();
 
         DatePicker lastRun = new DatePicker();
-        lastRun.setValue(LocalDate.now().minusDays(1 + (int)(Math.abs(person.getId()) % 10)));
+        lastRun.setValue(task.getLastRun());
         lastRun.setWidthFull();
 
         // Form layout
@@ -291,10 +258,5 @@ public class DatabaseMaintenance extends SplitViewFrame {
         form.addFormItem(lastRun, "Last Run Date");
 
         return form;
-    }
-
-    private void filter() {
-        // We're using the same data source but could filter differently if needed
-        dataProvider.setFilterByValue(Person::getRole, Person.Role.MANAGER);
     }
 }

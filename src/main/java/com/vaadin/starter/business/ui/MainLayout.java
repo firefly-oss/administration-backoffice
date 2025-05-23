@@ -3,14 +3,11 @@ package com.vaadin.starter.business.ui;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.charts.model.Title;
-import com.vaadin.flow.component.charts.model.Tooltip;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.RouterLayout;
@@ -25,13 +22,9 @@ import com.vaadin.starter.business.ui.components.navigation.drawer.NaviMenu;
 import com.vaadin.starter.business.ui.constants.NavigationConstants;
 import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.Overflow;
-import com.vaadin.starter.business.ui.views.Accounts;
-import com.vaadin.starter.business.ui.views.Clients;
+import com.vaadin.starter.business.ui.views.accounts.Accounts;
+import com.vaadin.starter.business.ui.views.clients.Clients;
 import com.vaadin.starter.business.ui.views.Home;
-import com.vaadin.starter.business.ui.views.Payments;
-import com.vaadin.starter.business.ui.views.Statistics;
-import com.vaadin.starter.business.ui.views.personnel.Accountants;
-import com.vaadin.starter.business.ui.views.personnel.Managers;
 import com.vaadin.starter.business.ui.views.security.InternalUsers;
 import com.vaadin.starter.business.ui.views.security.RolesPermissions;
 import com.vaadin.starter.business.ui.views.security.SecurityPolicies;
@@ -148,8 +141,6 @@ public class MainLayout extends FlexBoxLayout
 		NaviMenu menu = naviDrawer.getMenu();
 		NaviItem home = menu.addNaviItem(VaadinIcon.HOME, NavigationConstants.HOME, Home.class);
 		home.setTitle(NavigationConstants.HOME);
-//		menu.addNaviItem(VaadinIcon.CREDIT_CARD, "Payments", Payments.class);
-//		menu.addNaviItem(VaadinIcon.CHART, "Statistics", Statistics.class);
 
 		NaviItem accounting = menu.addNaviItem(VaadinIcon.MONEY, NavigationConstants.ACCOUNTING_AND_FINANCE,
 				null);
@@ -162,15 +153,10 @@ public class MainLayout extends FlexBoxLayout
 				null);
 		customers.setTitle(NavigationConstants.CUSTOMERS);
 		menu.addNaviItem(customers, NavigationConstants.CLIENTS, Clients.class);
+		menu.addNaviItem(customers, NavigationConstants.CONTRACT_MANAGEMENT, ContractManagement.class);
 		menu.addNaviItem(customers, NavigationConstants.CUSTOMER_SEGMENTATION, CustomerSegmentation.class);
 		menu.addNaviItem(customers, NavigationConstants.ONBOARDING_PROCESSES, Onboarding.class);
 		customers.setSubItemsVisible(false);
-
-//		NaviItem personnel = menu.addNaviItem(VaadinIcon.USERS, "Personnel",
-//				null);
-//		menu.addNaviItem(personnel, "Accountants", Accountants.class);
-//		menu.addNaviItem(personnel, "Managers", Managers.class);
-//		personnel.setSubItemsVisible(false);
 
 		NaviItem security = menu.addNaviItem(VaadinIcon.SHIELD, NavigationConstants.USERS_AND_SECURITY,
 				null);
@@ -185,7 +171,6 @@ public class MainLayout extends FlexBoxLayout
 		products.setTitle(NavigationConstants.PRODUCTS_AND_SERVICES);
 		menu.addNaviItem(products, NavigationConstants.PRODUCT_CATALOG, ProductCatalog.class);
 		menu.addNaviItem(products, NavigationConstants.RATES_AND_FEES, RatesFees.class);
-		menu.addNaviItem(products, NavigationConstants.CONTRACT_MANAGEMENT, ContractManagement.class);
 		menu.addNaviItem(products, NavigationConstants.LENDING_CONFIGURATION, LendingConfiguration.class);
 		products.setSubItemsVisible(false);
 

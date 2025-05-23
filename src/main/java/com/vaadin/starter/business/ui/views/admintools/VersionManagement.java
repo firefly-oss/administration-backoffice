@@ -18,8 +18,8 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.starter.business.backend.DummyData;
-import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.backend.VersionInfo;
+import com.vaadin.starter.business.backend.service.AdminToolsService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.Initials;
@@ -37,23 +37,26 @@ import com.vaadin.starter.business.ui.util.css.BoxSizing;
 import com.vaadin.starter.business.ui.views.SplitViewFrame;
 
 import java.time.LocalDate;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "version-management", layout = MainLayout.class)
 @PageTitle("Version Management")
 public class VersionManagement extends SplitViewFrame {
 
-    private Grid<Person> grid;
-    private ListDataProvider<Person> dataProvider;
+    private Grid<VersionInfo> grid;
+    private ListDataProvider<VersionInfo> dataProvider;
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
 
-    public VersionManagement() {
+    private final AdminToolsService adminToolsService;
+
+    @Autowired
+    public VersionManagement(AdminToolsService adminToolsService) {
+        this.adminToolsService = adminToolsService;
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
-
-        filter();
     }
 
     private Component createContent() {
@@ -68,11 +71,11 @@ public class VersionManagement extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(DummyData.getPersons());
+        dataProvider = DataProvider.ofCollection(adminToolsService.getVersions());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
-        grid.addColumn(Person::getId)
+        grid.addColumn(VersionInfo::getId)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setFrozen(true)
@@ -100,31 +103,25 @@ public class VersionManagement extends SplitViewFrame {
         return grid;
     }
 
-    private Component createVersionInfo(Person person) {
-        // Generate a version number like 2.3.1, 3.0.0, etc.
-        int major = 1 + (int)(Math.abs(person.getId()) % 5);
-        int minor = (int)(Math.abs(person.getId()) % 10);
-        int patch = (int)(Math.abs(person.getId()) % 5);
-        String version = major + "." + minor + "." + patch;
-        
+    private Component createVersionInfo(VersionInfo versionInfo) {
+        // Get the first letter of each word in the released by name for initials
+        String releasedBy = versionInfo.getReleasedBy();
+        String initials = releasedBy.substring(0, 1);
+        if (releasedBy.contains(" ")) {
+            initials += releasedBy.substring(releasedBy.lastIndexOf(" ") + 1, releasedBy.lastIndexOf(" ") + 2);
+        }
+
         ListItem item = new ListItem(
-                new Initials(person.getInitials()), 
-                "Version " + version,
-                "Released by " + person.getEmail());
+                new Initials(initials), 
+                "Version " + versionInfo.getVersionNumber(),
+                "Released by " + versionInfo.getReleasedBy());
         item.setPadding(Vertical.XS);
         item.setSpacing(Right.M);
         return item;
     }
 
-    private Component createStatus(Person person) {
-        String[] statuses = {
-            "Current", 
-            "Deprecated", 
-            "Planned", 
-            "Testing"
-        };
-        
-        String status = statuses[(int)(Math.abs(person.getId()) % statuses.length)];
+    private Component createStatus(VersionInfo versionInfo) {
+        String status = versionInfo.getStatus();
         Icon icon;
         String color;
 
@@ -152,26 +149,12 @@ public class VersionManagement extends SplitViewFrame {
         return span;
     }
 
-    private Component createEnvironment(Person person) {
-        String[] environments = {
-            "Production", 
-            "Staging", 
-            "QA", 
-            "Development"
-        };
-        
-        String environment = environments[(int)(Math.abs(person.getId()) % environments.length)];
-        return new Span(environment);
+    private Component createEnvironment(VersionInfo versionInfo) {
+        return new Span(versionInfo.getEnvironment());
     }
 
-    private Component createReleaseDate(Person person) {
-        // Create a date in the past or future
-        LocalDate now = LocalDate.now();
-        LocalDate releaseDate = person.getRandomBoolean() ? 
-                now.minusDays(person.getRandomInteger() % 180) : 
-                now.plusDays(person.getRandomInteger() % 180);
-        
-        return new Span(UIUtils.formatDate(releaseDate));
+    private Component createReleaseDate(VersionInfo versionInfo) {
+        return new Span(UIUtils.formatDate(versionInfo.getReleaseDate()));
     }
 
     private DetailsDrawer createDetailsDrawer() {
@@ -194,53 +177,44 @@ public class VersionManagement extends SplitViewFrame {
         return detailsDrawer;
     }
 
-    private void showDetails(Person person) {
-        // Generate a version number like 2.3.1, 3.0.0, etc.
-        int major = 1 + (int)(Math.abs(person.getId()) % 5);
-        int minor = (int)(Math.abs(person.getId()) % 10);
-        int patch = (int)(Math.abs(person.getId()) % 5);
-        String version = major + "." + minor + "." + patch;
-        
-        detailsDrawerHeader.setTitle("Version " + version);
-        detailsDrawer.setContent(createDetails(person, version));
+    private void showDetails(VersionInfo versionInfo) {
+        detailsDrawerHeader.setTitle("Version " + versionInfo.getVersionNumber());
+        detailsDrawer.setContent(createDetails(versionInfo));
         detailsDrawer.show();
     }
 
-    private FormLayout createDetails(Person person, String version) {
+    private FormLayout createDetails(VersionInfo versionInfo) {
         TextField versionNumber = new TextField();
-        versionNumber.setValue(version);
+        versionNumber.setValue(versionInfo.getVersionNumber());
         versionNumber.setWidthFull();
 
         TextArea description = new TextArea();
-        description.setValue("This version includes new features, bug fixes, and performance improvements.");
+        description.setValue(versionInfo.getDescription());
         description.setWidthFull();
         description.setMinHeight("100px");
 
         ComboBox<String> status = new ComboBox<>();
         String[] statuses = {"Current", "Deprecated", "Planned", "Testing"};
         status.setItems(statuses);
-        status.setValue(statuses[(int)(Math.abs(person.getId()) % statuses.length)]);
+        status.setValue(versionInfo.getStatus());
         status.setWidthFull();
 
         ComboBox<String> environment = new ComboBox<>();
         String[] environments = {"Production", "Staging", "QA", "Development"};
         environment.setItems(environments);
-        environment.setValue(environments[(int)(Math.abs(person.getId()) % environments.length)]);
+        environment.setValue(versionInfo.getEnvironment());
         environment.setWidthFull();
 
         DatePicker releaseDate = new DatePicker();
-        LocalDate now = LocalDate.now();
-        releaseDate.setValue(person.getRandomBoolean() ? 
-                now.minusDays(person.getRandomInteger() % 180) : 
-                now.plusDays(person.getRandomInteger() % 180));
+        releaseDate.setValue(versionInfo.getReleaseDate());
         releaseDate.setWidthFull();
 
         TextField releasedBy = new TextField();
-        releasedBy.setValue(person.getName());
+        releasedBy.setValue(versionInfo.getReleasedBy());
         releasedBy.setWidthFull();
 
         TextArea changeLog = new TextArea();
-        changeLog.setValue("- Added new feature X\n- Fixed bug in module Y\n- Improved performance of Z");
+        changeLog.setValue(versionInfo.getChangeLog());
         changeLog.setWidthFull();
         changeLog.setMinHeight("150px");
 
@@ -264,10 +238,5 @@ public class VersionManagement extends SplitViewFrame {
         form.addFormItem(changeLog, "Change Log");
 
         return form;
-    }
-
-    private void filter() {
-        // We're using the same data source but could filter differently if needed
-        dataProvider.setFilterByValue(Person::getRole, Person.Role.MANAGER);
     }
 }

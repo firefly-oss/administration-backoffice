@@ -17,8 +17,8 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.starter.business.backend.DummyData;
-import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.backend.SystemComponent;
+import com.vaadin.starter.business.backend.service.AdminToolsService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.Initials;
@@ -35,22 +35,29 @@ import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.BoxSizing;
 import com.vaadin.starter.business.ui.views.SplitViewFrame;
 
+import java.time.format.DateTimeFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
+
 @Route(value = "system-monitoring", layout = MainLayout.class)
 @PageTitle("System Monitoring")
 public class SystemMonitoring extends SplitViewFrame {
 
-    private Grid<Person> grid;
-    private ListDataProvider<Person> dataProvider;
+    private Grid<SystemComponent> grid;
+    private ListDataProvider<SystemComponent> dataProvider;
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
+    
+    private final AdminToolsService adminToolsService;
+    
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public SystemMonitoring() {
+    @Autowired
+    public SystemMonitoring(AdminToolsService adminToolsService) {
+        this.adminToolsService = adminToolsService;
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
-
-        filter();
     }
 
     private Component createContent() {
@@ -65,11 +72,11 @@ public class SystemMonitoring extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(DummyData.getPersons());
+        dataProvider = DataProvider.ofCollection(adminToolsService.getSystemComponents());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
-        grid.addColumn(Person::getId)
+        grid.addColumn(SystemComponent::getId)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setFrozen(true)
@@ -97,72 +104,54 @@ public class SystemMonitoring extends SplitViewFrame {
         return grid;
     }
 
-    private Component createSystemInfo(Person person) {
-        String[] components = {
-            "Application Server", 
-            "Database Server", 
-            "Message Queue", 
-            "Cache Server", 
-            "Load Balancer", 
-            "API Gateway"
-        };
-        
-        String component = components[(int)(Math.abs(person.getId()) % components.length)];
+    private Component createSystemInfo(SystemComponent component) {
+        // Get the first letter of each word in the component name for initials
+        String componentName = component.getComponentName();
+        String initials = componentName.substring(0, 1);
+        if (componentName.contains(" ")) {
+            initials += componentName.substring(componentName.indexOf(" ") + 1, componentName.indexOf(" ") + 2);
+        }
         
         ListItem item = new ListItem(
-                new Initials(person.getInitials()), 
-                component,
-                "Server: " + person.getEmail());
+                new Initials(initials), 
+                component.getComponentName(),
+                "Server: " + component.getServerName());
         item.setPadding(Vertical.XS);
         item.setSpacing(Right.M);
         return item;
     }
 
-    private Component createStatus(Person person) {
-        int status = person.getRandomInteger() % 3;
+    private Component createStatus(SystemComponent component) {
+        String status = component.getStatus();
         Icon icon;
-        String text;
         String color;
 
         switch (status) {
-            case 0:
+            case "Healthy":
                 icon = UIUtils.createSuccessIcon(VaadinIcon.CHECK);
-                text = "Healthy";
                 color = "var(--lumo-success-color)";
                 break;
-            case 1:
+            case "Warning":
                 icon = UIUtils.createPrimaryIcon(VaadinIcon.WARNING);
-                text = "Warning";
                 color = "var(--lumo-primary-color)";
                 break;
-            default:
+            default: // Critical
                 icon = UIUtils.createErrorIcon(VaadinIcon.CLOSE_CIRCLE);
-                text = "Critical";
                 color = "var(--lumo-error-color)";
                 break;
         }
 
-        Span span = new Span(icon, new Span(" " + text));
+        Span span = new Span(icon, new Span(" " + status));
         span.getElement().getStyle().set("color", color);
         return span;
     }
 
-    private Component createMetric(Person person) {
-        String[] metrics = {
-            "CPU: 45%", 
-            "Memory: 78%", 
-            "Disk: 62%", 
-            "Network: 120Mbps", 
-            "Requests: 250/s", 
-            "Latency: 85ms"
-        };
-        
-        String metric = metrics[(int)(Math.abs(person.getId()) % metrics.length)];
-        return new Span(metric);
+    private Component createMetric(SystemComponent component) {
+        return new Span(component.getKeyMetric());
     }
 
-    private Component createLastChecked(Person person) {
-        return new Span(UIUtils.formatDate(person.getLastModified()));
+    private Component createLastChecked(SystemComponent component) {
+        return new Span(component.getLastChecked().format(DATE_TIME_FORMATTER));
     }
 
     private DetailsDrawer createDetailsDrawer() {
@@ -185,54 +174,42 @@ public class SystemMonitoring extends SplitViewFrame {
         return detailsDrawer;
     }
 
-    private void showDetails(Person person) {
-        String[] components = {
-            "Application Server", 
-            "Database Server", 
-            "Message Queue", 
-            "Cache Server", 
-            "Load Balancer", 
-            "API Gateway"
-        };
-        
-        String component = components[(int)(Math.abs(person.getId()) % components.length)];
-        
-        detailsDrawerHeader.setTitle("Component: " + component);
-        detailsDrawer.setContent(createDetails(person, component));
+    private void showDetails(SystemComponent component) {
+        detailsDrawerHeader.setTitle("Component: " + component.getComponentName());
+        detailsDrawer.setContent(createDetails(component));
         detailsDrawer.show();
     }
 
-    private FormLayout createDetails(Person person, String component) {
+    private FormLayout createDetails(SystemComponent component) {
         TextField componentName = new TextField();
-        componentName.setValue(component);
+        componentName.setValue(component.getComponentName());
         componentName.setWidthFull();
 
         TextField serverName = new TextField();
-        serverName.setValue(person.getEmail().split("@")[0] + ".server.local");
+        serverName.setValue(component.getServerName());
         serverName.setWidthFull();
 
         TextArea description = new TextArea();
-        description.setValue("System component providing critical functionality for the application infrastructure.");
+        description.setValue(component.getDescription());
         description.setWidthFull();
         description.setMinHeight("100px");
 
         ComboBox<String> status = new ComboBox<>();
-        int statusValue = person.getRandomInteger() % 3;
         String[] statuses = {"Healthy", "Warning", "Critical"};
         status.setItems(statuses);
-        status.setValue(statuses[statusValue]);
+        status.setValue(component.getStatus());
         status.setWidthFull();
 
         TextField cpuUsage = new TextField();
-        cpuUsage.setValue((10 + (int)(Math.abs(person.getId()) % 80)) + "%");
+        cpuUsage.setValue(component.getCpuUsage());
         cpuUsage.setWidthFull();
 
         TextField memoryUsage = new TextField();
-        memoryUsage.setValue((20 + (int)(Math.abs(person.getId()) % 70)) + "%");
+        memoryUsage.setValue(component.getMemoryUsage());
         memoryUsage.setWidthFull();
 
         TextField diskUsage = new TextField();
-        diskUsage.setValue((30 + (int)(Math.abs(person.getId()) % 60)) + "%");
+        diskUsage.setValue(component.getDiskUsage());
         diskUsage.setWidthFull();
 
         // Form layout
@@ -255,10 +232,5 @@ public class SystemMonitoring extends SplitViewFrame {
         form.addFormItem(diskUsage, "Disk Usage");
 
         return form;
-    }
-
-    private void filter() {
-        // We're using the same data source but could filter differently if needed
-        dataProvider.setFilterByValue(Person::getRole, Person.Role.MANAGER);
     }
 }

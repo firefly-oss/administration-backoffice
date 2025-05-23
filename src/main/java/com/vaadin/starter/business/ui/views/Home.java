@@ -10,7 +10,7 @@ import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.layout.size.Horizontal;
 import com.vaadin.starter.business.ui.layout.size.Uniform;
 
-@PageTitle("Banking Backoffice")
+@PageTitle("Administration Backoffice")
 @Route(value = "", layout = MainLayout.class)
 public class Home extends ViewFrame {
 

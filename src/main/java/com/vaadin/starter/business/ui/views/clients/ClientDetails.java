@@ -1,4 +1,4 @@
-package com.vaadin.starter.business.ui.views;
+package com.vaadin.starter.business.ui.views.clients;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
@@ -18,8 +18,9 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.starter.business.backend.BankAccount;
+import com.vaadin.starter.business.backend.Client;
 import com.vaadin.starter.business.backend.DummyData;
+import com.vaadin.starter.business.backend.service.ClientsService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.ListItem;
@@ -36,24 +37,33 @@ import com.vaadin.starter.business.ui.util.css.BorderRadius;
 import com.vaadin.starter.business.ui.util.css.WhiteSpace;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexWrap;
+import com.vaadin.starter.business.ui.views.ViewFrame;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 
-@PageTitle("Account Details")
-@Route(value = "account-details", layout = MainLayout.class)
-public class AccountDetails extends ViewFrame implements HasUrlParameter<Long> {
+@PageTitle("Client Details")
+@Route(value = "client-details", layout = MainLayout.class)
+public class ClientDetails extends ViewFrame implements HasUrlParameter<Long> {
 
 	public int RECENT_TRANSACTIONS = 4;
 
-	private ListItem availability;
-	private ListItem bankAccount;
-	private ListItem updated;
+	private ListItem balance;
+	private ListItem contactInfo;
+	private ListItem address;
+	private ListItem registered;
 
-	private BankAccount account;
+	private Client client;
+	private final ClientsService clientsService;
+
+	@Autowired
+	public ClientDetails(ClientsService clientsService) {
+		this.clientsService = clientsService;
+	}
 
 	@Override
 	public void setParameter(BeforeEvent beforeEvent, Long id) {
-		account = DummyData.getBankAccount(id);
+		client = clientsService.getClient(id);
 		setViewContent(createContent());
 	}
 
@@ -72,28 +82,34 @@ public class AccountDetails extends ViewFrame implements HasUrlParameter<Long> {
 	}
 
 	private FlexBoxLayout createLogoSection() {
-		Image image = new Image(account.getLogoPath(),"Company Logo");
+		Image image = new Image(client.getLogoPath(), "Client Avatar");
 		image.addClassName(LumoStyles.Margin.Horizontal.L);
 		UIUtils.setBorderRadius(BorderRadius._50, image);
 		image.setHeight("200px");
 		image.setWidth("200px");
 
-		availability = new ListItem(UIUtils.createTertiaryIcon(VaadinIcon.DOLLAR), "", "Availability");
-		availability.getPrimary().addClassName(LumoStyles.Heading.H2);
-		availability.setDividerVisible(true);
-		availability.setId("availability");
-		availability.setReverse(true);
+		balance = new ListItem(UIUtils.createTertiaryIcon(VaadinIcon.DOLLAR), "", "Balance");
+		balance.getPrimary().addClassName(LumoStyles.Heading.H2);
+		balance.setDividerVisible(true);
+		balance.setId("balance");
+		balance.setReverse(true);
 
-		bankAccount = new ListItem(UIUtils.createTertiaryIcon(VaadinIcon.INSTITUTION), "", "");
-		bankAccount.setDividerVisible(true);
-		bankAccount.setId("bankAccount");
-		bankAccount.setReverse(true);
-		bankAccount.setWhiteSpace(WhiteSpace.PRE_LINE);
+		contactInfo = new ListItem(UIUtils.createTertiaryIcon(VaadinIcon.ENVELOPE), "", "");
+		contactInfo.setDividerVisible(true);
+		contactInfo.setId("contactInfo");
+		contactInfo.setReverse(true);
+		contactInfo.setWhiteSpace(WhiteSpace.PRE_LINE);
 
-		updated = new ListItem(UIUtils.createTertiaryIcon(VaadinIcon.CALENDAR), "", "Updated");
-		updated.setReverse(true);
+		address = new ListItem(UIUtils.createTertiaryIcon(VaadinIcon.HOME), "", "Address");
+		address.setDividerVisible(true);
+		address.setId("address");
+		address.setReverse(true);
+		address.setWhiteSpace(WhiteSpace.PRE_LINE);
 
-		FlexBoxLayout listItems = new FlexBoxLayout(availability, bankAccount, updated);
+		registered = new ListItem(UIUtils.createTertiaryIcon(VaadinIcon.CALENDAR), "", "Registered");
+		registered.setReverse(true);
+
+		FlexBoxLayout listItems = new FlexBoxLayout(balance, contactInfo, address, registered);
 		listItems.setFlexDirection(FlexDirection.COLUMN);
 
 		FlexBoxLayout section = new FlexBoxLayout(image, listItems);
@@ -107,7 +123,8 @@ public class AccountDetails extends ViewFrame implements HasUrlParameter<Long> {
 	}
 
 	private Component createRecentTransactionsHeader() {
-		Span title = UIUtils.createH3Label("Recent Transactions");
+		Span title = new Span("Recent Transactions");
+		title.addClassName(LumoStyles.Heading.H3);
 
 		Button viewAll = UIUtils.createSmallButton("View All");
 		viewAll.addClickListener(
@@ -126,7 +143,9 @@ public class AccountDetails extends ViewFrame implements HasUrlParameter<Long> {
 
 		for (int i = 0; i < RECENT_TRANSACTIONS; i++) {
 			Double amount = DummyData.getAmount();
-			Span amountLabel = UIUtils.createAmountLabel(amount);
+			Span amountLabel = new Span(UIUtils.formatAmount(amount));
+			amountLabel.addClassName(LumoStyles.FontFamily.MONOSPACE);
+			amountLabel.addClassName(LumoStyles.Heading.H5);
 			if (amount > 0) {
 				UIUtils.setTextColor(TextColor.SUCCESS, amountLabel);
 			} else {
@@ -147,8 +166,10 @@ public class AccountDetails extends ViewFrame implements HasUrlParameter<Long> {
 	}
 
 	private Component createMonthlyOverviewHeader() {
-		Span header = UIUtils.createH3Label("Monthly Overview");
-		header.addClassNames(LumoStyles.Margin.Vertical.L, LumoStyles.Margin.Responsive.Horizontal.L);
+		Span header = new Span("Monthly Overview");
+		header.addClassName(LumoStyles.Heading.H3);
+		header.addClassName(LumoStyles.Margin.Vertical.L);
+		header.addClassName(LumoStyles.Margin.Responsive.Horizontal.L);
 		return header;
 	}
 
@@ -187,19 +208,20 @@ public class AccountDetails extends ViewFrame implements HasUrlParameter<Long> {
 		super.onAttach(attachEvent);
 
 		initAppBar();
-		UI.getCurrent().getPage().setTitle(account.getOwner());
+		UI.getCurrent().getPage().setTitle(client.getName());
 
-		availability.setPrimaryText(UIUtils.formatAmount(account.getAvailability()));
-		bankAccount.setPrimaryText(account.getAccount());
-		bankAccount.setSecondaryText(account.getBank());
-		updated.setPrimaryText(UIUtils.formatDate(account.getUpdated()));
+		balance.setPrimaryText(UIUtils.formatAmount(client.getBalance()));
+		contactInfo.setPrimaryText(client.getEmail());
+		contactInfo.setSecondaryText(client.getPhone());
+		address.setPrimaryText(client.getAddress());
+		registered.setPrimaryText(UIUtils.formatDate(client.getRegistered()));
 	}
 
 	private AppBar initAppBar() {
 		AppBar appBar = MainLayout.get().getAppBar();
 		appBar.setNaviMode(AppBar.NaviMode.CONTEXTUAL);
-		appBar.getContextIcon().addClickListener(e -> UI.getCurrent().navigate(Accounts.class));
-		appBar.setTitle(account.getOwner());
+		appBar.getContextIcon().addClickListener(e -> UI.getCurrent().navigate(Clients.class));
+		appBar.setTitle(client.getName());
 		return appBar;
 	}
 }
