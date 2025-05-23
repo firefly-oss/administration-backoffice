@@ -36,6 +36,10 @@ import com.vaadin.starter.business.ui.views.SplitViewFrame;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Collection;
+import com.vaadin.starter.business.backend.Contract;
+import com.vaadin.starter.business.backend.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "contract-management", layout = MainLayout.class)
 @PageTitle("Contract Management")
@@ -44,105 +48,21 @@ public class ContractManagement extends SplitViewFrame {
     private Grid<Contract> grid;
     private ListDataProvider<Contract> dataProvider;
 
+    private final ProductService productService;
+
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
 
-    // Sample Contract class for demonstration
-    private static class Contract {
-        private String id;
-        private String name;
-        private String type;
-        private String client;
-        private String status;
-        private LocalDate startDate;
-        private LocalDate endDate;
-        private String assignedTo;
-        private String documentUrl;
+    // Using Contract class from backend package
 
-        public Contract(String id, String name, String type, String client, 
-                      String status, LocalDate startDate, LocalDate endDate, 
-                      String assignedTo, String documentUrl) {
-            this.id = id;
-            this.name = name;
-            this.type = type;
-            this.client = client;
-            this.status = status;
-            this.startDate = startDate;
-            this.endDate = endDate;
-            this.assignedTo = assignedTo;
-            this.documentUrl = documentUrl;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public String getClient() {
-            return client;
-        }
-
-        public String getStatus() {
-            return status;
-        }
-
-        public LocalDate getStartDate() {
-            return startDate;
-        }
-
-        public LocalDate getEndDate() {
-            return endDate;
-        }
-
-        public String getAssignedTo() {
-            return assignedTo;
-        }
-
-        public String getDocumentUrl() {
-            return documentUrl;
-        }
-
-        public boolean isActive() {
-            return "Active".equals(status);
-        }
-    }
-
-    // Sample data
+    // Get contracts from service
     private List<Contract> getContracts() {
-        LocalDate now = LocalDate.now();
-        return Arrays.asList(
-            new Contract("C001", "Personal Loan Agreement", "Loan", "John Smith", 
-                "Active", now.minusDays(30), now.plusYears(5), 
-                "Sarah Johnson", "/documents/loans/C001.pdf"),
-            new Contract("C002", "Mortgage Contract", "Mortgage", "Emily Davis", 
-                "Active", now.minusDays(60), now.plusYears(30), 
-                "Michael Brown", "/documents/mortgages/C002.pdf"),
-            new Contract("C003", "Credit Card Agreement", "Credit Card", "Robert Wilson", 
-                "Active", now.minusDays(45), now.plusYears(2), 
-                "Jennifer Lee", "/documents/cards/C003.pdf"),
-            new Contract("C004", "Business Loan Contract", "Business Loan", "Acme Corporation", 
-                "Pending", now.plusDays(15), now.plusYears(7), 
-                "David Miller", "/documents/business/C004.pdf"),
-            new Contract("C005", "Savings Account Terms", "Account", "Lisa Taylor", 
-                "Active", now.minusDays(90), null, 
-                "James Anderson", "/documents/accounts/C005.pdf"),
-            new Contract("C006", "Investment Portfolio Agreement", "Investment", "Thomas Moore", 
-                "Expired", now.minusYears(3), now.minusMonths(1), 
-                "Patricia White", "/documents/investments/C006.pdf"),
-            new Contract("C007", "Insurance Policy", "Insurance", "Karen Martinez", 
-                "Draft", null, null, 
-                "Robert Johnson", "/documents/insurance/C007.pdf")
-        );
+        return productService.getContracts().stream().toList();
     }
 
-    public ContractManagement() {
+    @Autowired
+    public ContractManagement(ProductService productService) {
+        this.productService = productService;
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
@@ -202,7 +122,7 @@ public class ContractManagement extends SplitViewFrame {
     private Component createStatusBadge(Contract contract) {
         String status = contract.getStatus();
         String theme = "";
-        
+
         if ("Active".equals(status)) {
             theme = "success";
         } else if ("Pending".equals(status)) {
@@ -212,7 +132,7 @@ public class ContractManagement extends SplitViewFrame {
         } else if ("Draft".equals(status)) {
             theme = "contrast";
         }
-        
+
         Span badge = new Span(status);
         badge.getElement().setAttribute("theme", "badge " + theme);
         return badge;
@@ -322,7 +242,7 @@ public class ContractManagement extends SplitViewFrame {
         form.addFormItem(documentUrl, "Document URL");
         form.addFormItem(documentUpload, "Upload Document");
         form.addFormItem(notes, "Notes");
-        
+
         return form;
     }
 }

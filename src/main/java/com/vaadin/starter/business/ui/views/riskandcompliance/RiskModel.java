@@ -17,8 +17,8 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.starter.business.backend.DummyData;
 import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.backend.service.RiskAndComplianceService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.Initials;
@@ -45,7 +45,10 @@ public class RiskModel extends SplitViewFrame {
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
 
-    public RiskModel() {
+    private final RiskAndComplianceService riskAndComplianceService;
+
+    public RiskModel(RiskAndComplianceService riskAndComplianceService) {
+        this.riskAndComplianceService = riskAndComplianceService;
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
@@ -65,7 +68,7 @@ public class RiskModel extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(DummyData.getPersons());
+        dataProvider = DataProvider.ofCollection(riskAndComplianceService.getRiskModels());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
@@ -119,7 +122,7 @@ public class RiskModel extends SplitViewFrame {
     private Component createRiskScore(Person person) {
         int score = person.getRandomInteger() % 100;
         Span span = new Span(Integer.toString(score));
-        
+
         // Apply color based on risk score
         if (score < 30) {
             span.getElement().getStyle().set("color", "var(--lumo-success-color)");
@@ -128,7 +131,7 @@ public class RiskModel extends SplitViewFrame {
         } else {
             span.getElement().getStyle().set("color", "var(--lumo-error-color)");
         }
-        
+
         return span;
     }
 
@@ -204,7 +207,6 @@ public class RiskModel extends SplitViewFrame {
     }
 
     private void filter() {
-        // We're using the same data source but could filter differently if needed
-        dataProvider.setFilterByValue(Person::getRole, Person.Role.MANAGER);
+        // The service already filters for MANAGER role
     }
 }

@@ -17,11 +17,10 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.starter.business.backend.DummyData;
-import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.backend.dto.systemconfig.ConfigItemDTO;
+import com.vaadin.starter.business.backend.service.SystemConfigService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
-import com.vaadin.starter.business.ui.components.Initials;
 import com.vaadin.starter.business.ui.components.ListItem;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawer;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerFooter;
@@ -34,23 +33,26 @@ import com.vaadin.starter.business.ui.util.LumoStyles;
 import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.BoxSizing;
 import com.vaadin.starter.business.ui.views.SplitViewFrame;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "general-configuration", layout = MainLayout.class)
 @PageTitle("General Configuration")
 public class GeneralConfiguration extends SplitViewFrame {
 
-    private Grid<Person> grid;
-    private ListDataProvider<Person> dataProvider;
+    private Grid<ConfigItemDTO> grid;
+    private ListDataProvider<ConfigItemDTO> dataProvider;
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
+    
+    private final SystemConfigService systemConfigService;
 
-    public GeneralConfiguration() {
+    @Autowired
+    public GeneralConfiguration(SystemConfigService systemConfigService) {
+        this.systemConfigService = systemConfigService;
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
-
-        filter();
     }
 
     private Component createContent() {
@@ -65,29 +67,31 @@ public class GeneralConfiguration extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(DummyData.getPersons());
+        dataProvider = DataProvider.ofCollection(systemConfigService.getConfigItems());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
-        grid.addColumn(Person::getId)
+        grid.addColumn(ConfigItemDTO::getId)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setFrozen(true)
                 .setHeader("ID")
                 .setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::createConfigInfo))
+        grid.addColumn(ConfigItemDTO::getName)
                 .setAutoWidth(true)
-                .setHeader("Configuration");
+                .setHeader("Configuration")
+                .setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::createStatus))
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setHeader("Status")
                 .setTextAlign(ColumnTextAlign.END);
-        grid.addColumn(new ComponentRenderer<>(this::createCategory))
+        grid.addColumn(ConfigItemDTO::getCategory)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setHeader("Category")
-                .setTextAlign(ColumnTextAlign.END);
+                .setTextAlign(ColumnTextAlign.END)
+                .setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::createLastModified))
                 .setAutoWidth(true)
                 .setFlexGrow(0)
@@ -97,30 +101,9 @@ public class GeneralConfiguration extends SplitViewFrame {
         return grid;
     }
 
-    private Component createConfigInfo(Person person) {
-        String[] configs = {
-            "System Language", 
-            "Date Format", 
-            "Currency Settings", 
-            "Timezone Configuration", 
-            "Email Server Settings", 
-            "Security Parameters"
-        };
-        
-        String config = configs[(int)(Math.abs(person.getId()) % configs.length)];
-        
-        ListItem item = new ListItem(
-                new Initials(person.getInitials()), 
-                config,
-                "Global setting for " + person.getEmail());
-        item.setPadding(Vertical.XS);
-        item.setSpacing(Right.M);
-        return item;
-    }
-
-    private Component createStatus(Person person) {
+    private Component createStatus(ConfigItemDTO configItem) {
         Icon icon;
-        if (person.getRandomBoolean()) {
+        if (configItem.isActive()) {
             icon = UIUtils.createPrimaryIcon(VaadinIcon.CHECK);
         } else {
             icon = UIUtils.createDisabledIcon(VaadinIcon.CLOCK);
@@ -128,21 +111,8 @@ public class GeneralConfiguration extends SplitViewFrame {
         return icon;
     }
 
-    private Component createCategory(Person person) {
-        String[] categories = {
-            "Regional", 
-            "Security", 
-            "Interface", 
-            "Communication", 
-            "Performance"
-        };
-        
-        String category = categories[(int)(Math.abs(person.getId()) % categories.length)];
-        return new Span(category);
-    }
-
-    private Component createLastModified(Person person) {
-        return new Span(UIUtils.formatDate(person.getLastModified()));
+    private Component createLastModified(ConfigItemDTO configItem) {
+        return new Span(UIUtils.formatDate(configItem.getLastModified()));
     }
 
     private DetailsDrawer createDetailsDrawer() {
@@ -165,50 +135,39 @@ public class GeneralConfiguration extends SplitViewFrame {
         return detailsDrawer;
     }
 
-    private void showDetails(Person person) {
-        String[] configs = {
-            "System Language", 
-            "Date Format", 
-            "Currency Settings", 
-            "Timezone Configuration", 
-            "Email Server Settings", 
-            "Security Parameters"
-        };
-        
-        String config = configs[(int)(Math.abs(person.getId()) % configs.length)];
-        
-        detailsDrawerHeader.setTitle("Configuration: " + config);
-        detailsDrawer.setContent(createDetails(person, config));
+    private void showDetails(ConfigItemDTO configItem) {
+        detailsDrawerHeader.setTitle("Configuration: " + configItem.getName());
+        detailsDrawer.setContent(createDetails(configItem));
         detailsDrawer.show();
     }
 
-    private FormLayout createDetails(Person person, String config) {
+    private FormLayout createDetails(ConfigItemDTO configItem) {
         TextField configName = new TextField();
-        configName.setValue(config);
+        configName.setValue(configItem.getName());
         configName.setWidthFull();
 
         TextArea description = new TextArea();
-        description.setValue("Global system configuration parameter affecting all users and modules.");
+        description.setValue(configItem.getDescription());
         description.setWidthFull();
         description.setMinHeight("100px");
 
         RadioButtonGroup<String> status = new RadioButtonGroup<>();
         status.setItems("Active", "Pending", "Deprecated");
-        status.setValue(person.getRandomBoolean() ? "Active" : "Pending");
+        status.setValue(configItem.getStatus());
 
         ComboBox<String> category = new ComboBox<>();
         String[] categories = {"Regional", "Security", "Interface", "Communication", "Performance"};
         category.setItems(categories);
-        category.setValue(categories[(int)(Math.abs(person.getId()) % categories.length)]);
+        category.setValue(configItem.getCategory());
         category.setWidthFull();
 
         TextField value = new TextField();
-        value.setValue(person.getRandomBoolean() ? "Enabled" : "Disabled");
+        value.setValue(configItem.getValue());
         value.setWidthFull();
 
         ComboBox<String> scope = new ComboBox<>();
         scope.setItems("Global", "Regional", "Branch", "User");
-        scope.setValue("Global");
+        scope.setValue(configItem.getScope());
         scope.setWidthFull();
 
         // Form layout
@@ -230,10 +189,5 @@ public class GeneralConfiguration extends SplitViewFrame {
         form.addFormItem(scope, "Scope");
 
         return form;
-    }
-
-    private void filter() {
-        // We're using the same data source but could filter differently if needed
-        dataProvider.setFilterByValue(Person::getRole, Person.Role.MANAGER);
     }
 }

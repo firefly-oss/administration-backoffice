@@ -17,11 +17,10 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.starter.business.backend.DummyData;
-import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.backend.dto.systemconfig.WorkflowDTO;
+import com.vaadin.starter.business.backend.service.SystemConfigService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
-import com.vaadin.starter.business.ui.components.Initials;
 import com.vaadin.starter.business.ui.components.ListItem;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawer;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerFooter;
@@ -34,23 +33,28 @@ import com.vaadin.starter.business.ui.util.LumoStyles;
 import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.BoxSizing;
 import com.vaadin.starter.business.ui.views.SplitViewFrame;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.stream.Collectors;
 
 @Route(value = "workflows", layout = MainLayout.class)
 @PageTitle("Workflows")
 public class Workflows extends SplitViewFrame {
 
-    private Grid<Person> grid;
-    private ListDataProvider<Person> dataProvider;
+    private Grid<WorkflowDTO> grid;
+    private ListDataProvider<WorkflowDTO> dataProvider;
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
+    
+    private final SystemConfigService systemConfigService;
 
-    public Workflows() {
+    @Autowired
+    public Workflows(SystemConfigService systemConfigService) {
+        this.systemConfigService = systemConfigService;
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
-
-        filter();
     }
 
     private Component createContent() {
@@ -65,29 +69,31 @@ public class Workflows extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(DummyData.getPersons());
+        dataProvider = DataProvider.ofCollection(systemConfigService.getWorkflows());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
-        grid.addColumn(Person::getId)
+        grid.addColumn(WorkflowDTO::getId)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setFrozen(true)
                 .setHeader("ID")
                 .setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::createWorkflowInfo))
+        grid.addColumn(WorkflowDTO::getName)
                 .setAutoWidth(true)
-                .setHeader("Workflow");
+                .setHeader("Workflow")
+                .setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::createStatus))
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setHeader("Status")
                 .setTextAlign(ColumnTextAlign.END);
-        grid.addColumn(new ComponentRenderer<>(this::createType))
+        grid.addColumn(WorkflowDTO::getCategory)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
-                .setHeader("Type")
-                .setTextAlign(ColumnTextAlign.END);
+                .setHeader("Category")
+                .setTextAlign(ColumnTextAlign.END)
+                .setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::createLastModified))
                 .setAutoWidth(true)
                 .setFlexGrow(0)
@@ -97,29 +103,8 @@ public class Workflows extends SplitViewFrame {
         return grid;
     }
 
-    private Component createWorkflowInfo(Person person) {
-        String[] workflows = {
-            "Customer Onboarding", 
-            "Loan Approval", 
-            "Account Opening", 
-            "Dispute Resolution", 
-            "Payment Processing", 
-            "Document Verification"
-        };
-        
-        String workflow = workflows[(int)(Math.abs(person.getId()) % workflows.length)];
-        
-        ListItem item = new ListItem(
-                new Initials(person.getInitials()), 
-                workflow,
-                "Process flow for " + person.getEmail());
-        item.setPadding(Vertical.XS);
-        item.setSpacing(Right.M);
-        return item;
-    }
-
-    private Component createStatus(Person person) {
-        boolean isActive = person.getRandomBoolean();
+    private Component createStatus(WorkflowDTO workflow) {
+        boolean isActive = workflow.isActive();
         Icon icon;
         String text;
 
@@ -135,21 +120,8 @@ public class Workflows extends SplitViewFrame {
         return span;
     }
 
-    private Component createType(Person person) {
-        String[] types = {
-            "Sequential", 
-            "Parallel", 
-            "Conditional", 
-            "Event-Based", 
-            "Approval"
-        };
-        
-        String type = types[(int)(Math.abs(person.getId()) % types.length)];
-        return new Span(type);
-    }
-
-    private Component createLastModified(Person person) {
-        return new Span(UIUtils.formatDate(person.getLastModified()));
+    private Component createLastModified(WorkflowDTO workflow) {
+        return new Span(UIUtils.formatDate(workflow.getLastModified()));
     }
 
     private DetailsDrawer createDetailsDrawer() {
@@ -172,51 +144,39 @@ public class Workflows extends SplitViewFrame {
         return detailsDrawer;
     }
 
-    private void showDetails(Person person) {
-        String[] workflows = {
-            "Customer Onboarding", 
-            "Loan Approval", 
-            "Account Opening", 
-            "Dispute Resolution", 
-            "Payment Processing", 
-            "Document Verification"
-        };
-        
-        String workflow = workflows[(int)(Math.abs(person.getId()) % workflows.length)];
-        
-        detailsDrawerHeader.setTitle("Workflow: " + workflow);
-        detailsDrawer.setContent(createDetails(person, workflow));
+    private void showDetails(WorkflowDTO workflow) {
+        detailsDrawerHeader.setTitle("Workflow: " + workflow.getName());
+        detailsDrawer.setContent(createDetails(workflow));
         detailsDrawer.show();
     }
 
-    private FormLayout createDetails(Person person, String workflow) {
+    private FormLayout createDetails(WorkflowDTO workflow) {
         TextField workflowName = new TextField();
-        workflowName.setValue(workflow);
+        workflowName.setValue(workflow.getName());
         workflowName.setWidthFull();
 
         TextArea description = new TextArea();
-        description.setValue("Business process workflow defining steps and approvals for " + workflow);
+        description.setValue(workflow.getDescription());
         description.setWidthFull();
         description.setMinHeight("100px");
 
         RadioButtonGroup<String> status = new RadioButtonGroup<>();
         status.setItems("Active", "Draft", "Archived");
-        status.setValue(person.getRandomBoolean() ? "Active" : "Draft");
+        status.setValue(workflow.getStatus());
 
-        ComboBox<String> type = new ComboBox<>();
-        String[] types = {"Sequential", "Parallel", "Conditional", "Event-Based", "Approval"};
-        type.setItems(types);
-        type.setValue(types[(int)(Math.abs(person.getId()) % types.length)]);
-        type.setWidthFull();
+        ComboBox<String> category = new ComboBox<>();
+        category.setItems("Customer", "Finance", "Legal", "Security", "Operations");
+        category.setValue(workflow.getCategory());
+        category.setWidthFull();
 
         TextField steps = new TextField();
-        steps.setValue(Integer.toString(3 + (int)(Math.abs(person.getId()) % 5)));
+        steps.setValue(Integer.toString(workflow.getStepsCount()));
         steps.setWidthFull();
 
-        ComboBox<String> department = new ComboBox<>();
-        department.setItems("Sales", "Operations", "Finance", "Customer Service", "All Departments");
-        department.setValue("All Departments");
-        department.setWidthFull();
+        ComboBox<String> roles = new ComboBox<>();
+        roles.setItems(workflow.getRoles());
+        roles.setValue(workflow.getRoles().get(0));
+        roles.setWidthFull();
 
         // Form layout
         FormLayout form = new FormLayout();
@@ -232,15 +192,10 @@ public class Workflows extends SplitViewFrame {
         form.addFormItem(workflowName, "Workflow Name");
         form.addFormItem(description, "Description");
         form.addFormItem(status, "Status");
-        form.addFormItem(type, "Workflow Type");
+        form.addFormItem(category, "Category");
         form.addFormItem(steps, "Number of Steps");
-        form.addFormItem(department, "Department");
+        form.addFormItem(roles, "Primary Role");
 
         return form;
-    }
-
-    private void filter() {
-        // We're using the same data source but could filter differently if needed
-        dataProvider.setFilterByValue(Person::getRole, Person.Role.MANAGER);
     }
 }

@@ -17,7 +17,10 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.starter.business.backend.dto.security.PolicyDTO;
+import com.vaadin.starter.business.backend.service.SecurityService;
 import com.vaadin.starter.business.ui.MainLayout;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.ListItem;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawer;
@@ -41,71 +44,17 @@ import java.util.List;
 @PageTitle("Security Policies")
 public class SecurityPolicies extends SplitViewFrame {
 
-    private Grid<Policy> grid;
-    private ListDataProvider<Policy> dataProvider;
+    private Grid<PolicyDTO> grid;
+    private ListDataProvider<PolicyDTO> dataProvider;
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
 
-    // Sample Policy class for demonstration
-    private static class Policy {
-        private String name;
-        private String category;
-        private String description;
-        private boolean isActive;
-        private LocalDate lastUpdated;
+    private final SecurityService securityService;
 
-        public Policy(String name, String category, String description, boolean isActive, LocalDate lastUpdated) {
-            this.name = name;
-            this.category = category;
-            this.description = description;
-            this.isActive = isActive;
-            this.lastUpdated = lastUpdated;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getCategory() {
-            return category;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public boolean isActive() {
-            return isActive;
-        }
-
-        public LocalDate getLastUpdated() {
-            return lastUpdated;
-        }
-    }
-
-    // Sample data
-    private List<Policy> getPolicies() {
-        return Arrays.asList(
-            new Policy("Password Policy", "Authentication", 
-                "Passwords must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters.", 
-                true, LocalDate.now().minusDays(15)),
-            new Policy("Account Lockout Policy", "Authentication", 
-                "Accounts will be locked after 5 failed login attempts.", 
-                true, LocalDate.now().minusDays(30)),
-            new Policy("Session Timeout Policy", "Session Management", 
-                "User sessions will timeout after 30 minutes of inactivity.", 
-                true, LocalDate.now().minusDays(45)),
-            new Policy("Data Retention Policy", "Data Management", 
-                "User data will be retained for a maximum of 2 years after account closure.", 
-                true, LocalDate.now().minusDays(60)),
-            new Policy("Two-Factor Authentication", "Authentication", 
-                "Two-factor authentication is required for all administrative accounts.", 
-                false, LocalDate.now().minusDays(90))
-        );
-    }
-
-    public SecurityPolicies() {
+    @Autowired
+    public SecurityPolicies(SecurityService securityService) {
+        this.securityService = securityService;
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
@@ -123,17 +72,17 @@ public class SecurityPolicies extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(getPolicies());
+        dataProvider = DataProvider.ofCollection(securityService.getPolicies());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
-        grid.addColumn(Policy::getName)
+        grid.addColumn(PolicyDTO::getName)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setFrozen(true)
                 .setHeader("Policy Name")
                 .setSortable(true);
-        grid.addColumn(Policy::getCategory)
+        grid.addColumn(PolicyDTO::getCategory)
                 .setAutoWidth(true)
                 .setHeader("Category")
                 .setSortable(true);
@@ -151,7 +100,7 @@ public class SecurityPolicies extends SplitViewFrame {
         return grid;
     }
 
-    private Component createActiveStatus(Policy policy) {
+    private Component createActiveStatus(PolicyDTO policy) {
         Icon icon;
         if (policy.isActive()) {
             icon = UIUtils.createPrimaryIcon(VaadinIcon.CHECK);
@@ -161,7 +110,7 @@ public class SecurityPolicies extends SplitViewFrame {
         return icon;
     }
 
-    private Component createDate(Policy policy) {
+    private Component createDate(PolicyDTO policy) {
         return new Span(UIUtils.formatDate(policy.getLastUpdated()));
     }
 
@@ -185,13 +134,13 @@ public class SecurityPolicies extends SplitViewFrame {
         return detailsDrawer;
     }
 
-    private void showDetails(Policy policy) {
+    private void showDetails(PolicyDTO policy) {
         detailsDrawerHeader.setTitle(policy.getName());
         detailsDrawer.setContent(createDetails(policy));
         detailsDrawer.show();
     }
 
-    private FormLayout createDetails(Policy policy) {
+    private FormLayout createDetails(PolicyDTO policy) {
         TextField name = new TextField();
         name.setValue(policy.getName());
         name.setWidthFull();
@@ -223,7 +172,7 @@ public class SecurityPolicies extends SplitViewFrame {
         form.addFormItem(category, "Category");
         form.addFormItem(status, "Status");
         form.addFormItem(description, "Description");
-        
+
         return form;
     }
 }

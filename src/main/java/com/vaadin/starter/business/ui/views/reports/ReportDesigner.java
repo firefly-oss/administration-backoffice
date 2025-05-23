@@ -18,8 +18,8 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.starter.business.backend.DummyData;
-import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.backend.Report;
+import com.vaadin.starter.business.backend.service.ReportsService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.Initials;
@@ -35,23 +35,31 @@ import com.vaadin.starter.business.ui.util.LumoStyles;
 import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.BoxSizing;
 import com.vaadin.starter.business.ui.views.SplitViewFrame;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Route(value = "report-designer", layout = MainLayout.class)
 @PageTitle("Report Designer")
 public class ReportDesigner extends SplitViewFrame {
 
-    private Grid<Person> grid;
-    private ListDataProvider<Person> dataProvider;
+    private Grid<Report> grid;
+    private ListDataProvider<Report> dataProvider;
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
-
-    public ReportDesigner() {
+    
+    private final ReportsService reportsService;
+    
+    @Autowired
+    public ReportDesigner(ReportsService reportsService) {
+        this.reportsService = reportsService;
+        
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
-
-        filter();
     }
 
     private Component createContent() {
@@ -66,11 +74,13 @@ public class ReportDesigner extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(DummyData.getPersons());
+        
+        Collection<Report> reports = reportsService.getReports();
+        dataProvider = DataProvider.ofCollection(reports);
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
-        grid.addColumn(Person::getId)
+        grid.addColumn(Report::getId)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setFrozen(true)
@@ -98,29 +108,35 @@ public class ReportDesigner extends SplitViewFrame {
         return grid;
     }
 
-    private Component createReportInfo(Person person) {
-        String[] reports = {
-            "Monthly Financial Summary", 
-            "Customer Activity Report", 
-            "Transaction Analysis", 
-            "Compliance Dashboard", 
-            "Performance Metrics", 
-            "Risk Assessment"
-        };
-        
-        String report = reports[(int)(Math.abs(person.getId()) % reports.length)];
+    private Component createReportInfo(Report report) {
+        String initials = getInitials(report.getCreatedBy());
         
         ListItem item = new ListItem(
-                new Initials(person.getInitials()), 
-                report,
-                "Created by " + person.getEmail());
+                new Initials(initials), 
+                report.getName(),
+                "Created by " + report.getCreatedBy());
         item.setPadding(Vertical.XS);
         item.setSpacing(Right.M);
         return item;
     }
+    
+    private String getInitials(String email) {
+        if (email == null || email.isEmpty()) {
+            return "??";
+        }
+        
+        String[] parts = email.split("@")[0].split("\\.");
+        if (parts.length >= 2) {
+            return (parts[0].charAt(0) + "" + parts[1].charAt(0)).toUpperCase();
+        } else if (parts.length == 1 && parts[0].length() >= 2) {
+            return (parts[0].charAt(0) + "" + parts[0].charAt(1)).toUpperCase();
+        } else {
+            return parts[0].charAt(0) + "?";
+        }
+    }
 
-    private Component createStatus(Person person) {
-        boolean isPublished = person.getRandomBoolean();
+    private Component createStatus(Report report) {
+        boolean isPublished = "Published".equals(report.getStatus());
         Icon icon;
         String text;
 
@@ -136,21 +152,12 @@ public class ReportDesigner extends SplitViewFrame {
         return span;
     }
 
-    private Component createCategory(Person person) {
-        String[] categories = {
-            "Financial", 
-            "Operational", 
-            "Customer", 
-            "Compliance", 
-            "Executive"
-        };
-        
-        String category = categories[(int)(Math.abs(person.getId()) % categories.length)];
-        return new Span(category);
+    private Component createCategory(Report report) {
+        return new Span(report.getCategory());
     }
 
-    private Component createLastModified(Person person) {
-        return new Span(UIUtils.formatDate(person.getLastModified()));
+    private Component createLastModified(Report report) {
+        return new Span(UIUtils.formatDate(report.getLastModified()));
     }
 
     private DetailsDrawer createDetailsDrawer() {
@@ -173,58 +180,47 @@ public class ReportDesigner extends SplitViewFrame {
         return detailsDrawer;
     }
 
-    private void showDetails(Person person) {
-        String[] reports = {
-            "Monthly Financial Summary", 
-            "Customer Activity Report", 
-            "Transaction Analysis", 
-            "Compliance Dashboard", 
-            "Performance Metrics", 
-            "Risk Assessment"
-        };
-        
-        String report = reports[(int)(Math.abs(person.getId()) % reports.length)];
-        
-        detailsDrawerHeader.setTitle("Report: " + report);
-        detailsDrawer.setContent(createDetails(person, report));
+    private void showDetails(Report report) {
+        detailsDrawerHeader.setTitle("Report: " + report.getName());
+        detailsDrawer.setContent(createDetails(report));
         detailsDrawer.show();
     }
 
-    private FormLayout createDetails(Person person, String report) {
+    private FormLayout createDetails(Report report) {
         TextField reportName = new TextField();
-        reportName.setValue(report);
+        reportName.setValue(report.getName());
         reportName.setWidthFull();
 
         TextArea description = new TextArea();
-        description.setValue("Comprehensive report providing insights and analytics for business decision-making.");
+        description.setValue(report.getDescription());
         description.setWidthFull();
         description.setMinHeight("100px");
 
         RadioButtonGroup<String> status = new RadioButtonGroup<>();
         status.setItems("Draft", "Published", "Archived");
-        status.setValue(person.getRandomBoolean() ? "Published" : "Draft");
+        status.setValue(report.getStatus());
 
         ComboBox<String> category = new ComboBox<>();
         String[] categories = {"Financial", "Operational", "Customer", "Compliance", "Executive"};
         category.setItems(categories);
-        category.setValue(categories[(int)(Math.abs(person.getId()) % categories.length)]);
+        category.setValue(report.getCategory());
         category.setWidthFull();
 
         ComboBox<String> dataSource = new ComboBox<>();
         dataSource.setItems("Main Database", "Data Warehouse", "Analytics Platform", "External API", "Custom Query");
-        dataSource.setValue("Data Warehouse");
+        dataSource.setValue(report.getDataSource());
         dataSource.setWidthFull();
 
         ComboBox<String> format = new ComboBox<>();
         format.setItems("PDF", "Excel", "CSV", "HTML", "Interactive Dashboard");
-        format.setValue("Interactive Dashboard");
+        format.setValue(report.getOutputFormat());
         format.setWidthFull();
 
         Checkbox includeCharts = new Checkbox("Include Charts and Graphs");
-        includeCharts.setValue(true);
+        includeCharts.setValue(report.isIncludeCharts());
 
         Checkbox scheduledDelivery = new Checkbox("Enable Scheduled Delivery");
-        scheduledDelivery.setValue(person.getRandomBoolean());
+        scheduledDelivery.setValue(report.isScheduledDelivery());
 
         // Form layout
         FormLayout form = new FormLayout();
@@ -247,10 +243,5 @@ public class ReportDesigner extends SplitViewFrame {
         form.addFormItem(scheduledDelivery, "");
 
         return form;
-    }
-
-    private void filter() {
-        // We're using the same data source but could filter differently if needed
-        dataProvider.setFilterByValue(Person::getRole, Person.Role.MANAGER);
     }
 }

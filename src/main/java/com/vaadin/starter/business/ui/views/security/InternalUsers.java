@@ -23,9 +23,10 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.starter.business.backend.DummyData;
 import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.backend.service.SecurityService;
 import com.vaadin.starter.business.ui.MainLayout;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.Initials;
 import com.vaadin.starter.business.ui.components.ListItem;
@@ -59,7 +60,11 @@ public class InternalUsers extends SplitViewFrame {
     private ComboBox<String> statusFilter;
     private DatePicker lastLoginFilter;
 
-    public InternalUsers() {
+    private final SecurityService securityService;
+
+    @Autowired
+    public InternalUsers(SecurityService securityService) {
+        this.securityService = securityService;
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
@@ -163,7 +168,7 @@ public class InternalUsers extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(DummyData.getPersons());
+        dataProvider = DataProvider.ofCollection(securityService.getInternalUsers());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 

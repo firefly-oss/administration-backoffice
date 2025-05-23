@@ -36,6 +36,10 @@ import com.vaadin.starter.business.ui.views.SplitViewFrame;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Collection;
+import com.vaadin.starter.business.backend.RateFee;
+import com.vaadin.starter.business.backend.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "rates-fees", layout = MainLayout.class)
 @PageTitle("Rates and Fees")
@@ -44,101 +48,21 @@ public class RatesFees extends SplitViewFrame {
     private Grid<RateFee> grid;
     private ListDataProvider<RateFee> dataProvider;
 
+    private final ProductService productService;
+
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
 
-    // Sample RateFee class for demonstration
-    private static class RateFee {
-        private String id;
-        private String name;
-        private String productCategory;
-        private String type;
-        private double value;
-        private String calculationMethod;
-        private boolean isActive;
-        private LocalDate effectiveDate;
-        private LocalDate expirationDate;
+    // Using RateFee class from backend package
 
-        public RateFee(String id, String name, String productCategory, String type, 
-                      double value, String calculationMethod, boolean isActive, 
-                      LocalDate effectiveDate, LocalDate expirationDate) {
-            this.id = id;
-            this.name = name;
-            this.productCategory = productCategory;
-            this.type = type;
-            this.value = value;
-            this.calculationMethod = calculationMethod;
-            this.isActive = isActive;
-            this.effectiveDate = effectiveDate;
-            this.expirationDate = expirationDate;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getProductCategory() {
-            return productCategory;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public double getValue() {
-            return value;
-        }
-
-        public String getCalculationMethod() {
-            return calculationMethod;
-        }
-
-        public boolean isActive() {
-            return isActive;
-        }
-
-        public LocalDate getEffectiveDate() {
-            return effectiveDate;
-        }
-
-        public LocalDate getExpirationDate() {
-            return expirationDate;
-        }
-    }
-
-    // Sample data
+    // Get rates and fees from service
     private List<RateFee> getRatesFees() {
-        LocalDate now = LocalDate.now();
-        return Arrays.asList(
-            new RateFee("RF001", "Savings Interest Rate", "Accounts", "Interest Rate", 
-                1.25, "Annual Percentage Yield", true, 
-                now.minusDays(30), now.plusMonths(6)),
-            new RateFee("RF002", "Checking Monthly Fee", "Accounts", "Fee", 
-                5.00, "Fixed Amount", false, 
-                now.minusDays(60), now.plusMonths(12)),
-            new RateFee("RF003", "Personal Loan Interest", "Loans", "Interest Rate", 
-                5.99, "Annual Percentage Rate", true, 
-                now.minusDays(45), now.plusMonths(3)),
-            new RateFee("RF004", "Mortgage Rate", "Loans", "Interest Rate", 
-                3.49, "Annual Percentage Rate", true, 
-                now.minusDays(15), now.plusMonths(6)),
-            new RateFee("RF005", "Credit Card APR", "Cards", "Interest Rate", 
-                19.99, "Annual Percentage Rate", true, 
-                now.minusDays(90), now.plusMonths(12)),
-            new RateFee("RF006", "Late Payment Fee", "General", "Fee", 
-                25.00, "Fixed Amount", true, 
-                now.minusDays(120), now.plusMonths(24)),
-            new RateFee("RF007", "Wire Transfer Fee", "Services", "Fee", 
-                15.00, "Fixed Amount", true, 
-                now.minusDays(30), now.plusMonths(12))
-        );
+        return productService.getRatesFees().stream().toList();
     }
 
-    public RatesFees() {
+    @Autowired
+    public RatesFees(ProductService productService) {
+        this.productService = productService;
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
@@ -311,7 +235,7 @@ public class RatesFees extends SplitViewFrame {
         form.addFormItem(effectiveDate, "Effective Date");
         form.addFormItem(expirationDate, "Expiration Date");
         form.addFormItem(description, "Description");
-        
+
         return form;
     }
 }

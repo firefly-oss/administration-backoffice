@@ -19,8 +19,8 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.starter.business.backend.DummyData;
-import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.backend.Integration;
+import com.vaadin.starter.business.backend.service.ReportsService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.Initials;
@@ -36,25 +36,29 @@ import com.vaadin.starter.business.ui.util.LumoStyles;
 import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.BoxSizing;
 import com.vaadin.starter.business.ui.views.SplitViewFrame;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.LocalDate;
+import java.util.Collection;
 
 @Route(value = "export-integration", layout = MainLayout.class)
 @PageTitle("Export and Integration")
 public class ExportAndIntegration extends SplitViewFrame {
 
-    private Grid<Person> grid;
-    private ListDataProvider<Person> dataProvider;
+    private Grid<Integration> grid;
+    private ListDataProvider<Integration> dataProvider;
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
-
-    public ExportAndIntegration() {
+    
+    private final ReportsService reportsService;
+    
+    @Autowired
+    public ExportAndIntegration(ReportsService reportsService) {
+        this.reportsService = reportsService;
+        
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
-
-        filter();
     }
 
     private Component createContent() {
@@ -69,11 +73,13 @@ public class ExportAndIntegration extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(DummyData.getPersons());
+        
+        Collection<Integration> integrations = reportsService.getIntegrations();
+        dataProvider = DataProvider.ofCollection(integrations);
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
-        grid.addColumn(Person::getId)
+        grid.addColumn(Integration::getId)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setFrozen(true)
@@ -101,29 +107,35 @@ public class ExportAndIntegration extends SplitViewFrame {
         return grid;
     }
 
-    private Component createIntegrationInfo(Person person) {
-        String[] integrations = {
-            "Salesforce Export", 
-            "Google Analytics", 
-            "Microsoft Power BI", 
-            "Tableau Connection", 
-            "Email Distribution", 
-            "FTP Data Transfer"
-        };
-        
-        String integration = integrations[(int)(Math.abs(person.getId()) % integrations.length)];
+    private Component createIntegrationInfo(Integration integration) {
+        String initials = getInitials(integration.getConfiguredBy());
         
         ListItem item = new ListItem(
-                new Initials(person.getInitials()), 
-                integration,
-                "Configured by " + person.getEmail());
+                new Initials(initials), 
+                integration.getName(),
+                "Configured by " + integration.getConfiguredBy());
         item.setPadding(Vertical.XS);
         item.setSpacing(Right.M);
         return item;
     }
+    
+    private String getInitials(String email) {
+        if (email == null || email.isEmpty()) {
+            return "??";
+        }
+        
+        String[] parts = email.split("@")[0].split("\\.");
+        if (parts.length >= 2) {
+            return (parts[0].charAt(0) + "" + parts[1].charAt(0)).toUpperCase();
+        } else if (parts.length == 1 && parts[0].length() >= 2) {
+            return (parts[0].charAt(0) + "" + parts[0].charAt(1)).toUpperCase();
+        } else {
+            return parts[0].charAt(0) + "?";
+        }
+    }
 
-    private Component createStatus(Person person) {
-        boolean isActive = person.getRandomBoolean();
+    private Component createStatus(Integration integration) {
+        boolean isActive = "Active".equals(integration.getStatus());
         Icon icon;
         String text;
         String color;
@@ -143,23 +155,12 @@ public class ExportAndIntegration extends SplitViewFrame {
         return span;
     }
 
-    private Component createType(Person person) {
-        String[] types = {
-            "Export", 
-            "Import", 
-            "Bidirectional", 
-            "Webhook", 
-            "API"
-        };
-        
-        String type = types[(int)(Math.abs(person.getId()) % types.length)];
-        return new Span(type);
+    private Component createType(Integration integration) {
+        return new Span(integration.getType());
     }
 
-    private Component createLastSync(Person person) {
-        // Create a date in the past
-        LocalDate lastSync = LocalDate.now().minusDays(person.getRandomInteger() % 30);
-        return new Span(UIUtils.formatDate(lastSync));
+    private Component createLastSync(Integration integration) {
+        return new Span(UIUtils.formatDate(integration.getLastSync()));
     }
 
     private DetailsDrawer createDetailsDrawer() {
@@ -182,66 +183,55 @@ public class ExportAndIntegration extends SplitViewFrame {
         return detailsDrawer;
     }
 
-    private void showDetails(Person person) {
-        String[] integrations = {
-            "Salesforce Export", 
-            "Google Analytics", 
-            "Microsoft Power BI", 
-            "Tableau Connection", 
-            "Email Distribution", 
-            "FTP Data Transfer"
-        };
-        
-        String integration = integrations[(int)(Math.abs(person.getId()) % integrations.length)];
-        
-        detailsDrawerHeader.setTitle("Integration: " + integration);
-        detailsDrawer.setContent(createDetails(person, integration));
+    private void showDetails(Integration integration) {
+        detailsDrawerHeader.setTitle("Integration: " + integration.getName());
+        detailsDrawer.setContent(createDetails(integration));
         detailsDrawer.show();
     }
 
-    private FormLayout createDetails(Person person, String integration) {
+    private FormLayout createDetails(Integration integration) {
         TextField integrationName = new TextField();
-        integrationName.setValue(integration);
+        integrationName.setValue(integration.getName());
         integrationName.setWidthFull();
 
         TextArea description = new TextArea();
-        description.setValue("Integration for exporting and sharing reports with external systems and stakeholders.");
+        description.setValue(integration.getDescription());
         description.setWidthFull();
         description.setMinHeight("100px");
 
         RadioButtonGroup<String> status = new RadioButtonGroup<>();
         status.setItems("Active", "Inactive", "Testing");
-        status.setValue(person.getRandomBoolean() ? "Active" : "Inactive");
+        status.setValue(integration.getStatus());
 
         ComboBox<String> type = new ComboBox<>();
         String[] types = {"Export", "Import", "Bidirectional", "Webhook", "API"};
         type.setItems(types);
-        type.setValue(types[(int)(Math.abs(person.getId()) % types.length)]);
+        type.setValue(integration.getType());
         type.setWidthFull();
 
         TextField endpoint = new TextField();
-        endpoint.setValue("https://api.example.com/integration/" + person.getId());
+        endpoint.setValue(integration.getEndpoint());
         endpoint.setWidthFull();
 
         ComboBox<String> format = new ComboBox<>();
         format.setItems("JSON", "XML", "CSV", "Excel", "PDF");
-        format.setValue("JSON");
+        format.setValue(integration.getDataFormat());
         format.setWidthFull();
 
         ComboBox<String> schedule = new ComboBox<>();
         schedule.setItems("Hourly", "Daily", "Weekly", "Monthly", "On Demand");
-        schedule.setValue("Daily");
+        schedule.setValue(integration.getSchedule());
         schedule.setWidthFull();
 
         DatePicker lastSync = new DatePicker();
-        lastSync.setValue(LocalDate.now().minusDays(person.getRandomInteger() % 30));
+        lastSync.setValue(integration.getLastSync());
         lastSync.setWidthFull();
 
         Checkbox secureTransfer = new Checkbox("Use Secure Transfer (SSL/TLS)");
-        secureTransfer.setValue(true);
+        secureTransfer.setValue(integration.isSecureTransfer());
 
         Checkbox authentication = new Checkbox("Require Authentication");
-        authentication.setValue(true);
+        authentication.setValue(integration.isRequireAuthentication());
 
         // Form layout
         FormLayout form = new FormLayout();
@@ -266,10 +256,5 @@ public class ExportAndIntegration extends SplitViewFrame {
         form.addFormItem(authentication, "");
 
         return form;
-    }
-
-    private void filter() {
-        // We're using the same data source but could filter differently if needed
-        dataProvider.setFilterByValue(Person::getRole, Person.Role.MANAGER);
     }
 }

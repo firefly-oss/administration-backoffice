@@ -1,7 +1,7 @@
-package com.vaadin.starter.business.backend.mapper.accounts;
+package com.vaadin.starter.business.backend.mapper.accounting;
 
 import com.vaadin.starter.business.backend.BankAccount;
-import com.vaadin.starter.business.backend.dto.accounts.BankAccountDTO;
+import com.vaadin.starter.business.backend.dto.accounting.BankAccountDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;

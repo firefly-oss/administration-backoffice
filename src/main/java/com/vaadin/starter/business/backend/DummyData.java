@@ -176,8 +176,20 @@ public class DummyData {
 		/* === REPORTS === */
 
 		for (i = 0; i < 40; i++) {
-			REPORTS.put(i, new Report(i, getImageSource(), getCompany(),
-					getPastDate(30), getFutureDate(30), getPositiveAmount()));
+			String reportId = "R" + String.format("%03d", i);
+			String reportName = "Report " + i;
+			String description = "Description for report " + i;
+			String status = random.nextBoolean() ? "Published" : "Draft";
+			String category = random.nextBoolean() ? "Financial" : "Operational";
+			String dataSource = random.nextBoolean() ? "Main Database" : "Data Warehouse";
+			String outputFormat = random.nextBoolean() ? "PDF" : "Excel";
+			boolean includeCharts = random.nextBoolean();
+			boolean scheduledDelivery = random.nextBoolean();
+			String createdBy = getFirstName().toLowerCase() + "." + getLastName().toLowerCase() + "@email.com";
+			LocalDate lastModified = getPastDate(30);
+
+			REPORTS.put(i, new Report(reportId, reportName, description, status, category,
+					dataSource, outputFormat, includeCharts, scheduledDelivery, createdBy, lastModified));
 		}
 
 		/* === PERSONS ==== */
@@ -457,6 +469,7 @@ public class DummyData {
 	/* === REPORT === */
 
 	public static Report getReport(Long id) {
+		// Return the report with the given id
 		return REPORTS.get(id);
 	}
 

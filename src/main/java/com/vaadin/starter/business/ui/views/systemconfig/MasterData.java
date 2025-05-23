@@ -17,11 +17,10 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.starter.business.backend.DummyData;
-import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.backend.dto.systemconfig.MasterDataItemDTO;
+import com.vaadin.starter.business.backend.service.SystemConfigService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
-import com.vaadin.starter.business.ui.components.Initials;
 import com.vaadin.starter.business.ui.components.ListItem;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawer;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerFooter;
@@ -34,23 +33,26 @@ import com.vaadin.starter.business.ui.util.LumoStyles;
 import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.BoxSizing;
 import com.vaadin.starter.business.ui.views.SplitViewFrame;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "master-data", layout = MainLayout.class)
 @PageTitle("Master Data")
 public class MasterData extends SplitViewFrame {
 
-    private Grid<Person> grid;
-    private ListDataProvider<Person> dataProvider;
+    private Grid<MasterDataItemDTO> grid;
+    private ListDataProvider<MasterDataItemDTO> dataProvider;
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
+    
+    private final SystemConfigService systemConfigService;
 
-    public MasterData() {
+    @Autowired
+    public MasterData(SystemConfigService systemConfigService) {
+        this.systemConfigService = systemConfigService;
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
-
-        filter();
     }
 
     private Component createContent() {
@@ -65,29 +67,31 @@ public class MasterData extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(DummyData.getPersons());
+        dataProvider = DataProvider.ofCollection(systemConfigService.getMasterDataItems());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
-        grid.addColumn(Person::getId)
+        grid.addColumn(MasterDataItemDTO::getId)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setFrozen(true)
                 .setHeader("ID")
                 .setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::createDataInfo))
+        grid.addColumn(MasterDataItemDTO::getName)
                 .setAutoWidth(true)
-                .setHeader("Data Entity");
+                .setHeader("Data Entity")
+                .setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::createStatus))
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setHeader("Status")
                 .setTextAlign(ColumnTextAlign.END);
-        grid.addColumn(new ComponentRenderer<>(this::createCategory))
+        grid.addColumn(MasterDataItemDTO::getCategory)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setHeader("Category")
-                .setTextAlign(ColumnTextAlign.END);
+                .setTextAlign(ColumnTextAlign.END)
+                .setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::createLastModified))
                 .setAutoWidth(true)
                 .setFlexGrow(0)
@@ -97,29 +101,8 @@ public class MasterData extends SplitViewFrame {
         return grid;
     }
 
-    private Component createDataInfo(Person person) {
-        String[] entities = {
-            "Country Codes", 
-            "Currency Codes", 
-            "Product Categories", 
-            "Customer Types", 
-            "Transaction Types", 
-            "Account Types"
-        };
-        
-        String entity = entities[(int)(Math.abs(person.getId()) % entities.length)];
-        
-        ListItem item = new ListItem(
-                new Initials(person.getInitials()), 
-                entity,
-                "Master data for " + person.getEmail());
-        item.setPadding(Vertical.XS);
-        item.setSpacing(Right.M);
-        return item;
-    }
-
-    private Component createStatus(Person person) {
-        boolean isActive = person.getRandomBoolean();
+    private Component createStatus(MasterDataItemDTO masterDataItem) {
+        boolean isActive = masterDataItem.isActive();
         Icon icon;
         String text;
 
@@ -135,21 +118,8 @@ public class MasterData extends SplitViewFrame {
         return span;
     }
 
-    private Component createCategory(Person person) {
-        String[] categories = {
-            "Reference Data", 
-            "Business Data", 
-            "Configuration Data", 
-            "Transactional Data", 
-            "Metadata"
-        };
-        
-        String category = categories[(int)(Math.abs(person.getId()) % categories.length)];
-        return new Span(category);
-    }
-
-    private Component createLastModified(Person person) {
-        return new Span(UIUtils.formatDate(person.getLastModified()));
+    private Component createLastModified(MasterDataItemDTO masterDataItem) {
+        return new Span(UIUtils.formatDate(masterDataItem.getLastModified()));
     }
 
     private DetailsDrawer createDetailsDrawer() {
@@ -172,51 +142,39 @@ public class MasterData extends SplitViewFrame {
         return detailsDrawer;
     }
 
-    private void showDetails(Person person) {
-        String[] entities = {
-            "Country Codes", 
-            "Currency Codes", 
-            "Product Categories", 
-            "Customer Types", 
-            "Transaction Types", 
-            "Account Types"
-        };
-        
-        String entity = entities[(int)(Math.abs(person.getId()) % entities.length)];
-        
-        detailsDrawerHeader.setTitle("Master Data: " + entity);
-        detailsDrawer.setContent(createDetails(person, entity));
+    private void showDetails(MasterDataItemDTO masterDataItem) {
+        detailsDrawerHeader.setTitle("Master Data: " + masterDataItem.getName());
+        detailsDrawer.setContent(createDetails(masterDataItem));
         detailsDrawer.show();
     }
 
-    private FormLayout createDetails(Person person, String entity) {
+    private FormLayout createDetails(MasterDataItemDTO masterDataItem) {
         TextField entityName = new TextField();
-        entityName.setValue(entity);
+        entityName.setValue(masterDataItem.getName());
         entityName.setWidthFull();
 
         TextArea description = new TextArea();
-        description.setValue("Reference data used across the system for standardization and consistency.");
+        description.setValue(masterDataItem.getDescription());
         description.setWidthFull();
         description.setMinHeight("100px");
 
         RadioButtonGroup<String> status = new RadioButtonGroup<>();
         status.setItems("Active", "Under Review", "Deprecated");
-        status.setValue(person.getRandomBoolean() ? "Active" : "Under Review");
+        status.setValue(masterDataItem.getStatus());
 
         ComboBox<String> category = new ComboBox<>();
         String[] categories = {"Reference Data", "Business Data", "Configuration Data", "Transactional Data", "Metadata"};
         category.setItems(categories);
-        category.setValue(categories[(int)(Math.abs(person.getId()) % categories.length)]);
+        category.setValue(masterDataItem.getCategory());
         category.setWidthFull();
 
-        TextField itemCount = new TextField();
-        itemCount.setValue(Integer.toString(10 + (int)(Math.abs(person.getId()) % 190)));
-        itemCount.setWidthFull();
+        TextField dataType = new TextField();
+        dataType.setValue(masterDataItem.getDataType());
+        dataType.setWidthFull();
 
-        ComboBox<String> dataOwner = new ComboBox<>();
-        dataOwner.setItems("System Administrator", "Data Steward", "Business Analyst", "Product Manager", "IT Department");
-        dataOwner.setValue("Data Steward");
-        dataOwner.setWidthFull();
+        TextField format = new TextField();
+        format.setValue(masterDataItem.getFormat());
+        format.setWidthFull();
 
         // Form layout
         FormLayout form = new FormLayout();
@@ -233,14 +191,9 @@ public class MasterData extends SplitViewFrame {
         form.addFormItem(description, "Description");
         form.addFormItem(status, "Status");
         form.addFormItem(category, "Category");
-        form.addFormItem(itemCount, "Number of Items");
-        form.addFormItem(dataOwner, "Data Owner");
+        form.addFormItem(dataType, "Data Type");
+        form.addFormItem(format, "Format");
 
         return form;
-    }
-
-    private void filter() {
-        // We're using the same data source but could filter differently if needed
-        dataProvider.setFilterByValue(Person::getRole, Person.Role.MANAGER);
     }
 }

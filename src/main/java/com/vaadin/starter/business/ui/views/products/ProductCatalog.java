@@ -43,6 +43,10 @@ import com.vaadin.starter.business.ui.views.SplitViewFrame;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Collection;
+import com.vaadin.starter.business.backend.Product;
+import com.vaadin.starter.business.backend.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "product-catalog", layout = MainLayout.class)
 @PageTitle("Product Catalog")
@@ -50,6 +54,8 @@ public class ProductCatalog extends SplitViewFrame {
 
     private Grid<Product> grid;
     private ListDataProvider<Product> dataProvider;
+
+    private final ProductService productService;
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
@@ -63,80 +69,16 @@ public class ProductCatalog extends SplitViewFrame {
     private ComboBox<String> statusFilter;
     private DatePicker createdDateFilter;
 
-    // Sample Product class for demonstration
-    private static class Product {
-        private String id;
-        private String name;
-        private String category;
-        private String description;
-        private double price;
-        private boolean isActive;
-        private LocalDate createdDate;
+    // Using Product class from backend package
 
-        public Product(String id, String name, String category, String description, double price, boolean isActive, LocalDate createdDate) {
-            this.id = id;
-            this.name = name;
-            this.category = category;
-            this.description = description;
-            this.price = price;
-            this.isActive = isActive;
-            this.createdDate = createdDate;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getCategory() {
-            return category;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public double getPrice() {
-            return price;
-        }
-
-        public boolean isActive() {
-            return isActive;
-        }
-
-        public LocalDate getCreatedDate() {
-            return createdDate;
-        }
-    }
-
-    // Sample data
+    // Get products from service
     private List<Product> getProducts() {
-        return Arrays.asList(
-            new Product("P001", "Savings Account", "Accounts", 
-                "Basic savings account with competitive interest rates", 
-                0.0, true, LocalDate.now().minusDays(15)),
-            new Product("P002", "Checking Account", "Accounts", 
-                "Everyday banking account with no monthly fees", 
-                0.0, true, LocalDate.now().minusDays(30)),
-            new Product("P003", "Personal Loan", "Loans", 
-                "Unsecured personal loan with flexible repayment options", 
-                5.99, true, LocalDate.now().minusDays(45)),
-            new Product("P004", "Mortgage", "Loans", 
-                "Home loan with competitive rates and terms", 
-                3.49, true, LocalDate.now().minusDays(60)),
-            new Product("P005", "Credit Card", "Cards", 
-                "Rewards credit card with cashback on purchases", 
-                19.99, true, LocalDate.now().minusDays(90)),
-            new Product("P006", "Investment Account", "Investments", 
-                "Managed investment portfolio with diversified assets", 
-                0.0, false, LocalDate.now().minusDays(120))
-        );
+        return productService.getProducts().stream().toList();
     }
 
-    public ProductCatalog() {
+    @Autowired
+    public ProductCatalog(ProductService productService) {
+        this.productService = productService;
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);

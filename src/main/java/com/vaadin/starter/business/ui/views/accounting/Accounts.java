@@ -1,4 +1,4 @@
-package com.vaadin.starter.business.ui.views.accounts;
+package com.vaadin.starter.business.ui.views.accounting;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -29,7 +29,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.starter.business.backend.BankAccount;
-import com.vaadin.starter.business.backend.mapper.accounts.BankAccountMapper;
+import com.vaadin.starter.business.backend.mapper.accounting.BankAccountMapper;
 import com.vaadin.starter.business.backend.service.AccountsService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.views.ViewFrame;

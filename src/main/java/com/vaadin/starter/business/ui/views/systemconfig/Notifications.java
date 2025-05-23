@@ -17,11 +17,10 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.starter.business.backend.DummyData;
-import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.backend.dto.systemconfig.NotificationDTO;
+import com.vaadin.starter.business.backend.service.SystemConfigService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
-import com.vaadin.starter.business.ui.components.Initials;
 import com.vaadin.starter.business.ui.components.ListItem;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawer;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerFooter;
@@ -34,23 +33,26 @@ import com.vaadin.starter.business.ui.util.LumoStyles;
 import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.BoxSizing;
 import com.vaadin.starter.business.ui.views.SplitViewFrame;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "notifications", layout = MainLayout.class)
 @PageTitle("Notifications")
 public class Notifications extends SplitViewFrame {
 
-    private Grid<Person> grid;
-    private ListDataProvider<Person> dataProvider;
+    private Grid<NotificationDTO> grid;
+    private ListDataProvider<NotificationDTO> dataProvider;
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
 
-    public Notifications() {
+    private final SystemConfigService systemConfigService;
+
+    @Autowired
+    public Notifications(SystemConfigService systemConfigService) {
+        this.systemConfigService = systemConfigService;
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
-
-        filter();
     }
 
     private Component createContent() {
@@ -65,61 +67,42 @@ public class Notifications extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(DummyData.getPersons());
+        dataProvider = DataProvider.ofCollection(systemConfigService.getNotifications());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
-        grid.addColumn(Person::getId)
+        grid.addColumn(NotificationDTO::getId)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setFrozen(true)
                 .setHeader("ID")
                 .setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::createNotificationInfo))
+        grid.addColumn(NotificationDTO::getTitle)
                 .setAutoWidth(true)
-                .setHeader("Notification");
+                .setHeader("Notification")
+                .setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::createStatus))
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setHeader("Status")
                 .setTextAlign(ColumnTextAlign.END);
-        grid.addColumn(new ComponentRenderer<>(this::createChannel))
+        grid.addColumn(NotificationDTO::getType)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
-                .setHeader("Channel")
-                .setTextAlign(ColumnTextAlign.END);
-        grid.addColumn(new ComponentRenderer<>(this::createLastModified))
+                .setHeader("Type")
+                .setTextAlign(ColumnTextAlign.END)
+                .setSortable(true);
+        grid.addColumn(new ComponentRenderer<>(this::createCreatedAt))
                 .setAutoWidth(true)
                 .setFlexGrow(0)
-                .setHeader("Last Modified")
+                .setHeader("Created At")
                 .setTextAlign(ColumnTextAlign.END);
 
         return grid;
     }
 
-    private Component createNotificationInfo(Person person) {
-        String[] notifications = {
-            "Account Activity Alert", 
-            "Transaction Confirmation", 
-            "Security Alert", 
-            "Payment Due Reminder", 
-            "New Feature Announcement", 
-            "System Maintenance Notice"
-        };
-        
-        String notification = notifications[(int)(Math.abs(person.getId()) % notifications.length)];
-        
-        ListItem item = new ListItem(
-                new Initials(person.getInitials()), 
-                notification,
-                "Notification template for " + person.getEmail());
-        item.setPadding(Vertical.XS);
-        item.setSpacing(Right.M);
-        return item;
-    }
-
-    private Component createStatus(Person person) {
-        boolean isActive = person.getRandomBoolean();
+    private Component createStatus(NotificationDTO notification) {
+        boolean isActive = notification.isActive();
         Icon icon;
         String text;
 
@@ -135,21 +118,8 @@ public class Notifications extends SplitViewFrame {
         return span;
     }
 
-    private Component createChannel(Person person) {
-        String[] channels = {
-            "Email", 
-            "SMS", 
-            "Push Notification", 
-            "In-App", 
-            "All Channels"
-        };
-        
-        String channel = channels[(int)(Math.abs(person.getId()) % channels.length)];
-        return new Span(channel);
-    }
-
-    private Component createLastModified(Person person) {
-        return new Span(UIUtils.formatDate(person.getLastModified()));
+    private Component createCreatedAt(NotificationDTO notification) {
+        return new Span(UIUtils.formatDate(notification.getCreatedAt().toLocalDate()));
     }
 
     private DetailsDrawer createDetailsDrawer() {
@@ -164,7 +134,7 @@ public class Notifications extends SplitViewFrame {
         DetailsDrawerFooter footer = new DetailsDrawerFooter();
         footer.addSaveListener(e -> {
             detailsDrawer.hide();
-            UIUtils.showNotification("Notification template updated.");
+            UIUtils.showNotification("Notification updated.");
         });
         footer.addCancelListener(e -> detailsDrawer.hide());
         detailsDrawer.setFooter(footer);
@@ -172,52 +142,40 @@ public class Notifications extends SplitViewFrame {
         return detailsDrawer;
     }
 
-    private void showDetails(Person person) {
-        String[] notifications = {
-            "Account Activity Alert", 
-            "Transaction Confirmation", 
-            "Security Alert", 
-            "Payment Due Reminder", 
-            "New Feature Announcement", 
-            "System Maintenance Notice"
-        };
-        
-        String notification = notifications[(int)(Math.abs(person.getId()) % notifications.length)];
-        
-        detailsDrawerHeader.setTitle("Notification: " + notification);
-        detailsDrawer.setContent(createDetails(person, notification));
+    private void showDetails(NotificationDTO notification) {
+        detailsDrawerHeader.setTitle("Notification: " + notification.getTitle());
+        detailsDrawer.setContent(createDetails(notification));
         detailsDrawer.show();
     }
 
-    private FormLayout createDetails(Person person, String notification) {
-        TextField notificationName = new TextField();
-        notificationName.setValue(notification);
-        notificationName.setWidthFull();
+    private FormLayout createDetails(NotificationDTO notification) {
+        TextField title = new TextField();
+        title.setValue(notification.getTitle());
+        title.setWidthFull();
 
-        TextArea template = new TextArea();
-        template.setValue("Dear {{customer.name}},\n\nThis is a notification about {{notification.subject}}.\n\nRegards,\nThe System");
-        template.setWidthFull();
-        template.setMinHeight("150px");
+        TextArea message = new TextArea();
+        message.setValue(notification.getMessage());
+        message.setWidthFull();
+        message.setMinHeight("150px");
 
         RadioButtonGroup<String> status = new RadioButtonGroup<>();
-        status.setItems("Active", "Inactive", "Draft");
-        status.setValue(person.getRandomBoolean() ? "Active" : "Inactive");
+        status.setItems("Active", "Sent", "Expired");
+        status.setValue(notification.getStatus());
 
-        ComboBox<String> channel = new ComboBox<>();
-        String[] channels = {"Email", "SMS", "Push Notification", "In-App", "All Channels"};
-        channel.setItems(channels);
-        channel.setValue(channels[(int)(Math.abs(person.getId()) % channels.length)]);
-        channel.setWidthFull();
+        ComboBox<String> type = new ComboBox<>();
+        type.setItems("System", "User", "Alert");
+        type.setValue(notification.getType());
+        type.setWidthFull();
 
-        ComboBox<String> frequency = new ComboBox<>();
-        frequency.setItems("Immediate", "Daily", "Weekly", "Monthly", "On Demand");
-        frequency.setValue("Immediate");
-        frequency.setWidthFull();
+        ComboBox<String> priority = new ComboBox<>();
+        priority.setItems("High", "Medium", "Low");
+        priority.setValue(notification.getPriority());
+        priority.setWidthFull();
 
-        ComboBox<String> audience = new ComboBox<>();
-        audience.setItems("All Users", "Customers", "Employees", "Administrators", "Custom Group");
-        audience.setValue("All Users");
-        audience.setWidthFull();
+        ComboBox<String> target = new ComboBox<>();
+        target.setItems("All Users", "Specific Role", "Specific User");
+        target.setValue(notification.getTarget());
+        target.setWidthFull();
 
         // Form layout
         FormLayout form = new FormLayout();
@@ -230,18 +188,13 @@ public class Notifications extends SplitViewFrame {
                         FormLayout.ResponsiveStep.LabelsPosition.TOP),
                 new FormLayout.ResponsiveStep("1024px", 3,
                         FormLayout.ResponsiveStep.LabelsPosition.TOP));
-        form.addFormItem(notificationName, "Notification Name");
-        form.addFormItem(template, "Template");
+        form.addFormItem(title, "Title");
+        form.addFormItem(message, "Message");
         form.addFormItem(status, "Status");
-        form.addFormItem(channel, "Channel");
-        form.addFormItem(frequency, "Frequency");
-        form.addFormItem(audience, "Target Audience");
+        form.addFormItem(type, "Type");
+        form.addFormItem(priority, "Priority");
+        form.addFormItem(target, "Target");
 
         return form;
-    }
-
-    private void filter() {
-        // We're using the same data source but could filter differently if needed
-        dataProvider.setFilterByValue(Person::getRole, Person.Role.MANAGER);
     }
 }

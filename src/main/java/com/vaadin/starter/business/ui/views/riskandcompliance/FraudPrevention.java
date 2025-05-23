@@ -17,8 +17,8 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.starter.business.backend.DummyData;
 import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.backend.service.RiskAndComplianceService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.Initials;
@@ -45,7 +45,10 @@ public class FraudPrevention extends SplitViewFrame {
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
 
-    public FraudPrevention() {
+    private final RiskAndComplianceService riskAndComplianceService;
+
+    public FraudPrevention(RiskAndComplianceService riskAndComplianceService) {
+        this.riskAndComplianceService = riskAndComplianceService;
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
@@ -65,7 +68,7 @@ public class FraudPrevention extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(DummyData.getPersons());
+        dataProvider = DataProvider.ofCollection(riskAndComplianceService.getFraudAlerts());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
@@ -236,7 +239,6 @@ public class FraudPrevention extends SplitViewFrame {
     }
 
     private void filter() {
-        // We're using the same data source but could filter differently if needed
-        dataProvider.setFilterByValue(Person::getRole, Person.Role.MANAGER);
+        // The service already filters for MANAGER role
     }
 }

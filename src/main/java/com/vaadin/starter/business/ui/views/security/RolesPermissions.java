@@ -17,9 +17,10 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.starter.business.backend.DummyData;
-import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.backend.dto.security.RoleDTO;
+import com.vaadin.starter.business.backend.service.SecurityService;
 import com.vaadin.starter.business.ui.MainLayout;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.ListItem;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawer;
@@ -41,62 +42,17 @@ import java.util.List;
 @PageTitle("Roles & Permissions")
 public class RolesPermissions extends SplitViewFrame {
 
-    private Grid<Role> grid;
-    private ListDataProvider<Role> dataProvider;
+    private Grid<RoleDTO> grid;
+    private ListDataProvider<RoleDTO> dataProvider;
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
 
-    // Sample Role class for demonstration
-    private static class Role {
-        private String name;
-        private String description;
-        private boolean isActive;
-        private List<String> permissions;
+    private final SecurityService securityService;
 
-        public Role(String name, String description, boolean isActive, List<String> permissions) {
-            this.name = name;
-            this.description = description;
-            this.isActive = isActive;
-            this.permissions = permissions;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public boolean isActive() {
-            return isActive;
-        }
-
-        public List<String> getPermissions() {
-            return permissions;
-        }
-
-        public int getPermissionCount() {
-            return permissions.size();
-        }
-    }
-
-    // Sample data
-    private List<Role> getRoles() {
-        return Arrays.asList(
-            new Role("Admin", "Full system access", true, 
-                Arrays.asList("Create Users", "Edit Users", "Delete Users", "View Reports", "Manage System")),
-            new Role("Manager", "Department management", true, 
-                Arrays.asList("View Users", "Edit Users", "View Reports")),
-            new Role("User", "Regular user access", true, 
-                Arrays.asList("View Profile", "Edit Profile", "View Reports")),
-            new Role("Guest", "Limited access", false, 
-                Arrays.asList("View Public Content"))
-        );
-    }
-
-    public RolesPermissions() {
+    @Autowired
+    public RolesPermissions(SecurityService securityService) {
+        this.securityService = securityService;
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
@@ -114,17 +70,17 @@ public class RolesPermissions extends SplitViewFrame {
         grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem()
                 .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(getRoles());
+        dataProvider = DataProvider.ofCollection(securityService.getRoles());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
-        grid.addColumn(Role::getName)
+        grid.addColumn(RoleDTO::getName)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setFrozen(true)
                 .setHeader("Role Name")
                 .setSortable(true);
-        grid.addColumn(Role::getDescription)
+        grid.addColumn(RoleDTO::getDescription)
                 .setAutoWidth(true)
                 .setHeader("Description");
         grid.addColumn(new ComponentRenderer<>(this::createActiveStatus))
@@ -132,7 +88,7 @@ public class RolesPermissions extends SplitViewFrame {
                 .setFlexGrow(0)
                 .setHeader("Status")
                 .setTextAlign(ColumnTextAlign.END);
-        grid.addColumn(Role::getPermissionCount)
+        grid.addColumn(RoleDTO::getPermissionCount)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setHeader("Permissions")
@@ -141,7 +97,7 @@ public class RolesPermissions extends SplitViewFrame {
         return grid;
     }
 
-    private Component createActiveStatus(Role role) {
+    private Component createActiveStatus(RoleDTO role) {
         Icon icon;
         if (role.isActive()) {
             icon = UIUtils.createPrimaryIcon(VaadinIcon.CHECK);
@@ -171,13 +127,13 @@ public class RolesPermissions extends SplitViewFrame {
         return detailsDrawer;
     }
 
-    private void showDetails(Role role) {
+    private void showDetails(RoleDTO role) {
         detailsDrawerHeader.setTitle(role.getName() + " Role");
         detailsDrawer.setContent(createDetails(role));
         detailsDrawer.show();
     }
 
-    private FormLayout createDetails(Role role) {
+    private FormLayout createDetails(RoleDTO role) {
         TextField name = new TextField();
         name.setValue(role.getName());
         name.setWidthFull();

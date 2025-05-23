@@ -1,4 +1,4 @@
-package com.vaadin.starter.business.ui.views.accounts;
+package com.vaadin.starter.business.ui.views.accounting;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
