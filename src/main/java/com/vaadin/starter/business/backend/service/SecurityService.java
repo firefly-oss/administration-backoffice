@@ -2,7 +2,7 @@ package com.vaadin.starter.business.backend.service;
 
 import java.util.Collection;
 
-import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.dummy.Person;
 import com.vaadin.starter.business.backend.dto.security.RoleDTO;
 import com.vaadin.starter.business.backend.dto.security.PolicyDTO;
 

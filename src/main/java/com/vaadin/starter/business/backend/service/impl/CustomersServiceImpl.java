@@ -1,7 +1,7 @@
 package com.vaadin.starter.business.backend.service.impl;
 
-import com.vaadin.starter.business.backend.OnboardingProcess;
-import com.vaadin.starter.business.backend.Segment;
+import com.vaadin.starter.business.dummy.OnboardingProcess;
+import com.vaadin.starter.business.dummy.Segment;
 import com.vaadin.starter.business.backend.dto.customers.OnboardingProcessDTO;
 import com.vaadin.starter.business.backend.dto.customers.SegmentDTO;
 import com.vaadin.starter.business.backend.mapper.customers.OnboardingProcessMapper;

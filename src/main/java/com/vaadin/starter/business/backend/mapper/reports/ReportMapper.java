@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.reports;
 
-import com.vaadin.starter.business.backend.Report;
+import com.vaadin.starter.business.dummy.Report;
 import com.vaadin.starter.business.backend.dto.reports.ReportDTO;
 import org.springframework.stereotype.Component;
 

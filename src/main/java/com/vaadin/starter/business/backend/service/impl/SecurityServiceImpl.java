@@ -1,9 +1,9 @@
 package com.vaadin.starter.business.backend.service.impl;
 
-import com.vaadin.starter.business.backend.DummyData;
-import com.vaadin.starter.business.backend.Person;
-import com.vaadin.starter.business.backend.Policy;
-import com.vaadin.starter.business.backend.Role;
+import com.vaadin.starter.business.dummy.DummyData;
+import com.vaadin.starter.business.dummy.Person;
+import com.vaadin.starter.business.dummy.Policy;
+import com.vaadin.starter.business.dummy.Role;
 import com.vaadin.starter.business.backend.dto.security.PolicyDTO;
 import com.vaadin.starter.business.backend.dto.security.RoleDTO;
 import com.vaadin.starter.business.backend.mapper.security.PolicyMapper;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of the SecurityService interface.

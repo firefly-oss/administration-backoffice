@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.riskandcompliance;
 
-import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.dummy.Person;
 import com.vaadin.starter.business.backend.dto.riskandcompliance.PersonDTO;
 import org.springframework.stereotype.Component;
 

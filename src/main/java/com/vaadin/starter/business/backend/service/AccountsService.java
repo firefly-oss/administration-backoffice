@@ -1,7 +1,7 @@
 package com.vaadin.starter.business.backend.service;
 
 import java.util.Collection;
-import com.vaadin.starter.business.backend.BankAccount;
+import com.vaadin.starter.business.dummy.BankAccount;
 
 /**
  * Service interface for managing bank accounts.

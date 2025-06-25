@@ -1,9 +1,9 @@
 package com.vaadin.starter.business.backend.service.impl;
 
-import com.vaadin.starter.business.backend.ConfigItem;
-import com.vaadin.starter.business.backend.MasterDataItem;
-import com.vaadin.starter.business.backend.Notification;
-import com.vaadin.starter.business.backend.Workflow;
+import com.vaadin.starter.business.dummy.ConfigItem;
+import com.vaadin.starter.business.dummy.MasterDataItem;
+import com.vaadin.starter.business.dummy.Notification;
+import com.vaadin.starter.business.dummy.Workflow;
 import com.vaadin.starter.business.backend.dto.systemconfig.ConfigItemDTO;
 import com.vaadin.starter.business.backend.dto.systemconfig.MasterDataItemDTO;
 import com.vaadin.starter.business.backend.dto.systemconfig.NotificationDTO;

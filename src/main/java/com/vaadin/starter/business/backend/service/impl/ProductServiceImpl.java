@@ -1,9 +1,9 @@
 package com.vaadin.starter.business.backend.service.impl;
 
-import com.vaadin.starter.business.backend.Contract;
-import com.vaadin.starter.business.backend.LendingConfig;
-import com.vaadin.starter.business.backend.Product;
-import com.vaadin.starter.business.backend.RateFee;
+import com.vaadin.starter.business.dummy.Contract;
+import com.vaadin.starter.business.dummy.LendingConfig;
+import com.vaadin.starter.business.dummy.Product;
+import com.vaadin.starter.business.dummy.RateFee;
 import com.vaadin.starter.business.backend.dto.products.ContractDTO;
 import com.vaadin.starter.business.backend.dto.products.LendingConfigDTO;
 import com.vaadin.starter.business.backend.dto.products.ProductDTO;

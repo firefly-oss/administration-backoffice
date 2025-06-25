@@ -27,24 +27,20 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
-import com.vaadin.starter.business.ui.components.ListItem;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawer;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerFooter;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerHeader;
 import com.vaadin.starter.business.ui.layout.size.Horizontal;
-import com.vaadin.starter.business.ui.layout.size.Right;
 import com.vaadin.starter.business.ui.layout.size.Top;
-import com.vaadin.starter.business.ui.layout.size.Vertical;
 import com.vaadin.starter.business.ui.util.LumoStyles;
 import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.BoxSizing;
 import com.vaadin.starter.business.ui.views.SplitViewFrame;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Collection;
-import com.vaadin.starter.business.backend.Product;
+
+import com.vaadin.starter.business.dummy.Product;
 import com.vaadin.starter.business.backend.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 

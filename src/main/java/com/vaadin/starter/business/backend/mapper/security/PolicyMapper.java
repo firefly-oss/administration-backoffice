@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.security;
 
-import com.vaadin.starter.business.backend.Policy;
+import com.vaadin.starter.business.dummy.Policy;
 import com.vaadin.starter.business.backend.dto.security.PolicyDTO;
 import org.springframework.stereotype.Component;
 

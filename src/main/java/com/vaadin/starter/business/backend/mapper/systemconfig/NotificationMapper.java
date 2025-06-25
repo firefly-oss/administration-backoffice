@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.systemconfig;
 
-import com.vaadin.starter.business.backend.Notification;
+import com.vaadin.starter.business.dummy.Notification;
 import com.vaadin.starter.business.backend.dto.systemconfig.NotificationDTO;
 import org.springframework.stereotype.Component;
 

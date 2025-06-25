@@ -1,7 +1,7 @@
 package com.vaadin.starter.business.backend.service.impl;
 
-import com.vaadin.starter.business.backend.DummyData;
-import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.dummy.DummyData;
+import com.vaadin.starter.business.dummy.Person;
 import com.vaadin.starter.business.backend.dto.riskandcompliance.PersonDTO;
 import com.vaadin.starter.business.backend.mapper.riskandcompliance.PersonMapper;
 import com.vaadin.starter.business.backend.service.RiskAndComplianceService;

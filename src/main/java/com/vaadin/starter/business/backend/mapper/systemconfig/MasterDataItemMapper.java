@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.systemconfig;
 
-import com.vaadin.starter.business.backend.MasterDataItem;
+import com.vaadin.starter.business.dummy.MasterDataItem;
 import com.vaadin.starter.business.backend.dto.systemconfig.MasterDataItemDTO;
 import org.springframework.stereotype.Component;
 

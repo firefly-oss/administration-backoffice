@@ -1,7 +1,7 @@
 package com.vaadin.starter.business.backend.service;
 
 import java.util.Collection;
-import com.vaadin.starter.business.backend.Client;
+import com.vaadin.starter.business.dummy.Client;
 
 /**
  * Service interface for managing clients.

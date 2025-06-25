@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.products;
 
-import com.vaadin.starter.business.backend.LendingConfig;
+import com.vaadin.starter.business.dummy.LendingConfig;
 import com.vaadin.starter.business.backend.dto.products.LendingConfigDTO;
 import org.springframework.stereotype.Component;
 

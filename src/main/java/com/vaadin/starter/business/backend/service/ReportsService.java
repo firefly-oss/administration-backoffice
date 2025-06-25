@@ -1,8 +1,8 @@
 package com.vaadin.starter.business.backend.service;
 
 import java.util.Collection;
-import com.vaadin.starter.business.backend.Report;
-import com.vaadin.starter.business.backend.Integration;
+import com.vaadin.starter.business.dummy.Report;
+import com.vaadin.starter.business.dummy.Integration;
 
 /**
  * Service interface for reports-related functionality.

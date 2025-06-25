@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.accounting;
 
-import com.vaadin.starter.business.backend.FinancialEvent;
+import com.vaadin.starter.business.dummy.FinancialEvent;
 import com.vaadin.starter.business.backend.dto.accounting.FinancialEventDTO;
 import org.springframework.stereotype.Component;
 

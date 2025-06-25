@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.products;
 
-import com.vaadin.starter.business.backend.RateFee;
+import com.vaadin.starter.business.dummy.RateFee;
 import com.vaadin.starter.business.backend.dto.products.RateFeeDTO;
 import org.springframework.stereotype.Component;
 

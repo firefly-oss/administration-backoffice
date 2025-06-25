@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.systemconfig;
 
-import com.vaadin.starter.business.backend.Workflow;
+import com.vaadin.starter.business.dummy.Workflow;
 import com.vaadin.starter.business.backend.dto.systemconfig.WorkflowDTO;
 import org.springframework.stereotype.Component;
 

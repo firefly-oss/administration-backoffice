@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.service.impl;
 
-import com.vaadin.starter.business.backend.BankAccount;
+import com.vaadin.starter.business.dummy.BankAccount;
 import com.vaadin.starter.business.backend.service.AccountsService;
 import org.springframework.stereotype.Service;
 

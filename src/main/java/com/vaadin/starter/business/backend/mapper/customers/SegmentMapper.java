@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.customers;
 
-import com.vaadin.starter.business.backend.Segment;
+import com.vaadin.starter.business.dummy.Segment;
 import com.vaadin.starter.business.backend.dto.customers.SegmentDTO;
 import org.springframework.stereotype.Component;
 

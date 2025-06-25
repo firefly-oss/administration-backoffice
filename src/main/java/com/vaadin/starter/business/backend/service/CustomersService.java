@@ -1,8 +1,8 @@
 package com.vaadin.starter.business.backend.service;
 
 import java.util.Collection;
-import com.vaadin.starter.business.backend.Segment;
-import com.vaadin.starter.business.backend.OnboardingProcess;
+import com.vaadin.starter.business.dummy.Segment;
+import com.vaadin.starter.business.dummy.OnboardingProcess;
 
 /**
  * Service interface for customer-related functionality.

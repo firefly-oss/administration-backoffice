@@ -1,7 +1,9 @@
 package com.vaadin.starter.business.backend.service.impl;
 
-import com.vaadin.starter.business.backend.Client;
+import com.vaadin.starter.business.backend.sdks.services.CustomersService;
+import com.vaadin.starter.business.dummy.Client;
 import com.vaadin.starter.business.backend.service.ClientsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,6 +17,8 @@ import java.util.Random;
  */
 @Service
 public class ClientsServiceImpl implements ClientsService {
+
+    private final CustomersService customersService;
 
     private final Map<Long, Client> clients = new HashMap<>();
     private final Random random = new Random(1);
@@ -53,7 +57,9 @@ public class ClientsServiceImpl implements ClientsService {
     /**
      * Constructor that initializes the clients data.
      */
-    public ClientsServiceImpl() {
+    @Autowired
+    public ClientsServiceImpl(CustomersService customersService) {
+        this.customersService = customersService;
         initClients();
     }
 

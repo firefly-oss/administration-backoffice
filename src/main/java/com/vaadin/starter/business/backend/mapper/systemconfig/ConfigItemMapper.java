@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.systemconfig;
 
-import com.vaadin.starter.business.backend.ConfigItem;
+import com.vaadin.starter.business.dummy.ConfigItem;
 import com.vaadin.starter.business.backend.dto.systemconfig.ConfigItemDTO;
 import org.springframework.stereotype.Component;
 

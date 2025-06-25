@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.channelsandservices;
 
-import com.vaadin.starter.business.backend.ServiceProvider;
+import com.vaadin.starter.business.dummy.ServiceProvider;
 import com.vaadin.starter.business.backend.dto.channelsandservices.ServiceProviderDTO;
 import org.springframework.stereotype.Component;
 

@@ -1,8 +1,8 @@
 package com.vaadin.starter.business.backend.service;
 
 import java.util.Collection;
-import com.vaadin.starter.business.backend.Channel;
-import com.vaadin.starter.business.backend.ServiceProvider;
+import com.vaadin.starter.business.dummy.Channel;
+import com.vaadin.starter.business.dummy.ServiceProvider;
 
 /**
  * Service interface for channels and services functionality.

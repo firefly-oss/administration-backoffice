@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.admintools;
 
-import com.vaadin.starter.business.backend.SystemComponent;
+import com.vaadin.starter.business.dummy.SystemComponent;
 import com.vaadin.starter.business.backend.dto.admintools.SystemComponentDTO;
 import org.springframework.stereotype.Component;
 

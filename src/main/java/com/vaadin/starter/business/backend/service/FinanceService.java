@@ -1,7 +1,7 @@
 package com.vaadin.starter.business.backend.service;
 
 import java.util.Collection;
-import com.vaadin.starter.business.backend.FinancialEvent;
+import com.vaadin.starter.business.dummy.FinancialEvent;
 
 /**
  * Service interface for finance-related functionality.

@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.customers;
 
-import com.vaadin.starter.business.backend.OnboardingProcess;
+import com.vaadin.starter.business.dummy.OnboardingProcess;
 import com.vaadin.starter.business.backend.dto.customers.OnboardingProcessDTO;
 import org.springframework.stereotype.Component;
 

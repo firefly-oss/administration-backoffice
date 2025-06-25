@@ -1,8 +1,8 @@
 package com.vaadin.starter.business.backend.service.impl;
 
-import com.vaadin.starter.business.backend.MaintenanceTask;
-import com.vaadin.starter.business.backend.SystemComponent;
-import com.vaadin.starter.business.backend.VersionInfo;
+import com.vaadin.starter.business.dummy.MaintenanceTask;
+import com.vaadin.starter.business.dummy.SystemComponent;
+import com.vaadin.starter.business.dummy.VersionInfo;
 import com.vaadin.starter.business.backend.dto.admintools.MaintenanceTaskDTO;
 import com.vaadin.starter.business.backend.dto.admintools.SystemComponentDTO;
 import com.vaadin.starter.business.backend.dto.admintools.VersionInfoDTO;

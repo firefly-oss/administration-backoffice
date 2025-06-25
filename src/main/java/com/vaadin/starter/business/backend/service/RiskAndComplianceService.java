@@ -1,7 +1,7 @@
 package com.vaadin.starter.business.backend.service;
 
 import java.util.Collection;
-import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.dummy.Person;
 
 /**
  * Service interface for risk and compliance-related functionality.

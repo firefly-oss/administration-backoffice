@@ -28,7 +28,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.starter.business.backend.BankAccount;
+import com.vaadin.starter.business.dummy.BankAccount;
 import com.vaadin.starter.business.backend.mapper.accounting.BankAccountMapper;
 import com.vaadin.starter.business.backend.service.AccountsService;
 import com.vaadin.starter.business.ui.MainLayout;

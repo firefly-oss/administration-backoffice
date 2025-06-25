@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.products;
 
-import com.vaadin.starter.business.backend.Product;
+import com.vaadin.starter.business.dummy.Product;
 import com.vaadin.starter.business.backend.dto.products.ProductDTO;
 import org.springframework.stereotype.Component;
 

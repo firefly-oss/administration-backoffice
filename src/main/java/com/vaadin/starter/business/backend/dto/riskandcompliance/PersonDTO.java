@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.dto.riskandcompliance;
 
-import com.vaadin.starter.business.backend.Person;
+import com.vaadin.starter.business.dummy.Person;
 import java.time.LocalDate;
 
 /**

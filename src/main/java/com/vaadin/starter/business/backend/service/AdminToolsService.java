@@ -1,9 +1,9 @@
 package com.vaadin.starter.business.backend.service;
 
 import java.util.Collection;
-import com.vaadin.starter.business.backend.VersionInfo;
-import com.vaadin.starter.business.backend.SystemComponent;
-import com.vaadin.starter.business.backend.MaintenanceTask;
+import com.vaadin.starter.business.dummy.VersionInfo;
+import com.vaadin.starter.business.dummy.SystemComponent;
+import com.vaadin.starter.business.dummy.MaintenanceTask;
 
 /**
  * Service interface for admin tools functionality.

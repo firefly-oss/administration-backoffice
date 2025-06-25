@@ -1,7 +1,7 @@
 package com.vaadin.starter.business.backend.service.impl;
 
-import com.vaadin.starter.business.backend.Channel;
-import com.vaadin.starter.business.backend.ServiceProvider;
+import com.vaadin.starter.business.dummy.Channel;
+import com.vaadin.starter.business.dummy.ServiceProvider;
 import com.vaadin.starter.business.backend.dto.channelsandservices.ChannelDTO;
 import com.vaadin.starter.business.backend.dto.channelsandservices.ServiceProviderDTO;
 import com.vaadin.starter.business.backend.mapper.channelsandservices.ChannelMapper;

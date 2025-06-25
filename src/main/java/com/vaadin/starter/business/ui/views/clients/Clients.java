@@ -28,7 +28,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.starter.business.backend.Client;
+import com.vaadin.starter.business.dummy.Client;
 import com.vaadin.starter.business.backend.mapper.clients.ClientMapper;
 import com.vaadin.starter.business.backend.service.ClientsService;
 import com.vaadin.starter.business.ui.MainLayout;

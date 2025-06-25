@@ -1,6 +1,6 @@
 package com.vaadin.starter.business.backend.mapper.security;
 
-import com.vaadin.starter.business.backend.Role;
+import com.vaadin.starter.business.dummy.Role;
 import com.vaadin.starter.business.backend.dto.security.RoleDTO;
 import org.springframework.stereotype.Component;
 
