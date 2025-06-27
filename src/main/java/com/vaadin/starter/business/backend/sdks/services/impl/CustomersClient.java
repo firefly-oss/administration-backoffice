@@ -5,7 +5,7 @@ import com.catalis.common.customer.sdk.invoker.ApiClient;
 import com.catalis.common.customer.sdk.model.*;
 import com.vaadin.starter.business.backend.mapper.customers.CustomersMapper;
 import com.vaadin.starter.business.backend.sdks.services.CustomersService;
-import com.vaadin.starter.business.backend.sdks.services.rest.*;
+import com.vaadin.starter.business.backend.sdks.services.rest.customers.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

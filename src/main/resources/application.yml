@@ -22,3 +22,5 @@ logging.level.com.vaadin.starter.business: info
 api-configuration:
   customers:
     base-path: http://localhost:8086
+  accounts:
+    base-path: http://localhost:8086

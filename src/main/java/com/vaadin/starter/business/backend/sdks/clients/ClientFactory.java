@@ -24,13 +24,25 @@ public class ClientFactory {
     }
 
     /**
-     * Creates and returns an SCA service client.
+     * Creates and returns a Customers service client.
      *
-     * @return A configured SCA service client
+     * @return A configured Customers service client
      */
     @Bean
     public com.catalis.common.customer.sdk.invoker.ApiClient createCustomersClient() {
         com.catalis.common.customer.sdk.invoker.ApiClient apiClient = new com.catalis.common.customer.sdk.invoker.ApiClient();
+        apiClient.setBasePath(customersProperties.getBasePath());
+        return apiClient;
+    }
+
+    /**
+     * Creates and returns an Accounts service client.
+     *
+     * @return A configured Accounts service client
+     */
+    @Bean
+    public com.catalis.core.banking.accounts.sdk.invoker.ApiClient createAccountsClient() {
+        com.catalis.core.banking.accounts.sdk.invoker.ApiClient apiClient = new com.catalis.core.banking.accounts.sdk.invoker.ApiClient();
         apiClient.setBasePath(customersProperties.getBasePath());
         return apiClient;
     }

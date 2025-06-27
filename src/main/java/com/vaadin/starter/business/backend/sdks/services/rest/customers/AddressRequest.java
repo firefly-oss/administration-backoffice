@@ -1,4 +1,4 @@
-package com.vaadin.starter.business.backend.sdks.services.rest;
+package com.vaadin.starter.business.backend.sdks.services.rest.customers;
 
 import lombok.*;
 

@@ -1,14 +1,26 @@
 package com.vaadin.starter.business.backend.sdks.services;
 
 import com.catalis.common.customer.sdk.model.*;
-import com.vaadin.starter.business.backend.sdks.services.rest.*;
+import com.vaadin.starter.business.backend.sdks.services.rest.customers.*;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
 
 public interface CustomersService {
 
+    /**
+     * Filters legal person information based on the provided request parameters.
+     *
+     * @param legalPersonRequest the request containing filter criteria for legal persons
+     * @return a reactive Mono emitting a ResponseEntity containing a PaginationResponse with the filtered results
+     */
     Mono<ResponseEntity<PaginationResponse>> filterLegalPerson(LegalPersonRequest legalPersonRequest);
+    /**
+     * Filters natural person data based on the given request criteria.
+     *
+     * @param naturalPersonRequest the request object containing the filtering criteria for natural person data
+     * @return a reactive Mono encapsulating a ResponseEntity that contains a PaginationResponse with the filtered data
+     */
     Mono<ResponseEntity<PaginationResponse>> filterNaturalPerson(NaturalPersonRequest naturalPersonRequest);
 
     /**

@@ -1,7 +1,7 @@
 package com.vaadin.starter.business.backend.mapper.customers;
 
 import com.catalis.common.customer.sdk.model.*;
-import com.vaadin.starter.business.backend.sdks.services.rest.*;
+import com.vaadin.starter.business.backend.sdks.services.rest.customers.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

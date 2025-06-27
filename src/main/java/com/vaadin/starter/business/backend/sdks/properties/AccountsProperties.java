@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Configuration;
  * Maps the properties defined in application.yaml under api-configuration.
  */
 @Configuration
-@ConfigurationProperties(prefix = "api-configuration.customers")
+@ConfigurationProperties(prefix = "api-configuration.accounts")
 @Getter
 @Setter
-public class CustomersProperties {
+public class AccountsProperties {
 
     private String basePath;
 
