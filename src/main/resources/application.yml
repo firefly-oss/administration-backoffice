@@ -24,3 +24,5 @@ api-configuration:
     base-path: http://localhost:8086
   accounts:
     base-path: http://localhost:8086
+  cards:
+    base-path: http://localhost:8086

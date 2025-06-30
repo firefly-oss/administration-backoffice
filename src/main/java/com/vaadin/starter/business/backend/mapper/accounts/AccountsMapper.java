@@ -11,8 +11,6 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = "spring")
 public interface AccountsMapper {
 
-    AccountsMapper INSTANCE = Mappers.getMapper(AccountsMapper.class);
-
     /**
      * Convert an AccountRequest to an AccountDTO.
      *
