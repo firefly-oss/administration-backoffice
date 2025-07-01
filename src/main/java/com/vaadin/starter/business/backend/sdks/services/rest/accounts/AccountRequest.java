@@ -3,6 +3,7 @@ package com.vaadin.starter.business.backend.sdks.services.rest.accounts;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Request object for Account operations (create, update).
@@ -27,4 +28,5 @@ public class AccountRequest {
     private String taxReportingStatus;
     private String regulatoryStatus;
     private LocalDate openDate;
+    private LocalDateTime dateCreated;
 }

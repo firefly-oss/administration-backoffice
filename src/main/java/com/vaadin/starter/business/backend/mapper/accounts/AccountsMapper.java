@@ -19,6 +19,7 @@ public interface AccountsMapper {
      * @return the corresponding AccountDTO
      */
     @Mapping(source = "accountStatus", target = "accountStatus", qualifiedByName = "stringToAccountStatusEnum")
+    @Mapping(target = "minimumBalance", expression = "java(request.getBalance() != null ? java.math.BigDecimal.valueOf(request.getBalance()) : null)")
     AccountDTO accountRequestToDto(AccountRequest request);
 
     @Named("stringToAccountStatusEnum")

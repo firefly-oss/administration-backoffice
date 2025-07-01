@@ -9,6 +9,7 @@ import com.vaadin.flow.component.charts.model.ChartType;
 import com.vaadin.flow.component.charts.model.Configuration;
 import com.vaadin.flow.component.charts.model.ListSeries;
 import com.vaadin.flow.component.charts.model.XAxis;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Image;
@@ -51,6 +52,7 @@ public class AccountDetails extends ViewFrame implements HasUrlParameter<Long> {
 	private ListItem availability;
 	private ListItem bankAccount;
 	private ListItem updated;
+	private ListItem created;
 
 	private AccountDTO account;
 	private final AccountsService accountsService;
@@ -263,8 +265,22 @@ public class AccountDetails extends ViewFrame implements HasUrlParameter<Long> {
 		Span ownerName = new Span(account.getDescription() != null ? account.getDescription() : "Account");
 		ownerName.addClassName(LumoStyles.Heading.H2);
 
-		// Create a container for logo and account name
-		FlexBoxLayout logoAndName = new FlexBoxLayout(image, ownerName);
+  // Create edit button with the same style as Create Account button
+  Button editButton = UIUtils.createSuccessButton("Edit Account");
+  editButton.addClickListener(e -> openEditAccountDialog());
+
+  // Create delete button with error styling
+  Button deleteButton = UIUtils.createErrorButton("Delete Account");
+  deleteButton.addClickListener(e -> openDeleteConfirmationDialog());
+
+		// Create a container for owner name and buttons
+		FlexBoxLayout nameAndEdit = new FlexBoxLayout(ownerName, editButton, deleteButton);
+		nameAndEdit.setFlexDirection(FlexDirection.ROW);
+		nameAndEdit.setAlignItems(FlexComponent.Alignment.CENTER);
+		nameAndEdit.getStyle().set("gap", "8px");
+
+		// Create a container for logo and account name with edit button
+		FlexBoxLayout logoAndName = new FlexBoxLayout(image, nameAndEdit);
 		logoAndName.setFlexDirection(FlexDirection.ROW);
 		logoAndName.setAlignItems(FlexComponent.Alignment.CENTER);
 		logoAndName.getStyle().set("gap", "16px");
@@ -333,7 +349,10 @@ public class AccountDetails extends ViewFrame implements HasUrlParameter<Long> {
 		updated = new ListItem(UIUtils.createTertiaryIcon(VaadinIcon.CALENDAR), "", "Last Updated");
 		updated.setReverse(true);
 
-		FlexBoxLayout accountStatusContent = new FlexBoxLayout(status, updated);
+		created = new ListItem(UIUtils.createTertiaryIcon(VaadinIcon.CALENDAR), "", "Created date");
+		created.setReverse(true);
+
+		FlexBoxLayout accountStatusContent = new FlexBoxLayout(status, updated, created);
 		accountStatusContent.setFlexDirection(FlexDirection.COLUMN);
 		accountStatusContent.getStyle().set("gap", "8px");
 
@@ -484,6 +503,27 @@ public class AccountDetails extends ViewFrame implements HasUrlParameter<Long> {
 		return card;
 	}
 
+	/**
+	 * Opens the edit account dialog with the current account data.
+	 * When the account is successfully updated, it reloads the account data.
+	 */
+	private void openEditAccountDialog() {
+		if (account == null) {
+			System.out.println("[DEBUG_LOG] Cannot open edit dialog: account is null");
+			return;
+		}
+
+		// Create a runnable to reload the account data when the edit is successful
+		Runnable onSuccess = () -> {
+			System.out.println("[DEBUG_LOG] Account updated, reloading data");
+			loadAccountData(account.getAccountId());
+		};
+
+		// Create and open the edit account dialog
+		EditAccount editAccountDialog = new EditAccount(accountsService, account, onSuccess);
+		editAccountDialog.open();
+	}
+
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
@@ -521,6 +561,10 @@ public class AccountDetails extends ViewFrame implements HasUrlParameter<Long> {
 			if (updated != null) {
 				updated.setPrimaryText(UIUtils.formatDate(account.getOpenDate()));
 			}
+			if (created != null) {
+				created.setPrimaryText(account.getDateCreated() != null ? 
+					UIUtils.formatDate(account.getDateCreated().toLocalDate()) : "");
+			}
 
 			System.out.println("[DEBUG_LOG] UI updated successfully");
 		} catch (Exception e) {
@@ -540,5 +584,99 @@ public class AccountDetails extends ViewFrame implements HasUrlParameter<Long> {
 			System.out.println("[DEBUG_LOG] Error initializing AppBar: " + e.getMessage());
 			return null;
 		}
+	}
+
+	/**
+	 * Opens a confirmation dialog for deleting the current account.
+	 * If confirmed, calls the deleteAccount method and navigates back to the Accounts view.
+	 */
+	private void openDeleteConfirmationDialog() {
+		if (account == null) {
+			System.out.println("[DEBUG_LOG] Cannot open delete dialog: account is null");
+			return;
+		}
+
+		// Create confirmation dialog
+		Dialog confirmDialog = new Dialog();
+		confirmDialog.setCloseOnEsc(false);
+		confirmDialog.setCloseOnOutsideClick(false);
+
+		// Add header
+		H3 header = new H3("Confirm Delete");
+		header.getStyle().set("margin-top", "0");
+
+		// Add confirmation message
+		Span message = new Span("Are you sure you want to delete this account? This action cannot be undone.");
+		message.getStyle().set("color", "var(--lumo-error-text-color)");
+
+		// Create buttons
+		Button confirmButton = UIUtils.createErrorPrimaryButton("Delete");
+		confirmButton.addClickListener(e -> {
+			confirmDialog.close();
+			deleteAccount();
+		});
+
+		Button cancelButton = UIUtils.createTertiaryButton("Cancel");
+		cancelButton.addClickListener(e -> confirmDialog.close());
+
+		// Create button layout
+		FlexBoxLayout buttonLayout = new FlexBoxLayout(confirmButton, cancelButton);
+		buttonLayout.setFlexDirection(FlexDirection.ROW);
+		buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+		buttonLayout.getStyle().set("gap", "8px");
+		buttonLayout.getStyle().set("margin-top", "20px");
+
+		// Add components to dialog
+		Div content = new Div(header, message, buttonLayout);
+		content.getStyle().set("padding", "20px");
+		confirmDialog.add(content);
+
+		// Open dialog
+		confirmDialog.open();
+	}
+
+	/**
+	 * Deletes the current account and navigates back to the Accounts view if successful.
+	 */
+	private void deleteAccount() {
+		if (account == null) {
+			System.out.println("[DEBUG_LOG] Cannot delete account: account is null");
+			return;
+		}
+
+		System.out.println("[DEBUG_LOG] Deleting account with ID: " + account.getAccountId());
+
+		// Call the service to delete the account
+		accountsService.deleteAccount(account.getAccountId())
+			.subscribe(
+				response -> {
+					// Use UI.access() to safely update the UI from the async callback
+					getUI().ifPresent(ui -> ui.access(() -> {
+						if (response.getStatusCode().is2xxSuccessful()) {
+							System.out.println("[DEBUG_LOG] Account deleted successfully");
+
+							// Show success notification
+							UIUtils.showNotification("Account deleted successfully");
+
+							// Navigate back to Accounts view
+							ui.navigate(Accounts.class);
+						} else {
+							System.out.println("[DEBUG_LOG] Failed to delete account: " + response.getStatusCode());
+
+							// Show error notification
+							UIUtils.showNotification("Failed to delete account: " + response.getStatusCode());
+						}
+					}));
+				},
+				error -> {
+					System.out.println("[DEBUG_LOG] Error deleting account: " + error.getMessage());
+					error.printStackTrace();
+
+					// Handle error in UI thread
+					getUI().ifPresent(ui -> ui.access(() -> {
+						UIUtils.showNotification("Error deleting account: " + error.getMessage());
+					}));
+				}
+			);
 	}
 }
