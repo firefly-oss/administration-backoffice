@@ -50,6 +50,8 @@ public class ClientFactory {
     public com.catalis.core.banking.accounts.sdk.invoker.ApiClient createAccountsClient() {
         com.catalis.core.banking.accounts.sdk.invoker.ApiClient apiClient = new com.catalis.core.banking.accounts.sdk.invoker.ApiClient();
         apiClient.setBasePath(accountsProperties.getBasePath());
+        apiClient.addDefaultHeader("Content-Type", "application/json");
+        apiClient.addDefaultHeader("Accept", "application/json");
         return apiClient;
     }
 

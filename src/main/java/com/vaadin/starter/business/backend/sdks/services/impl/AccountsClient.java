@@ -66,7 +66,8 @@ public class AccountsClient implements AccountsService {
 
     @Override
     public Mono<ResponseEntity<PaginationResponseAccountDTO>> filterAccounts(AccountFilterRequest accountFilterRequest) {
-        return accountsApi.filterAccountsWithHttpInfo(accountsMapper.accountFilterRequestToDto(accountFilterRequest));
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        return accountsApi.filterAccountsWithHttpInfo(accountsMapper.accountFilterRequestToDto(accountFilterRequest), xIdempotencyKey);
     }
 
     @Override

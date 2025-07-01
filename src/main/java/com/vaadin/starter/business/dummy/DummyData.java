@@ -215,10 +215,16 @@ public class DummyData {
 
 		int startingPoint = 1000;
 		for (i = 0; i < 40; i++) {
-			BANK_ACCOUNTS.put(i + startingPoint,
-					new BankAccount(i + startingPoint, getBank(), getIBAN(),
-							getCompany(), getRandomDouble(5000, 100000),
-							getDate(), DummyData.getImageSource()));
+			// Create bank accounts with data that matches what's displayed in AccountDetails
+			Long id = i + startingPoint;
+			String bank = getBank();
+			String iban = getIBAN();
+			String company = getCompany();
+			Double availability = getRandomDouble(5000, 100000);
+			LocalDate date = getDate();
+			String imagePath = DummyData.getImageSource();
+
+			BANK_ACCOUNTS.put(id, new BankAccount(id, bank, iban, company, availability, date, imagePath));
 		}
 
 		/* === PAYMENTS ==== */

@@ -13,7 +13,6 @@ spring.h2.console.path: /h2-console
 # Vaadin configuration
 vaadin.allowed-packages: com.vaadin,org.vaadin,com.vaadin.starter.business
 vaadin.pnpm.enable: true
-
 # Logging
 logging.level.org.atmosphere: warn
 logging.level.com.vaadin.starter.business: info
@@ -23,6 +22,8 @@ api-configuration:
   customers:
     base-path: http://localhost:8086
   accounts:
-    base-path: http://localhost:8086
+    base-path: http://localhost:8084
   cards:
     base-path: http://localhost:8086
+vaadin:
+  async-supported: true
