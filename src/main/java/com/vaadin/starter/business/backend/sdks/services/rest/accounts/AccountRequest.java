@@ -2,6 +2,8 @@ package com.vaadin.starter.business.backend.sdks.services.rest.accounts;
 
 import lombok.*;
 
+import java.time.LocalDate;
+
 /**
  * Request object for Account operations (create, update).
  */
@@ -16,7 +18,13 @@ public class AccountRequest {
     private String accountType;
     private String currency;
     private Double balance;
-    private String status;
+    private String accountStatus;
     private Long customerId;
     private String description;
+    private Long contractId;
+    private Long branchId;
+    private String accountSubType;
+    private String taxReportingStatus;
+    private String regulatoryStatus;
+    private LocalDate openDate;
 }

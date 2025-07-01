@@ -3,7 +3,8 @@ package com.vaadin.starter.business.backend.mapper.accounts;
 import com.catalis.core.banking.accounts.sdk.model.*;
 import com.vaadin.starter.business.backend.sdks.services.rest.accounts.*;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 /**
  * Mapper for converting between account request objects and SDK DTOs.
@@ -17,8 +18,16 @@ public interface AccountsMapper {
      * @param request the AccountRequest to convert
      * @return the corresponding AccountDTO
      */
+    @Mapping(source = "accountStatus", target = "accountStatus", qualifiedByName = "stringToAccountStatusEnum")
     AccountDTO accountRequestToDto(AccountRequest request);
 
+    @Named("stringToAccountStatusEnum")
+    default AccountDTO.AccountStatusEnum stringToAccountStatusEnum(String status) {
+        if (status == null) {
+            return null;
+        }
+        return Enum.valueOf(AccountDTO.AccountStatusEnum.class, status);
+    }
     /**
      * Convert an AccountDTO to an AccountRequest.
      *

@@ -11,6 +11,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.page.Page;
@@ -139,9 +140,17 @@ public class Accounts extends ViewFrame {
 		Button clearButton = UIUtils.createTertiaryButton("Clear");
 		clearButton.addClickListener(e -> clearFilters());
 
-		// Create button layout
-		HorizontalLayout buttonLayout = new HorizontalLayout(searchButton, clearButton);
-		buttonLayout.setSpacing(true);
+		Button createAccountButton = UIUtils.createSuccessButton("Create Account");
+		createAccountButton.addClickListener(e -> openCreateAccountDialog());
+
+		// Create a wrapper for search and clear buttons (right side)
+		HorizontalLayout rightButtons = new HorizontalLayout(searchButton, clearButton);
+		rightButtons.setSpacing(true);
+
+		// Create button layout with Create Account on left and search/clear on right
+		HorizontalLayout buttonLayout = new HorizontalLayout(createAccountButton, rightButtons);
+		buttonLayout.setWidthFull();
+		buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 
 		// Create form layout
 		FormLayout formLayout = new FormLayout();
@@ -446,5 +455,10 @@ public class Accounts extends ViewFrame {
 			dataProvider.clearFilters();
 			System.out.println("[DEBUG_LOG] All filters cleared");
 		}
+	}
+
+	private void openCreateAccountDialog() {
+		CreateAccount createAccountDialog = new CreateAccount(accountsService, this::loadAccountsData);
+		createAccountDialog.open();
 	}
 }

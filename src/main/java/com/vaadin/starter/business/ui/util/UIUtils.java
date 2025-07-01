@@ -192,6 +192,7 @@ public class UIUtils {
 		Button button = new Button(text);
 		button.addThemeVariants(variants);
 		button.getElement().setAttribute("aria-label", text);
+		button.getStyle().set("cursor", "pointer");
 		return button;
 	}
 
@@ -201,6 +202,7 @@ public class UIUtils {
 	                                  ButtonVariant... variants) {
 		Button button = new Button(new Icon(icon));
 		button.addThemeVariants(variants);
+		button.getStyle().set("cursor", "pointer");
 		return button;
 	}
 
@@ -212,6 +214,7 @@ public class UIUtils {
 		i.getElement().setAttribute("slot", "prefix");
 		Button button = new Button(text, i);
 		button.addThemeVariants(variants);
+		button.getStyle().set("cursor", "pointer");
 		return button;
 	}
 
