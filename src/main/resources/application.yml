@@ -24,6 +24,6 @@ api-configuration:
   accounts:
     base-path: http://localhost:8084
   cards:
-    base-path: http://localhost:8086
+    base-path: http://localhost:8084
 vaadin:
   async-supported: true

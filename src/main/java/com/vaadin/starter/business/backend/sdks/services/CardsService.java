@@ -1,54 +1,7 @@
 package com.vaadin.starter.business.backend.sdks.services;
 
-import com.catalis.core.banking.cards.sdk.model.BINDTO;
-import com.catalis.core.banking.cards.sdk.model.CardAcquirerDTO;
-import com.catalis.core.banking.cards.sdk.model.CardActivityDTO;
-import com.catalis.core.banking.cards.sdk.model.CardBalanceDTO;
-import com.catalis.core.banking.cards.sdk.model.CardConfigurationDTO;
-import com.catalis.core.banking.cards.sdk.model.CardDTO;
-import com.catalis.core.banking.cards.sdk.model.CardDisputeDTO;
-import com.catalis.core.banking.cards.sdk.model.CardEnrollmentDTO;
-import com.catalis.core.banking.cards.sdk.model.CardGatewayDTO;
-import com.catalis.core.banking.cards.sdk.model.CardInterestDTO;
-import com.catalis.core.banking.cards.sdk.model.CardLimitDTO;
-import com.catalis.core.banking.cards.sdk.model.CardMerchantDTO;
-import com.catalis.core.banking.cards.sdk.model.CardNetworkDTO;
-import com.catalis.core.banking.cards.sdk.model.CardPaymentDTO;
-import com.catalis.core.banking.cards.sdk.model.CardProgramDTO;
-import com.catalis.core.banking.cards.sdk.model.CardPromotionDTO;
-import com.catalis.core.banking.cards.sdk.model.CardProviderDTO;
-import com.catalis.core.banking.cards.sdk.model.CardSecurityDTO;
-import com.catalis.core.banking.cards.sdk.model.CardTerminalDTO;
-import com.catalis.core.banking.cards.sdk.model.CardTransactionDTO;
-import com.catalis.core.banking.cards.sdk.model.GetAllBINs1200Response;
-import com.catalis.core.banking.cards.sdk.model.IssuerDTO;
-import com.catalis.core.banking.cards.sdk.model.PaginationRequest;
-import com.catalis.core.banking.cards.sdk.model.PaginationResponse;
-import com.catalis.core.banking.cards.sdk.model.PhysicalCardDTO;
-import com.catalis.core.banking.cards.sdk.model.VirtualCardDTO;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.BINRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardAcquirerRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardActivityRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardBalanceRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardConfigurationRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardDisputeRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardEnrollmentRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardGatewayRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardInterestRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardLimitRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardMerchantRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardNetworkRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardPaymentRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardProgramRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardPromotionRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardProviderRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardSecurityRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardTerminalRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardTransactionRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.CardRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.IssuerRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.PhysicalCardRequest;
-import com.vaadin.starter.business.backend.sdks.services.rest.cards.VirtualCardRequest;
+import com.catalis.core.banking.cards.sdk.model.*;
+import com.vaadin.starter.business.backend.sdks.services.rest.cards.*;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
@@ -103,6 +56,14 @@ public interface CardsService {
      * @return the created Card
      */
     Mono<ResponseEntity<CardDTO>> createCard(CardRequest cardRequest);
+
+    /**
+     * Filter cards based on the provided request parameters.
+     *
+     * @param cardFilterRequest the request containing filter criteria for cards
+     * @return a reactive Mono emitting a ResponseEntity containing a PaginationResponseCardDTO with the filtered results
+     */
+    Mono<ResponseEntity<PaginationResponseCardDTO>> filterCards(CardFilterRequest cardFilterRequest);
 
     /**
      * Delete a Card

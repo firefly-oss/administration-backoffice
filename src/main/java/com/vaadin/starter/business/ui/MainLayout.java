@@ -23,6 +23,7 @@ import com.vaadin.starter.business.ui.constants.NavigationConstants;
 import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.Overflow;
 import com.vaadin.starter.business.ui.views.accounting.Accounts;
+import com.vaadin.starter.business.ui.views.cards.Cards;
 import com.vaadin.starter.business.ui.views.clients.Clients;
 import com.vaadin.starter.business.ui.views.Home;
 import com.vaadin.starter.business.ui.views.security.InternalUsers;
@@ -146,6 +147,7 @@ public class MainLayout extends FlexBoxLayout
 				null);
 		accounting.setTitle(NavigationConstants.ACCOUNTING_AND_FINANCE);
 		menu.addNaviItem(accounting, NavigationConstants.ACCOUNTS, Accounts.class);
+		menu.addNaviItem(accounting, NavigationConstants.CARDS, Cards.class);
 		menu.addNaviItem(accounting, NavigationConstants.FINANCIAL_CALENDAR, FinancialCalendar.class);
 		accounting.setSubItemsVisible(false);
 

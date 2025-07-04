@@ -103,6 +103,12 @@ public class CardsClient implements CardsService {
     }
 
     @Override
+    public Mono<ResponseEntity<PaginationResponseCardDTO>> filterCards(CardFilterRequest cardFilterRequest) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        return cardsApi.filterCardsWithHttpInfo(cardsMapper.cardFilterRequestToDto(cardFilterRequest), xIdempotencyKey);
+    }
+
+    @Override
     public Mono<ResponseEntity<Void>> deleteCard(Long cardId) {
         return cardsApi.deleteCardWithHttpInfo(cardId);
     }

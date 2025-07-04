@@ -267,7 +267,6 @@ public class Accounts extends ViewFrame {
 									ui.push(); // Force UI update to the client
 								} catch (Exception e) {
 									System.out.println("[DEBUG_LOG] Error updating grid: " + e.getMessage());
-									e.printStackTrace();
 								}
 							});
 						}
@@ -276,7 +275,6 @@ public class Accounts extends ViewFrame {
 					}
 				}, error -> {
 					System.out.println("[DEBUG_LOG] Error in filterAccounts: " + error.getMessage());
-					error.printStackTrace();
 
 					// Handle error in UI thread
 					ui.access(() -> {
