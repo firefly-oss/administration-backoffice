@@ -22,7 +22,7 @@ api-configuration:
   customers:
     base-path: http://localhost:8086
   accounts:
-    base-path: http://localhost:8084
+    base-path: http://core-banking-accounts-dev.core.svc.cluster.local:8080/
   cards:
     base-path: http://localhost:8084
 vaadin:

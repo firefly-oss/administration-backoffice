@@ -14,14 +14,14 @@ public interface CustomersService {
      * @param legalPersonRequest the request containing filter criteria for legal persons
      * @return a reactive Mono emitting a ResponseEntity containing a PaginationResponse with the filtered results
      */
-    Mono<ResponseEntity<PaginationResponse>> filterLegalPerson(LegalPersonRequest legalPersonRequest);
+    Mono<ResponseEntity<PaginationResponseLegalPersonDTO>> filterLegalPerson(LegalPersonRequest legalPersonRequest);
     /**
      * Filters natural person data based on the given request criteria.
      *
      * @param naturalPersonRequest the request object containing the filtering criteria for natural person data
      * @return a reactive Mono encapsulating a ResponseEntity that contains a PaginationResponse with the filtered data
      */
-    Mono<ResponseEntity<PaginationResponse>> filterNaturalPerson(NaturalPersonRequest naturalPersonRequest);
+    Mono<ResponseEntity<PaginationResponseNaturalPersonDTO>> filterNaturalPerson(NaturalPersonRequest naturalPersonRequest);
 
     /**
      * Create a new party.

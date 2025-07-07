@@ -67,13 +67,15 @@ public class CustomersClient implements CustomersService {
     }
 
     @Override
-    public Mono<ResponseEntity<PaginationResponse>> filterLegalPerson(LegalPersonRequest legalPersonRequest) {
-        return partyApi.filterLegalPersonWithHttpInfo(customersMapper.legalPersonRequestToDto(legalPersonRequest));
+    public Mono<ResponseEntity<PaginationResponseLegalPersonDTO>> filterLegalPerson(LegalPersonRequest legalPersonRequest) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        return partyApi.filterLegalPersonWithHttpInfo(customersMapper.legalPersonRequestToDto(legalPersonRequest), xIdempotencyKey);
     }
 
     @Override
-    public Mono<ResponseEntity<PaginationResponse>> filterNaturalPerson(NaturalPersonRequest naturalPersonRequest) {
-        return partyApi.filterNaturalPersonWithHttpInfo(customersMapper.naturalPersonRequestToDto(naturalPersonRequest));
+    public Mono<ResponseEntity<PaginationResponseNaturalPersonDTO>> filterNaturalPerson(NaturalPersonRequest naturalPersonRequest) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        return partyApi.filterNaturalPersonWithHttpInfo(customersMapper.naturalPersonRequestToDto(naturalPersonRequest), xIdempotencyKey);
     }
 
     @Override
