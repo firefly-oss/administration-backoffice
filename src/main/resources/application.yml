@@ -25,5 +25,7 @@ api-configuration:
     base-path: http://core-banking-accounts-dev.core.svc.cluster.local:8080/
   cards:
     base-path: http://localhost:8084
+  contracts:
+    base-path: http://localhost:8080
 vaadin:
   async-supported: true

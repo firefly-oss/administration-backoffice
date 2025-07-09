@@ -3,6 +3,7 @@ package com.vaadin.starter.business.backend.sdks.clients;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.starter.business.backend.sdks.properties.AccountsProperties;
 import com.vaadin.starter.business.backend.sdks.properties.CardsProperties;
+import com.vaadin.starter.business.backend.sdks.properties.ContractsProperties;
 import com.vaadin.starter.business.backend.sdks.properties.CustomersProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -18,14 +19,17 @@ public class ClientFactory {
     private final CustomersProperties customersProperties;
     private final AccountsProperties accountsProperties;
     private final CardsProperties cardsProperties;
+    private final ContractsProperties contractsProperties;
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public ClientFactory(CustomersProperties customersProperties, AccountsProperties accountsProperties, CardsProperties cardsProperties,
+    public ClientFactory(CustomersProperties customersProperties, AccountsProperties accountsProperties,
+                         CardsProperties cardsProperties, ContractsProperties contractsProperties,
                          ObjectMapper objectMapper) {
         this.customersProperties = customersProperties;
         this.accountsProperties = accountsProperties;
         this.cardsProperties = cardsProperties;
+        this.contractsProperties = contractsProperties;
         this.objectMapper = objectMapper;
     }
 
@@ -56,7 +60,7 @@ public class ClientFactory {
     }
 
     /**
-     * Creates and returns an Cards service client.
+     * Creates and returns a Cards service client.
      *
      * @return A configured Cards service client
      */
@@ -64,6 +68,18 @@ public class ClientFactory {
     public com.catalis.core.banking.cards.sdk.invoker.ApiClient createCardsClient() {
         com.catalis.core.banking.cards.sdk.invoker.ApiClient apiClient = new com.catalis.core.banking.cards.sdk.invoker.ApiClient();
         apiClient.setBasePath(cardsProperties.getBasePath());
+        return apiClient;
+    }
+
+    /**
+     * Creates and returns a Contracts service client.
+     *
+     * @return A configured Contracts service client
+     */
+    @Bean
+    public com.catalis.common.contract.sdk.invoker.ApiClient createContractsClient() {
+        com.catalis.common.contract.sdk.invoker.ApiClient apiClient = new com.catalis.common.contract.sdk.invoker.ApiClient();
+        apiClient.setBasePath(contractsProperties.getBasePath());
         return apiClient;
     }
 
