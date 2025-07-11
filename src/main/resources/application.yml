@@ -26,6 +26,6 @@ api-configuration:
   cards:
     base-path: http://localhost:8084
   contracts:
-    base-path: http://localhost:8080
+    base-path: http://common-platform-contract-mgmt-dev.common.svc.cluster.local:8080/
 vaadin:
   async-supported: true
