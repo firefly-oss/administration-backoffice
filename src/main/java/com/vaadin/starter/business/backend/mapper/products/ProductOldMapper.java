@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  * Mapper for converting between Product and ProductDTO objects.
  */
 @Component
-public class ProductMapper {
+public class ProductOldMapper {
 
     /**
      * Convert a Product entity to a ProductDTO.

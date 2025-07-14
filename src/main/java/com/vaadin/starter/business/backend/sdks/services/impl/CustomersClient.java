@@ -24,21 +24,13 @@ public class CustomersClient implements CustomersService {
     private final ConsentApi consentApi;
     private final EmailApi emailApi;
     private final IdentityDocumentApi identityDocumentApi;
-    private final InternalRolePermissionsApi internalRolePermissionsApi;
     private final CustomersMapper customersMapper;
-    private final InternalRolesApi internalRolesApi;
     private final PartyEconomicActivityApi partyEconomicActivityApi;
     private final PartyProviderApi partyProviderApi;
     private final PartyRelationshipApi partyRelationshipApi;
     private final PartyStatusApi partyStatusApi;
     private final PepApi pepApi;
-    private final PermissionAuditApi permissionAuditApi;
     private final PhoneApi phoneApi;
-    private final ResourcesApi resourcesApi;
-    private final PermissionsApi permissionsApi;
-    private final PermissionTypesApi permissionTypesApi;
-    private final UserInternalRolesApi userInternalRolesApi;
-    private final UserPermissionsApi userPermissionsApi;
 
     @Autowired
     public CustomersClient(ApiClient apiClient, CustomersMapper customersMapper) {
@@ -49,20 +41,12 @@ public class CustomersClient implements CustomersService {
         this.consentApi = new ConsentApi(apiClient);
         this.emailApi = new EmailApi(apiClient);
         this.identityDocumentApi = new IdentityDocumentApi(apiClient);
-        this.internalRolePermissionsApi = new InternalRolePermissionsApi(apiClient);
-        this.internalRolesApi = new InternalRolesApi(apiClient);
         this.partyEconomicActivityApi = new PartyEconomicActivityApi(apiClient);
         this.partyProviderApi = new PartyProviderApi(apiClient);
         this.partyRelationshipApi = new PartyRelationshipApi(apiClient);
         this.partyStatusApi = new PartyStatusApi(apiClient);
         this.pepApi = new PepApi(apiClient);
-        this.permissionAuditApi = new PermissionAuditApi(apiClient);
         this.phoneApi = new PhoneApi(apiClient);
-        this.resourcesApi = new ResourcesApi(apiClient);
-        this.permissionsApi = new PermissionsApi(apiClient);
-        this.permissionTypesApi = new PermissionTypesApi(apiClient);
-        this.userInternalRolesApi = new UserInternalRolesApi(apiClient);
-        this.userPermissionsApi = new UserPermissionsApi(apiClient);
         this.customersMapper = customersMapper;
     }
 
@@ -249,49 +233,6 @@ public class CustomersClient implements CustomersService {
     }
 
     @Override
-    public Mono<ResponseEntity<InternalRolePermissionDTO>> createRolePermission(RolePermissionRequest rolePermissionRequest) {
-        String xIdempotencyKey = UUID.randomUUID().toString();
-        return internalRolePermissionsApi
-                .createRolePermissionWithHttpInfo(customersMapper.internalRolePermissionRequestToDto(rolePermissionRequest), xIdempotencyKey);
-    }
-
-    @Override
-    public Mono<ResponseEntity<Void>> deleteRolePermission(Long id) {
-        return internalRolePermissionsApi.deleteRolePermissionWithHttpInfo(id);
-    }
-
-    @Override
-    public Mono<ResponseEntity<Boolean>> hasPermission(Long roleId, Long permissionId) {
-        return internalRolePermissionsApi.hasPermission1WithHttpInfo(roleId, roleId);
-    }
-
-    @Override
-    public Mono<ResponseEntity<InternalRolePermissionDTO>> updateRolePermission(Long id, RolePermissionRequest rolePermissionRequest) {
-        String xIdempotencyKey = UUID.randomUUID().toString();
-        return internalRolePermissionsApi.updateRolePermissionWithHttpInfo(id,
-                customersMapper.internalRolePermissionRequestToDto(rolePermissionRequest), xIdempotencyKey);
-    }
-
-    @Override
-    public Mono<ResponseEntity<InternalRoleDTO>> createRole(RoleRequest roleRequest) {
-        String xIdempotencyKey = UUID.randomUUID().toString();
-        return internalRolesApi
-                .createInternalRoleWithHttpInfo(customersMapper.internalRoleRequestToDto(roleRequest), xIdempotencyKey);
-    }
-
-    @Override
-    public Mono<ResponseEntity<Void>> deleteRole(Long id) {
-        return internalRolesApi.deleteInternalRoleWithHttpInfo(id);
-    }
-
-    @Override
-    public Mono<ResponseEntity<InternalRoleDTO>> updateRole(Long id, RoleRequest roleRequest) {
-        String xIdempotencyKey = UUID.randomUUID().toString();
-        return internalRolesApi.updateInternalRoleWithHttpInfo(id,
-                customersMapper.internalRoleRequestToDto(roleRequest), xIdempotencyKey);
-    }
-
-    @Override
     public Mono<ResponseEntity<PartyEconomicActivityDTO>> createPartyEconomicActivity(PartyEconomicActivityRequest partyEconomicActivityRequest) {
         String xIdempotencyKey = UUID.randomUUID().toString();
         return partyEconomicActivityApi.createPartyEconomicActivityWithHttpInfo(partyEconomicActivityRequest.getPartyId(),
@@ -442,18 +383,6 @@ public class CustomersClient implements CustomersService {
     }
 
     @Override
-    public Mono<ResponseEntity<PermissionAuditDTO>> createPermissionAudit(PermissionAuditRequest permissionAuditRequest) {
-        String xIdempotencyKey = UUID.randomUUID().toString();
-        return permissionAuditApi.createAuditRecordWithHttpInfo(
-                customersMapper.permissionAuditRequestToDto(permissionAuditRequest), xIdempotencyKey);
-    }
-
-    @Override
-    public Mono<ResponseEntity<PermissionAuditDTO>> getPermissionAuditById(Long id) {
-        return permissionAuditApi.getAuditRecordByIdWithHttpInfo(id);
-    }
-
-    @Override
     public Mono<ResponseEntity<PhoneDTO>> createPhone(PhoneRequest phoneRequest) {
         String xIdempotencyKey = UUID.randomUUID().toString();
         return phoneApi.createPhoneWithHttpInfo(phoneRequest.getPartyId(),
@@ -478,114 +407,6 @@ public class CustomersClient implements CustomersService {
         return phoneApi.listPhonesWithHttpInfo(partyId,
                 String.valueOf(paginationRequest.getPageNumber()), String.valueOf(paginationRequest.getPageSize()),
                 paginationRequest.getSortBy(), paginationRequest.getSortDirection());
-    }
-
-    @Override
-    public Mono<ResponseEntity<ResourceDTO>> createResource(ResourceRequest resourceRequest) {
-        String xIdempotencyKey = UUID.randomUUID().toString();
-        return resourcesApi.createResourceWithHttpInfo(
-                customersMapper.resourceRequestToDto(resourceRequest), xIdempotencyKey);
-    }
-
-    @Override
-    public Mono<ResponseEntity<Void>> deleteResource(Long id, Long partyId) {
-        return resourcesApi.deleteResourceWithHttpInfo(id);
-    }
-
-    @Override
-    public Mono<ResponseEntity<ResourceDTO>> updateResource(Long id, ResourceRequest resourceRequest) {
-        String xIdempotencyKey = UUID.randomUUID().toString();
-        return resourcesApi.updateResourceWithHttpInfo(id, 
-                customersMapper.resourceRequestToDto(resourceRequest), xIdempotencyKey);
-    }
-
-    @Override
-    public Mono<ResponseEntity<ResourceDTO>> listResourcesByPartyId(Long partyId, PaginationRequest paginationRequest) {
-        return resourcesApi.getAllResourcesWithHttpInfo();
-    }
-
-    @Override
-    public Mono<ResponseEntity<PermissionDTO>> createPermission(PermissionRequest permissionRequest) {
-        String xIdempotencyKey = UUID.randomUUID().toString();
-        return permissionsApi.createPermissionWithHttpInfo(
-                customersMapper.permissionRequestToDto(permissionRequest), xIdempotencyKey);
-    }
-
-    @Override
-    public Mono<ResponseEntity<PermissionDTO>> getPermissionById(Long id) {
-        return permissionsApi.getPermissionByIdWithHttpInfo(id);
-    }
-
-    @Override
-    public Mono<ResponseEntity<PermissionTypeDTO>> createPermissionType(PermissionTypeRequest permissionTypeRequest) {
-        String xIdempotencyKey = UUID.randomUUID().toString();
-        return permissionTypesApi.createPermissionTypeWithHttpInfo(
-                customersMapper.permissionTypeRequestToDto(permissionTypeRequest), xIdempotencyKey);
-    }
-
-    @Override
-    public Mono<ResponseEntity<Void>> deletePermissionType(Long id) {
-        return permissionTypesApi.deletePermissionTypeWithHttpInfo(id);
-    }
-
-    @Override
-    public Mono<ResponseEntity<PermissionTypeDTO>> getPermissionTypeById(Long id) {
-        return permissionTypesApi.getPermissionTypeByIdWithHttpInfo(id);
-    }
-
-    @Override
-    public Mono<ResponseEntity<PermissionTypeDTO>> updatePermissionType(Long id, PermissionTypeRequest permissionTypeRequest) {
-        String xIdempotencyKey = UUID.randomUUID().toString();
-        return permissionTypesApi.updatePermissionTypeWithHttpInfo(id,
-                customersMapper.permissionTypeRequestToDto(permissionTypeRequest), xIdempotencyKey);
-    }
-
-    @Override
-    public Mono<ResponseEntity<UserInternalRoleDTO>> createUserInternalRole(UserInternalRoleRequest userInternalRoleRequest) {
-        String xIdempotencyKey = UUID.randomUUID().toString();
-        return userInternalRolesApi.createUserRoleWithHttpInfo(
-                customersMapper.userInternalRoleRequestToDto(userInternalRoleRequest), xIdempotencyKey);
-    }
-
-    @Override
-    public Mono<ResponseEntity<Void>> deleteUserInternalRole(Long id) {
-        return userInternalRolesApi.deleteUserRoleWithHttpInfo(id);
-    }
-
-    @Override
-    public Mono<ResponseEntity<UserInternalRoleDTO>> getUserInternalRoleById(Long id) {
-        return userInternalRolesApi.getUserRoleByIdWithHttpInfo(id);
-    }
-
-    @Override
-    public Mono<ResponseEntity<UserInternalRoleDTO>> updateUserInternalRole(Long id, UserInternalRoleRequest userInternalRoleRequest) {
-        String xIdempotencyKey = UUID.randomUUID().toString();
-        return userInternalRolesApi.updateUserRoleWithHttpInfo(id,
-                customersMapper.userInternalRoleRequestToDto(userInternalRoleRequest), xIdempotencyKey);
-    }
-
-    @Override
-    public Mono<ResponseEntity<UserPermissionDTO>> createUserPermission(UserPermissionRequest userPermissionRequest) {
-        String xIdempotencyKey = UUID.randomUUID().toString();
-        return userPermissionsApi.createUserPermissionWithHttpInfo(
-                customersMapper.userPermissionRequestToDto(userPermissionRequest), xIdempotencyKey);
-    }
-
-    @Override
-    public Mono<ResponseEntity<Void>> deleteUserPermission(Long id) {
-        return userPermissionsApi.deleteUserPermissionWithHttpInfo(id);
-    }
-
-    @Override
-    public Mono<ResponseEntity<UserPermissionDTO>> getUserPermissionById(Long id) {
-        return userPermissionsApi.getUserPermissionByIdWithHttpInfo(id);
-    }
-
-    @Override
-    public Mono<ResponseEntity<UserPermissionDTO>> updateUserPermission(Long id, UserPermissionRequest userPermissionRequest) {
-        String xIdempotencyKey = UUID.randomUUID().toString();
-        return userPermissionsApi.updateUserPermissionWithHttpInfo(id,
-                customersMapper.userPermissionRequestToDto(userPermissionRequest), xIdempotencyKey);
     }
 
 }

@@ -158,22 +158,6 @@ public interface CustomersMapper {
     RolePermissionRequest dtoToRolePermissionRequest(Object dto);
 
     /**
-     * Converts a RolePermissionRequest object to an InternalRolePermissionDTO.
-     *
-     * @param request the RolePermissionRequest object to convert
-     * @return the corresponding InternalRolePermissionDTO
-     */
-    InternalRolePermissionDTO internalRolePermissionRequestToDto(RolePermissionRequest request);
-
-    /**
-     * Converts a RoleRequest object to an InternalRoleDTO.
-     *
-     * @param request the RoleRequest object to convert
-     * @return the corresponding InternalRoleDTO
-     */
-    InternalRoleDTO internalRoleRequestToDto(RoleRequest request);
-
-    /**
      * Convert a PartyEconomicActivityRequest to a PartyEconomicActivityDTO.
      *
      * @param request the PartyEconomicActivityRequest to convert
@@ -254,54 +238,6 @@ public interface CustomersMapper {
     PepRequest dtoToPepRequest(PepDTO dto);
 
     /**
-     * Convert a PermissionAuditRequest to a PermissionAuditDTO.
-     *
-     * @param request the PermissionAuditRequest to convert
-     * @return the corresponding PermissionAuditDTO
-     */
-    PermissionAuditDTO permissionAuditRequestToDto(PermissionAuditRequest request);
-
-    /**
-     * Convert a PermissionAuditDTO to a PermissionAuditRequest.
-     *
-     * @param dto the PermissionAuditDTO to convert
-     * @return the corresponding PermissionAuditRequest
-     */
-    PermissionAuditRequest dtoToPermissionAuditRequest(PermissionAuditDTO dto);
-
-    /**
-     * Convert a PermissionRequest to a PermissionDTO.
-     *
-     * @param request the PermissionRequest to convert
-     * @return the corresponding PermissionDTO
-     */
-    PermissionDTO permissionRequestToDto(PermissionRequest request);
-
-    /**
-     * Convert a PermissionDTO to a PermissionRequest.
-     *
-     * @param dto the PermissionDTO to convert
-     * @return the corresponding PermissionRequest
-     */
-    PermissionRequest dtoToPermissionRequest(PermissionDTO dto);
-
-    /**
-     * Convert a PermissionTypeRequest to a PermissionTypeDTO.
-     *
-     * @param request the PermissionTypeRequest to convert
-     * @return the corresponding PermissionTypeDTO
-     */
-    PermissionTypeDTO permissionTypeRequestToDto(PermissionTypeRequest request);
-
-    /**
-     * Convert a PermissionTypeDTO to a PermissionTypeRequest.
-     *
-     * @param dto the PermissionTypeDTO to convert
-     * @return the corresponding PermissionTypeRequest
-     */
-    PermissionTypeRequest dtoToPermissionTypeRequest(PermissionTypeDTO dto);
-
-    /**
      * Convert a PhoneRequest to a PhoneDTO.
      *
      * @param request the PhoneRequest to convert
@@ -317,51 +253,4 @@ public interface CustomersMapper {
      */
     PhoneRequest dtoToPhoneRequest(PhoneDTO dto);
 
-    /**
-     * Convert a ResourceRequest to a ResourceDTO.
-     *
-     * @param request the ResourceRequest to convert
-     * @return the corresponding ResourceDTO
-     */
-    ResourceDTO resourceRequestToDto(ResourceRequest request);
-
-    /**
-     * Convert a ResourceDTO to a ResourceRequest.
-     *
-     * @param dto the ResourceDTO to convert
-     * @return the corresponding ResourceRequest
-     */
-    ResourceRequest dtoToResourceRequest(ResourceDTO dto);
-
-    /**
-     * Convert a UserInternalRoleRequest to a UserInternalRoleDTO.
-     *
-     * @param request the UserInternalRoleRequest to convert
-     * @return the corresponding UserInternalRoleDTO
-     */
-    UserInternalRoleDTO userInternalRoleRequestToDto(UserInternalRoleRequest request);
-
-    /**
-     * Convert a UserInternalRoleDTO to a UserInternalRoleRequest.
-     *
-     * @param dto the UserInternalRoleDTO to convert
-     * @return the corresponding UserInternalRoleRequest
-     */
-    UserInternalRoleRequest dtoToUserInternalRoleRequest(UserInternalRoleDTO dto);
-
-    /**
-     * Convert a UserPermissionRequest to a UserPermissionDTO.
-     *
-     * @param request the UserPermissionRequest to convert
-     * @return the corresponding UserPermissionDTO
-     */
-    UserPermissionDTO userPermissionRequestToDto(UserPermissionRequest request);
-
-    /**
-     * Convert a UserPermissionDTO to a UserPermissionRequest.
-     *
-     * @param dto the UserPermissionDTO to convert
-     * @return the corresponding UserPermissionRequest
-     */
-    UserPermissionRequest dtoToUserPermissionRequest(UserPermissionDTO dto);
 }

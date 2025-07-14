@@ -1,10 +1,7 @@
 package com.vaadin.starter.business.backend.sdks.clients;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vaadin.starter.business.backend.sdks.properties.AccountsProperties;
-import com.vaadin.starter.business.backend.sdks.properties.CardsProperties;
-import com.vaadin.starter.business.backend.sdks.properties.ContractsProperties;
-import com.vaadin.starter.business.backend.sdks.properties.CustomersProperties;
+import com.vaadin.starter.business.backend.sdks.properties.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -20,16 +17,18 @@ public class ClientFactory {
     private final AccountsProperties accountsProperties;
     private final CardsProperties cardsProperties;
     private final ContractsProperties contractsProperties;
+    private final ProductsProperties productsProperties;
     private final ObjectMapper objectMapper;
 
     @Autowired
     public ClientFactory(CustomersProperties customersProperties, AccountsProperties accountsProperties,
-                         CardsProperties cardsProperties, ContractsProperties contractsProperties,
+                         CardsProperties cardsProperties, ContractsProperties contractsProperties, ProductsProperties productsProperties,
                          ObjectMapper objectMapper) {
         this.customersProperties = customersProperties;
         this.accountsProperties = accountsProperties;
         this.cardsProperties = cardsProperties;
         this.contractsProperties = contractsProperties;
+        this.productsProperties = productsProperties;
         this.objectMapper = objectMapper;
     }
 
@@ -80,6 +79,18 @@ public class ClientFactory {
     public com.catalis.common.contract.sdk.invoker.ApiClient createContractsClient() {
         com.catalis.common.contract.sdk.invoker.ApiClient apiClient = new com.catalis.common.contract.sdk.invoker.ApiClient();
         apiClient.setBasePath(contractsProperties.getBasePath());
+        return apiClient;
+    }
+
+    /**
+     * Creates and returns a Products service client.
+     *
+     * @return A configured Products service client
+     */
+    @Bean
+    public com.catalis.common.product.sdk.invoker.ApiClient createProductsClient() {
+        com.catalis.common.product.sdk.invoker.ApiClient apiClient = new com.catalis.common.product.sdk.invoker.ApiClient();
+        apiClient.setBasePath(productsProperties.getBasePath());
         return apiClient;
     }
 

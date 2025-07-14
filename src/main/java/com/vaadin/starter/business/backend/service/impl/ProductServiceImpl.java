@@ -10,7 +10,7 @@ import com.vaadin.starter.business.backend.dto.products.ProductDTO;
 import com.vaadin.starter.business.backend.dto.products.RateFeeDTO;
 import com.vaadin.starter.business.backend.mapper.products.ContractMapper;
 import com.vaadin.starter.business.backend.mapper.products.LendingConfigMapper;
-import com.vaadin.starter.business.backend.mapper.products.ProductMapper;
+import com.vaadin.starter.business.backend.mapper.products.ProductOldMapper;
 import com.vaadin.starter.business.backend.mapper.products.RateFeeMapper;
 import com.vaadin.starter.business.backend.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class ProductServiceImpl implements ProductService {
     private final Map<String, Contract> contracts = new HashMap<>();
     private final Map<String, LendingConfig> lendingConfigs = new HashMap<>();
 
-    private final ProductMapper productMapper;
+    private final ProductOldMapper productMapper;
     private final RateFeeMapper rateFeeMapper;
     private final ContractMapper contractMapper;
     private final LendingConfigMapper lendingConfigMapper;
@@ -47,10 +47,10 @@ public class ProductServiceImpl implements ProductService {
      * @param lendingConfigMapper the mapper for LendingConfig objects
      */
     @Autowired
-    public ProductServiceImpl(ProductMapper productMapper,
-                             RateFeeMapper rateFeeMapper,
-                             ContractMapper contractMapper,
-                             LendingConfigMapper lendingConfigMapper) {
+    public ProductServiceImpl(ProductOldMapper productMapper,
+                              RateFeeMapper rateFeeMapper,
+                              ContractMapper contractMapper,
+                              LendingConfigMapper lendingConfigMapper) {
         this.productMapper = productMapper;
         this.rateFeeMapper = rateFeeMapper;
         this.contractMapper = contractMapper;
