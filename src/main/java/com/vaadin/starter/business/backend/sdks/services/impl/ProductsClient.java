@@ -65,7 +65,7 @@ public class ProductsClient implements ProductsService {
     }
 
     @Override
-    public Mono<ResponseEntity<PaginationResponse>> getAllProducts(String pageNumber, String pageSize, String sortBy, String sortDirection) {
+    public Mono<ResponseEntity<PaginationResponseProductDTO>> getAllProducts(String pageNumber, String pageSize, String sortBy, String sortDirection) {
         return productApi.getAllProductsWithHttpInfo(pageNumber, pageSize, sortBy, sortDirection);
     }
 

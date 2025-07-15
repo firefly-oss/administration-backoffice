@@ -35,7 +35,7 @@ public interface ProductsService {
      * @param sortDirection the direction of sorting (e.g., ASC for ascending or DESC for descending)
      * @return a Mono containing a ResponseEntity with the paginated response for the requested products
      */
-    Mono<ResponseEntity<PaginationResponse>> getAllProducts(String pageNumber, String pageSize, String sortBy, String sortDirection);
+    Mono<ResponseEntity<PaginationResponseProductDTO>> getAllProducts(String pageNumber, String pageSize, String sortBy, String sortDirection);
 
     /**
      * Get a product by ID.
