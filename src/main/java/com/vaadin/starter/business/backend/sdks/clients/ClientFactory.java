@@ -18,17 +18,21 @@ public class ClientFactory {
     private final CardsProperties cardsProperties;
     private final ContractsProperties contractsProperties;
     private final ProductsProperties productsProperties;
+    private final DistributorsProperties distributorsProperties;
+    private final CatalogsProperties catalogsProperties;
     private final ObjectMapper objectMapper;
 
     @Autowired
     public ClientFactory(CustomersProperties customersProperties, AccountsProperties accountsProperties,
-                         CardsProperties cardsProperties, ContractsProperties contractsProperties, ProductsProperties productsProperties,
+                         CardsProperties cardsProperties, ContractsProperties contractsProperties, ProductsProperties productsProperties, DistributorsProperties distributorsProperties, CatalogsProperties catalogsProperties,
                          ObjectMapper objectMapper) {
         this.customersProperties = customersProperties;
         this.accountsProperties = accountsProperties;
         this.cardsProperties = cardsProperties;
         this.contractsProperties = contractsProperties;
         this.productsProperties = productsProperties;
+        this.distributorsProperties = distributorsProperties;
+        this.catalogsProperties = catalogsProperties;
         this.objectMapper = objectMapper;
     }
 
@@ -91,6 +95,30 @@ public class ClientFactory {
     public com.catalis.common.product.sdk.invoker.ApiClient createProductsClient() {
         com.catalis.common.product.sdk.invoker.ApiClient apiClient = new com.catalis.common.product.sdk.invoker.ApiClient();
         apiClient.setBasePath(productsProperties.getBasePath());
+        return apiClient;
+    }
+
+    /**
+     * Creates and returns a Distributors service client.
+     *
+     * @return A configured Distributors service client
+     */
+    @Bean
+    public com.catalis.core.distributor.sdk.invoker.ApiClient createDistributorsClient() {
+        com.catalis.core.distributor.sdk.invoker.ApiClient apiClient = new com.catalis.core.distributor.sdk.invoker.ApiClient();
+        apiClient.setBasePath(distributorsProperties.getBasePath());
+        return apiClient;
+    }
+
+    /**
+     * Creates and returns a Catalogs service client.
+     *
+     * @return A configured Catalogs service client
+     */
+    @Bean
+    public com.catalis.core.erp.inventory.mgmt.sdk.invoker.ApiClient createCatalogsClient() {
+        com.catalis.core.erp.inventory.mgmt.sdk.invoker.ApiClient apiClient = new com.catalis.core.erp.inventory.mgmt.sdk.invoker.ApiClient();
+        apiClient.setBasePath(catalogsProperties.getBasePath());
         return apiClient;
     }
 

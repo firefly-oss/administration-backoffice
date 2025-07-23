@@ -29,5 +29,10 @@ api-configuration:
     base-path: http://common-platform-contract-mgmt-dev.common.svc.cluster.local:8080/
   products:
     base-path: http://common-platform-product-mgmt-dev.common.svc.cluster.local:8080/
+  distributors:
+    base-path: http://localhost:8084/
+  catalogs:
+    base-path: http://localhost:8084/
+
 vaadin:
   async-supported: true

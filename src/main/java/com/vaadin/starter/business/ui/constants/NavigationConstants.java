@@ -62,4 +62,10 @@ public class NavigationConstants {
     public static final String REPORTS_CONFIGURATION = "Reports";
     public static final String REPORT_DESIGNER = "Report Designer";
     public static final String EXPORT_AND_INTEGRATION = "Export and Integration";
+
+    // Distributors
+    public static final String DISTRIBUTORS = "Distributors";
+    public static final String DISTRIBUTOR_MANAGEMENT = "Distributor Management";
+    public static final String CATALOGS = "Catalogs";
+    public static final String ITEMS = "Items";
 }

@@ -653,4 +653,117 @@ public class DummyData {
 		return ADDRESSES.get(random.nextInt(ADDRESSES.size()));
 	}
 
+	// Distributor methods
+	private static List<Distributor> distributors;
+
+	static {
+		distributors = new ArrayList<>();
+		for (int i = 1; i <= 20; i++) {
+			distributors.add(new Distributor(
+					(long) i,
+					getCompany(),
+					getFirstName() + " " + getLastName(),
+					getFirstName().toLowerCase() + "." + getLastName().toLowerCase() + "@" + getCompany().toLowerCase().replaceAll(" ", "") + ".com",
+					getPhoneNumber(),
+					getStreetAddress() + ", " + getCity() + ", " + getCountry(),
+					getDistributorStatus(),
+					getPastDate(365),
+					getRandomDouble(5, 25)
+			));
+		}
+	}
+
+	public static Collection<Distributor> getDistributors() {
+		return distributors;
+	}
+
+	public static Distributor getDistributor(Long id) {
+		return distributors.stream()
+				.filter(distributor -> distributor.getId().equals(id))
+				.findFirst()
+				.orElse(null);
+	}
+
+	public static Distributor.Status getDistributorStatus() {
+		Distributor.Status[] statuses = Distributor.Status.values();
+		return statuses[random.nextInt(statuses.length)];
+	}
+
+	// Catalog methods
+	private static List<Catalog> catalogs;
+
+	static {
+		catalogs = new ArrayList<>();
+		for (int i = 1; i <= 30; i++) {
+			LocalDate startDate = getPastDate(180);
+			LocalDate endDate = getFutureDate(180);
+			Distributor distributor = distributors.get(random.nextInt(distributors.size()));
+
+			catalogs.add(new Catalog(
+					(long) i,
+					"Catalog " + i + " - " + getCatalogName(),
+					"Description for catalog " + i,
+					getCatalogType(),
+					startDate,
+					endDate,
+					distributor.getId(),
+					distributor.getName(),
+					getRandomInt(10, 100),
+					random.nextBoolean()
+			));
+		}
+	}
+
+	public static Collection<Catalog> getCatalogs() {
+		return catalogs;
+	}
+
+	public static Catalog getCatalog(Long id) {
+		return catalogs.stream()
+				.filter(catalog -> catalog.getId().equals(id))
+				.findFirst()
+				.orElse(null);
+	}
+
+	public static Catalog.Type getCatalogType() {
+		Catalog.Type[] types = Catalog.Type.values();
+		return types[random.nextInt(types.length)];
+	}
+
+	private static String getCatalogName() {
+		String[] names = {"Premium", "Basic", "Professional", "Enterprise", "Special", "Limited Edition", "Exclusive", "Standard"};
+		return names[random.nextInt(names.length)];
+	}
+
+	// Helper methods for distributor items
+	public static Collection<Item> getDistributorItems(Long distributorId) {
+		List<Item> items = new ArrayList<>();
+		int count = getRandomInt(5, 15);
+
+		for (int i = 0; i < count; i++) {
+			Item item = getRandomItem();
+			items.add(item);
+		}
+
+		return items;
+	}
+
+	private static String getStreetAddress() {
+		String[] streets = {"Main Street", "Oak Avenue", "Park Road", "Maple Lane", "Cedar Boulevard", "Pine Street", "Elm Road"};
+		return getRandomInt(1, 999) + " " + streets[random.nextInt(streets.length)];
+	}
+
+	private static String getPostalCode() {
+		return String.format("%05d", getRandomInt(10000, 99999));
+	}
+
+	private static String getCity() {
+		String[] cities = {"New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose"};
+		return cities[random.nextInt(cities.length)];
+	}
+
+	private static String getCountry() {
+		String[] countries = {"USA", "Canada", "UK", "Germany", "France", "Spain", "Italy", "Japan", "Australia", "Brazil"};
+		return countries[random.nextInt(countries.length)];
+	}
 }

@@ -50,6 +50,9 @@ import com.vaadin.starter.business.ui.views.admintools.VersionManagement;
 import com.vaadin.starter.business.ui.views.admintools.DatabaseMaintenance;
 import com.vaadin.starter.business.ui.views.reports.ReportDesigner;
 import com.vaadin.starter.business.ui.views.reports.ExportAndIntegration;
+import com.vaadin.starter.business.ui.views.distributor.DistributorManagement;
+import com.vaadin.starter.business.ui.views.distributor.Catalogs;
+import com.vaadin.starter.business.ui.views.distributor.Items;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -214,6 +217,14 @@ public class MainLayout extends FlexBoxLayout
 		menu.addNaviItem(reportsConfig, NavigationConstants.REPORT_DESIGNER, ReportDesigner.class);
 		menu.addNaviItem(reportsConfig, NavigationConstants.EXPORT_AND_INTEGRATION, ExportAndIntegration.class);
 		reportsConfig.setSubItemsVisible(false);
+
+		NaviItem distributors = menu.addNaviItem(VaadinIcon.TRUCK, NavigationConstants.DISTRIBUTORS,
+				null);
+		distributors.setTitle(NavigationConstants.DISTRIBUTORS);
+		menu.addNaviItem(distributors, NavigationConstants.DISTRIBUTOR_MANAGEMENT, DistributorManagement.class);
+		menu.addNaviItem(distributors, NavigationConstants.CATALOGS, Catalogs.class);
+		menu.addNaviItem(distributors, NavigationConstants.ITEMS, Items.class);
+		distributors.setSubItemsVisible(false);
 	}
 
 	/**
