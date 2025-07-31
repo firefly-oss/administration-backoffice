@@ -33,4 +33,60 @@ public interface DistributorsMapper {
      * @return the DTO
      */
     DistributorBrandingDTO distributorBrandingRequestToDto(DistributorBrandingRequest distributorBrandingRequest);
+
+    /**
+     * Convert a LeasingContractRequest to a LeasingContractDTO.
+     *
+     * @param leasingContractRequest the request object
+     * @return the DTO
+     */
+    LeasingContractDTO leasingContractRequestToDto(LeasingContractRequest leasingContractRequest);
+
+    /**
+     * Convert a LendingConfigurationRequest to a LendingConfigurationDTO.
+     *
+     * @param lendingConfigurationRequest the request object
+     * @return the DTO
+     */
+    LendingConfigurationDTO lendingConfigurationRequestToDto(LendingConfigurationRequest lendingConfigurationRequest);
+
+    /**
+     * Convert a LendingTypeRequest to a LendingTypeDTO.
+     *
+     * @param lendingTypeRequest the request object
+     * @return the DTO
+     */
+    LendingTypeDTO lendingTypeRequestToDto(LendingTypeRequest lendingTypeRequest);
+
+    /**
+     * Convert a ProductRequest to a ProductDTO.
+     *
+     * @param productRequest the request object
+     * @return the DTO
+     */
+    ProductDTO productRequestToDto(ProductRequest productRequest);
+
+    /**
+     * Convert a ProductFilterRequest to a FilterRequestProductDTO.
+     *
+     * @param productFilterRequest the request object
+     * @return the DTO
+     */
+    com.catalis.core.distributor.sdk.model.FilterRequestProductDTO productFilterRequestToDto(ProductFilterRequest productFilterRequest);
+
+    /**
+     * Convert a ProductCategoryRequest to a ProductCategoryDTO.
+     *
+     * @param productCategoryRequest the request object
+     * @return the DTO
+     */
+    ProductCategoryDTO productCategoryRequestToDto(ProductCategoryRequest productCategoryRequest);
+
+    /**
+     * Convert a ShipmentRequest to a ShipmentDTO.
+     *
+     * @param shipmentRequest the request object
+     * @return the DTO
+     */
+    ShipmentDTO shipmentRequestToDto(ShipmentRequest shipmentRequest);
 }

@@ -9,9 +9,6 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -24,16 +21,9 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.starter.business.dummy.Distributor;
 import com.vaadin.starter.business.dummy.DummyData;
 import com.vaadin.starter.business.ui.MainLayout;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
-import com.vaadin.starter.business.ui.components.ListItem;
-import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawer;
-import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerFooter;
-import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerHeader;
 import com.vaadin.starter.business.ui.layout.size.Horizontal;
-import com.vaadin.starter.business.ui.layout.size.Right;
 import com.vaadin.starter.business.ui.layout.size.Top;
-import com.vaadin.starter.business.ui.layout.size.Vertical;
 import com.vaadin.starter.business.ui.util.LumoStyles;
 import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.BoxSizing;
@@ -46,9 +36,6 @@ public class DistributorManagement extends SplitViewFrame {
     private Grid<Distributor> grid;
     private ListDataProvider<Distributor> dataProvider;
 
-    private DetailsDrawer detailsDrawer;
-    private DetailsDrawerHeader detailsDrawerHeader;
-
     // Search form fields
     private TextField idFilter;
     private TextField nameFilter;
@@ -59,8 +46,6 @@ public class DistributorManagement extends SplitViewFrame {
 
     public DistributorManagement() {
         setViewContent(createContent());
-        setViewDetails(createDetailsDrawer());
-        setViewDetailsPosition(Position.BOTTOM);
 
         // Initialize with default filter
         filter();
@@ -211,73 +196,12 @@ public class DistributorManagement extends SplitViewFrame {
         return grid;
     }
 
-    private DetailsDrawer createDetailsDrawer() {
-        detailsDrawer = new DetailsDrawer(DetailsDrawer.Position.BOTTOM);
-
-        // Header
-        detailsDrawerHeader = new DetailsDrawerHeader("");
-        detailsDrawerHeader.addCloseListener(buttonClickEvent -> detailsDrawer.hide());
-        detailsDrawer.setHeader(detailsDrawerHeader);
-
-        // Footer
-        DetailsDrawerFooter footer = new DetailsDrawerFooter();
-        footer.addSaveListener(e -> {
-            detailsDrawer.hide();
-            UIUtils.showNotification("Changes saved.");
-        });
-        footer.addCancelListener(e -> detailsDrawer.hide());
-        detailsDrawer.setFooter(footer);
-
-        return detailsDrawer;
-    }
 
     private void showDetails(Distributor distributor) {
-        detailsDrawerHeader.setTitle(distributor.getName());
-        detailsDrawer.setContent(createDetails(distributor));
-        detailsDrawer.show();
+        // Navigate to the DistributorDetails view with the distributor ID as a parameter
+        getUI().ifPresent(ui -> ui.navigate("distributor-details/" + distributor.getId()));
     }
 
-    private Component createDetails(Distributor distributor) {
-        ListItem status = new ListItem(
-                UIUtils.createPrimaryIcon(VaadinIcon.CHART),
-                "Status", distributor.getStatus().getName());
-        status.getContent().addClassName(LumoStyles.Margin.Vertical.S);
-
-        ListItem contactPerson = new ListItem(
-                UIUtils.createPrimaryIcon(VaadinIcon.USER),
-                "Contact Person", distributor.getContactPerson());
-        contactPerson.getContent().addClassName(LumoStyles.Margin.Vertical.S);
-
-        ListItem email = new ListItem(
-                UIUtils.createPrimaryIcon(VaadinIcon.MAILBOX),
-                "Email", distributor.getEmail());
-        email.getContent().addClassName(LumoStyles.Margin.Vertical.S);
-
-        ListItem phone = new ListItem(
-                UIUtils.createPrimaryIcon(VaadinIcon.PHONE),
-                "Phone", distributor.getPhone());
-        phone.getContent().addClassName(LumoStyles.Margin.Vertical.S);
-
-        ListItem address = new ListItem(
-                UIUtils.createPrimaryIcon(VaadinIcon.MAP_MARKER),
-                "Address", distributor.getAddress());
-        address.getContent().addClassName(LumoStyles.Margin.Vertical.S);
-
-        ListItem contractDate = new ListItem(
-                UIUtils.createPrimaryIcon(VaadinIcon.CALENDAR),
-                "Contract Date", UIUtils.formatDate(distributor.getContractDate()));
-        contractDate.getContent().addClassName(LumoStyles.Margin.Vertical.S);
-
-        ListItem commission = new ListItem(
-                UIUtils.createPrimaryIcon(VaadinIcon.MONEY),
-                "Commission Rate", distributor.getCommissionRate() + "%");
-        commission.getContent().addClassName(LumoStyles.Margin.Vertical.S);
-
-        FlexBoxLayout content = new FlexBoxLayout(status, contactPerson, email, phone, address, contractDate, commission);
-        content.setFlexDirection(FlexLayout.FlexDirection.COLUMN);
-        content.setPadding(Horizontal.RESPONSIVE_L, Vertical.RESPONSIVE_M);
-        return content;
-    }
 
     private void filter() {
         dataProvider.clearFilters();

@@ -66,6 +66,6 @@ public class NavigationConstants {
     // Distributors
     public static final String DISTRIBUTORS = "Distributors";
     public static final String DISTRIBUTOR_MANAGEMENT = "Distributor Management";
-    public static final String CATALOGS = "Catalogs";
+    public static final String DISTRIBUTOR_DETAILS = "Distributor Details";
     public static final String ITEMS = "Items";
 }

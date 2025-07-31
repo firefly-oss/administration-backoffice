@@ -1,22 +1,23 @@
-package com.vaadin.starter.business.backend.sdks.services.rest.catalogs;
+package com.vaadin.starter.business.backend.sdks.services.rest.distributors;
 
 import lombok.*;
 
 import java.time.LocalDateTime;
 
 /**
- * Request object for Catalog operations (create, update).
+ * Request object for Lending Type operations (create, update).
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class CatalogRequest {
+public class LendingTypeRequest {
+    private Long id;
     private String name;
     private String code;
     private String description;
-    private String status;
+    private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
