@@ -1,13 +1,19 @@
 package com.vaadin.starter.business.ui.views.channelsandservices;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -22,9 +28,6 @@ import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.Initials;
 import com.vaadin.starter.business.ui.components.ListItem;
-import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawer;
-import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerFooter;
-import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerHeader;
 import com.vaadin.starter.business.ui.layout.size.Horizontal;
 import com.vaadin.starter.business.ui.layout.size.Right;
 import com.vaadin.starter.business.ui.layout.size.Top;
@@ -41,17 +44,12 @@ public class ChannelIntegration extends SplitViewFrame {
     private Grid<Channel> grid;
     private ListDataProvider<Channel> dataProvider;
 
-    private DetailsDrawer detailsDrawer;
-    private DetailsDrawerHeader detailsDrawerHeader;
-
     private final ChannelsAndServicesService channelsAndServicesService;
 
     public ChannelIntegration(ChannelsAndServicesService channelsAndServicesService) {
         this.channelsAndServicesService = channelsAndServicesService;
 
         setViewContent(createContent());
-        setViewDetails(createDetailsDrawer());
-        setViewDetailsPosition(Position.BOTTOM);
     }
 
     private Component createContent() {
@@ -126,30 +124,36 @@ public class ChannelIntegration extends SplitViewFrame {
         return new Span(UIUtils.formatDate(channel.getLastUpdated().toLocalDate()));
     }
 
-    private DetailsDrawer createDetailsDrawer() {
-        detailsDrawer = new DetailsDrawer(DetailsDrawer.Position.BOTTOM);
+    private void showDetails(Channel channel) {
+        Dialog dialog = new Dialog();
+        dialog.setWidth("600px");
 
-        // Header
-        detailsDrawerHeader = new DetailsDrawerHeader("");
-        detailsDrawerHeader.addCloseListener(buttonClickEvent -> detailsDrawer.hide());
-        detailsDrawer.setHeader(detailsDrawerHeader);
+        // Add title
+        dialog.add(new H3("Channel: " + channel.getName()));
 
-        // Footer
-        DetailsDrawerFooter footer = new DetailsDrawerFooter();
-        footer.addSaveListener(e -> {
-            detailsDrawer.hide();
+        // Add content
+        FormLayout form = createDetails(channel);
+
+        // Add buttons
+        Button closeButton = new Button("Close", e -> dialog.close());
+        Button saveButton = new Button("Save", e -> {
+            dialog.close();
             UIUtils.showNotification("Channel integration updated.");
         });
-        footer.addCancelListener(e -> detailsDrawer.hide());
-        detailsDrawer.setFooter(footer);
+        saveButton.getElement().getThemeList().add("primary");
 
-        return detailsDrawer;
-    }
+        HorizontalLayout buttons = new HorizontalLayout(closeButton, saveButton);
+        buttons.setJustifyContentMode(FlexLayout.JustifyContentMode.END);
+        buttons.setWidthFull();
 
-    private void showDetails(Channel channel) {
-        detailsDrawerHeader.setTitle("Channel: " + channel.getName());
-        detailsDrawer.setContent(createDetails(channel));
-        detailsDrawer.show();
+        // Create layout for dialog content
+        VerticalLayout dialogLayout = new VerticalLayout(form, buttons);
+        dialogLayout.setPadding(false);
+        dialogLayout.setSpacing(true);
+        dialogLayout.getStyle().set("padding", "0 1em 1em 1em");
+
+        dialog.add(dialogLayout);
+        dialog.open();
     }
 
     private FormLayout createDetails(Channel channel) {

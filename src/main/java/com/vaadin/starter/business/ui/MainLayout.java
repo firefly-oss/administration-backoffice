@@ -24,35 +24,13 @@ import com.vaadin.starter.business.ui.constants.NavigationConstants;
 import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.Overflow;
 import com.vaadin.starter.business.ui.views.Home;
-import com.vaadin.starter.business.ui.views.accounting.Accounts;
-import com.vaadin.starter.business.ui.views.accounting.FinancialCalendar;
-import com.vaadin.starter.business.ui.views.admintools.DatabaseMaintenance;
-import com.vaadin.starter.business.ui.views.admintools.SystemMonitoring;
-import com.vaadin.starter.business.ui.views.admintools.VersionManagement;
-import com.vaadin.starter.business.ui.views.cards.Cards;
-import com.vaadin.starter.business.ui.views.channelsandservices.ChannelIntegration;
 import com.vaadin.starter.business.ui.views.channelsandservices.ServiceProviders;
-import com.vaadin.starter.business.ui.views.clients.Clients;
-import com.vaadin.starter.business.ui.views.customers.CustomerSegmentation;
-import com.vaadin.starter.business.ui.views.customers.Onboarding;
-import com.vaadin.starter.business.ui.views.distributor.DistributorManagement;
-import com.vaadin.starter.business.ui.views.distributor.Items;
-import com.vaadin.starter.business.ui.views.products.ContractManagement;
-import com.vaadin.starter.business.ui.views.products.LendingConfiguration;
 import com.vaadin.starter.business.ui.views.products.ProductCatalog;
 import com.vaadin.starter.business.ui.views.products.RatesFees;
-import com.vaadin.starter.business.ui.views.reports.ExportAndIntegration;
-import com.vaadin.starter.business.ui.views.reports.ReportDesigner;
-import com.vaadin.starter.business.ui.views.riskandcompliance.FraudPrevention;
-import com.vaadin.starter.business.ui.views.riskandcompliance.RegulatoryCompliance;
-import com.vaadin.starter.business.ui.views.riskandcompliance.RiskModel;
 import com.vaadin.starter.business.ui.views.security.InternalUsers;
 import com.vaadin.starter.business.ui.views.security.RolesPermissions;
-import com.vaadin.starter.business.ui.views.security.SecurityPolicies;
 import com.vaadin.starter.business.ui.views.systemconfig.GeneralConfiguration;
 import com.vaadin.starter.business.ui.views.systemconfig.MasterData;
-import com.vaadin.starter.business.ui.views.systemconfig.Notifications;
-import com.vaadin.starter.business.ui.views.systemconfig.Workflows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,87 +121,36 @@ public class MainLayout extends FlexBoxLayout
 	 */
 	private void initNaviItems() {
 		NaviMenu menu = naviDrawer.getMenu();
-		NaviItem home = menu.addNaviItem(VaadinIcon.HOME, NavigationConstants.HOME, Home.class);
-		home.setTitle(NavigationConstants.HOME);
-
-		NaviItem accounting = menu.addNaviItem(VaadinIcon.MONEY, NavigationConstants.ACCOUNTING_AND_FINANCE,
-				null);
-		accounting.setTitle(NavigationConstants.ACCOUNTING_AND_FINANCE);
-		menu.addNaviItem(accounting, NavigationConstants.ACCOUNTS, Accounts.class);
-		menu.addNaviItem(accounting, NavigationConstants.CARDS, Cards.class);
-		menu.addNaviItem(accounting, NavigationConstants.FINANCIAL_CALENDAR, FinancialCalendar.class);
-		accounting.setSubItemsVisible(false);
-
-		NaviItem customers = menu.addNaviItem(VaadinIcon.USERS, NavigationConstants.CUSTOMERS,
-				null);
-		customers.setTitle(NavigationConstants.CUSTOMERS);
-		menu.addNaviItem(customers, NavigationConstants.CLIENTS, Clients.class);
-		menu.addNaviItem(customers, NavigationConstants.CONTRACT_MANAGEMENT, ContractManagement.class);
-		menu.addNaviItem(customers, NavigationConstants.CUSTOMER_SEGMENTATION, CustomerSegmentation.class);
-		menu.addNaviItem(customers, NavigationConstants.ONBOARDING_PROCESSES, Onboarding.class);
-		customers.setSubItemsVisible(false);
-
-		NaviItem security = menu.addNaviItem(VaadinIcon.SHIELD, NavigationConstants.USERS_AND_SECURITY,
-				null);
-		security.setTitle(NavigationConstants.USERS_AND_SECURITY);
-		menu.addNaviItem(security, NavigationConstants.INTERNAL_USERS, InternalUsers.class);
-		menu.addNaviItem(security, NavigationConstants.ROLES_AND_PERMISSIONS, RolesPermissions.class);
-		menu.addNaviItem(security, NavigationConstants.SECURITY_POLICIES, SecurityPolicies.class);
-		security.setSubItemsVisible(false);
-
+		// Products
 		NaviItem products = menu.addNaviItem(VaadinIcon.PACKAGE, NavigationConstants.PRODUCTS_AND_SERVICES,
 				null);
 		products.setTitle(NavigationConstants.PRODUCTS_AND_SERVICES);
 		menu.addNaviItem(products, NavigationConstants.PRODUCT_CATALOG, ProductCatalog.class);
 		menu.addNaviItem(products, NavigationConstants.RATES_AND_FEES, RatesFees.class);
-		menu.addNaviItem(products, NavigationConstants.LENDING_CONFIGURATION, LendingConfiguration.class);
 		products.setSubItemsVisible(false);
 
-		NaviItem riskCompliance = menu.addNaviItem(VaadinIcon.WARNING, NavigationConstants.RISK_AND_COMPLIANCE,
+		// Users and Security
+		NaviItem security = menu.addNaviItem(VaadinIcon.SHIELD, NavigationConstants.USERS_AND_SECURITY,
 				null);
-		riskCompliance.setTitle(NavigationConstants.RISK_AND_COMPLIANCE);
-		menu.addNaviItem(riskCompliance, NavigationConstants.RISK_MODEL, RiskModel.class);
-		menu.addNaviItem(riskCompliance, NavigationConstants.FRAUD_PREVENTION, FraudPrevention.class);
-		menu.addNaviItem(riskCompliance, NavigationConstants.REGULATORY_COMPLIANCE, RegulatoryCompliance.class);
-		riskCompliance.setSubItemsVisible(false);
+		security.setTitle(NavigationConstants.USERS_AND_SECURITY);
+		menu.addNaviItem(security, NavigationConstants.INTERNAL_USERS, InternalUsers.class);
+		menu.addNaviItem(security, NavigationConstants.ROLES_AND_PERMISSIONS, RolesPermissions.class);
+		security.setSubItemsVisible(false);
 
+		// External Services
 		NaviItem channelsServices = menu.addNaviItem(VaadinIcon.CONNECT, NavigationConstants.CHANNELS_AND_EXTERNAL_SERVICES,
 				null);
 		channelsServices.setTitle(NavigationConstants.CHANNELS_AND_EXTERNAL_SERVICES);
-		menu.addNaviItem(channelsServices, NavigationConstants.CHANNEL_INTEGRATION, ChannelIntegration.class);
 		menu.addNaviItem(channelsServices, NavigationConstants.SERVICE_PROVIDERS, ServiceProviders.class);
 		channelsServices.setSubItemsVisible(false);
 
+		// System
 		NaviItem systemConfig = menu.addNaviItem(VaadinIcon.COG, NavigationConstants.SYSTEM_CONFIGURATION,
 				null);
 		systemConfig.setTitle(NavigationConstants.SYSTEM_CONFIGURATION);
 		menu.addNaviItem(systemConfig, NavigationConstants.GENERAL_CONFIGURATION, GeneralConfiguration.class);
-		menu.addNaviItem(systemConfig, NavigationConstants.WORKFLOWS, Workflows.class);
-		menu.addNaviItem(systemConfig, NavigationConstants.NOTIFICATIONS, Notifications.class);
 		menu.addNaviItem(systemConfig, NavigationConstants.MASTER_DATA, MasterData.class);
 		systemConfig.setSubItemsVisible(false);
-
-		NaviItem adminTools = menu.addNaviItem(VaadinIcon.TOOLS, NavigationConstants.ADMINISTRATION_TOOLS,
-				null);
-		adminTools.setTitle(NavigationConstants.ADMINISTRATION_TOOLS);
-		menu.addNaviItem(adminTools, NavigationConstants.SYSTEM_MONITORING, SystemMonitoring.class);
-		menu.addNaviItem(adminTools, NavigationConstants.VERSION_MANAGEMENT, VersionManagement.class);
-		menu.addNaviItem(adminTools, NavigationConstants.DATABASE_MAINTENANCE, DatabaseMaintenance.class);
-		adminTools.setSubItemsVisible(false);
-
-		NaviItem reportsConfig = menu.addNaviItem(VaadinIcon.FILE_TEXT, NavigationConstants.REPORTS_CONFIGURATION,
-				null);
-		reportsConfig.setTitle(NavigationConstants.REPORTS_CONFIGURATION);
-		menu.addNaviItem(reportsConfig, NavigationConstants.REPORT_DESIGNER, ReportDesigner.class);
-		menu.addNaviItem(reportsConfig, NavigationConstants.EXPORT_AND_INTEGRATION, ExportAndIntegration.class);
-		reportsConfig.setSubItemsVisible(false);
-
-		NaviItem distributors = menu.addNaviItem(VaadinIcon.TRUCK, NavigationConstants.DISTRIBUTORS,
-				null);
-		distributors.setTitle(NavigationConstants.DISTRIBUTORS);
-		menu.addNaviItem(distributors, NavigationConstants.DISTRIBUTOR_MANAGEMENT, DistributorManagement.class);
-		menu.addNaviItem(distributors, NavigationConstants.ITEMS, Items.class);
-		distributors.setSubItemsVisible(false);
 	}
 
 	/**

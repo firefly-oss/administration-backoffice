@@ -1,6 +1,9 @@
 package com.vaadin.starter.business.ui.views.security;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -14,43 +17,43 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.starter.business.dummy.Person;
+import com.vaadin.flow.shared.Registration;
 import com.vaadin.starter.business.backend.service.SecurityService;
+import com.vaadin.starter.business.dummy.Person;
 import com.vaadin.starter.business.ui.MainLayout;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.components.Initials;
 import com.vaadin.starter.business.ui.components.ListItem;
-import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawer;
-import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerFooter;
-import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerHeader;
 import com.vaadin.starter.business.ui.layout.size.Horizontal;
 import com.vaadin.starter.business.ui.layout.size.Right;
 import com.vaadin.starter.business.ui.layout.size.Top;
 import com.vaadin.starter.business.ui.layout.size.Vertical;
-import com.vaadin.starter.business.ui.util.LumoStyles;
 import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.BoxSizing;
-import com.vaadin.starter.business.ui.views.SplitViewFrame;
+import com.vaadin.starter.business.ui.views.ViewFrame;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 @Route(value = "internal-users", layout = MainLayout.class)
 @PageTitle("Internal Users")
-public class InternalUsers extends SplitViewFrame {
+public class InternalUsers extends ViewFrame {
 
+    public static final int MOBILE_BREAKPOINT = 480;
     private Grid<Person> grid;
+    private Registration resizeListener;
     private ListDataProvider<Person> dataProvider;
+    private UI ui;
 
-    private DetailsDrawer detailsDrawer;
-    private DetailsDrawerHeader detailsDrawerHeader;
+    // Details drawer components removed
 
     // Search form fields
     private TextField idFilter;
@@ -66,15 +69,13 @@ public class InternalUsers extends SplitViewFrame {
     public InternalUsers(SecurityService securityService) {
         this.securityService = securityService;
         setViewContent(createContent());
-        setViewDetails(createDetailsDrawer());
-        setViewDetailsPosition(Position.BOTTOM);
 
         // Initialize with default filter
         filter();
     }
 
     private Component createContent() {
-        FlexBoxLayout content = new FlexBoxLayout(createSearchForm(), createGrid());
+        FlexBoxLayout content = new FlexBoxLayout(createFilterForm(), createGrid());
         content.setBoxSizing(BoxSizing.BORDER_BOX);
         content.setHeightFull();
         content.setPadding(Horizontal.RESPONSIVE_X, Top.RESPONSIVE_X);
@@ -82,55 +83,52 @@ public class InternalUsers extends SplitViewFrame {
         return content;
     }
 
-    private Component createSearchForm() {
-        // Create form layout
-        FormLayout formLayout = new FormLayout();
-        formLayout.addClassName(LumoStyles.Padding.Bottom.M);
-        formLayout.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("0", 1,
-                        FormLayout.ResponsiveStep.LabelsPosition.TOP),
-                new FormLayout.ResponsiveStep("600px", 2,
-                        FormLayout.ResponsiveStep.LabelsPosition.TOP),
-                new FormLayout.ResponsiveStep("900px", 3,
-                        FormLayout.ResponsiveStep.LabelsPosition.TOP));
-
+    private Component createFilterForm() {
         // Initialize filter fields
         idFilter = new TextField();
-        idFilter.setPlaceholder("ID");
-        idFilter.setClearButtonVisible(true);
         idFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        idFilter.addValueChangeListener(e -> applyFilter());
+        idFilter.setClearButtonVisible(true);
 
         nameFilter = new TextField();
-        nameFilter.setPlaceholder("Name");
-        nameFilter.setClearButtonVisible(true);
         nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        nameFilter.addValueChangeListener(e -> applyFilter());
+        nameFilter.setClearButtonVisible(true);
 
         emailFilter = new TextField();
-        emailFilter.setPlaceholder("Email");
-        emailFilter.setClearButtonVisible(true);
         emailFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        emailFilter.addValueChangeListener(e -> applyFilter());
+        emailFilter.setClearButtonVisible(true);
 
         roleFilter = new ComboBox<>();
-        roleFilter.setPlaceholder("Role");
         roleFilter.setItems(Person.Role.values());
         roleFilter.setClearButtonVisible(true);
-        roleFilter.addValueChangeListener(e -> applyFilter());
 
         statusFilter = new ComboBox<>();
-        statusFilter.setPlaceholder("Status");
         statusFilter.setItems("Active", "Inactive");
         statusFilter.setClearButtonVisible(true);
-        statusFilter.addValueChangeListener(e -> applyFilter());
 
         lastLoginFilter = new DatePicker();
-        lastLoginFilter.setPlaceholder("Last Login After");
         lastLoginFilter.setClearButtonVisible(true);
-        lastLoginFilter.addValueChangeListener(e -> applyFilter());
 
-        // Add fields to form
+        // Create buttons
+        Button searchButton = UIUtils.createPrimaryButton("Search");
+        searchButton.addClickListener(e -> applyFilter());
+
+        Button clearButton = UIUtils.createTertiaryButton("Clear");
+        clearButton.addClickListener(e -> clearFilter());
+
+        Button createUserButton = UIUtils.createSuccessButton("Create User");
+        createUserButton.addClickListener(e -> openCreateUserDialog());
+
+        // Create a wrapper for search and clear buttons (right side)
+        HorizontalLayout rightButtons = new HorizontalLayout(searchButton, clearButton);
+        rightButtons.setSpacing(true);
+
+        // Create button layout with Create User on left and search/clear on right
+        HorizontalLayout buttonLayout = new HorizontalLayout(createUserButton, rightButtons);
+        buttonLayout.setWidthFull();
+        buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+
+        // Create form layout
+        FormLayout formLayout = new FormLayout();
         formLayout.addFormItem(idFilter, "ID");
         formLayout.addFormItem(nameFilter, "Name");
         formLayout.addFormItem(emailFilter, "Email");
@@ -138,40 +136,32 @@ public class InternalUsers extends SplitViewFrame {
         formLayout.addFormItem(statusFilter, "Status");
         formLayout.addFormItem(lastLoginFilter, "Last Login After");
 
-        // Create buttons
-        Button searchButton = new Button("Search", VaadinIcon.SEARCH.create(), e -> applyFilter());
-        searchButton.getElement().getThemeList().add("primary");
-        searchButton.addClassName(LumoStyles.Margin.Right.S);
+        formLayout.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1, FormLayout.ResponsiveStep.LabelsPosition.TOP),
+                new FormLayout.ResponsiveStep("600px", 2, FormLayout.ResponsiveStep.LabelsPosition.TOP),
+                new FormLayout.ResponsiveStep("900px", 4, FormLayout.ResponsiveStep.LabelsPosition.TOP)
+        );
 
-        Button clearButton = new Button("Clear", VaadinIcon.CLOSE.create(), e -> clearFilter());
-        clearButton.getElement().getThemeList().add("tertiary");
-
-        // Add buttons to horizontal layout
-        HorizontalLayout buttonsLayout = new HorizontalLayout(searchButton, clearButton);
-        buttonsLayout.setSpacing(true);
-        buttonsLayout.setPadding(true);
-        buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-
-        // Create container for the form
-        Div formContainer = new Div(formLayout, buttonsLayout);
-        formContainer.addClassName(LumoStyles.Padding.Bottom.L);
-        formContainer.addClassName(LumoStyles.Padding.Horizontal.L);
-        formContainer.addClassName(LumoStyles.Padding.Top.M);
+        // Create a container for the form and buttons
+        Div formContainer = new Div(formLayout, buttonLayout);
+        formContainer.getStyle().set("padding", "1em");
+        formContainer.getStyle().set("box-shadow", "0 0 0 1px var(--lumo-contrast-10pct)");
+        formContainer.getStyle().set("border-radius", "var(--lumo-border-radius)");
         formContainer.getStyle().set("background-color", "var(--lumo-base-color)");
-        formContainer.getStyle().set("border-radius", "var(--lumo-border-radius-m)");
-        formContainer.getStyle().set("box-shadow", "var(--lumo-box-shadow-xs)");
+        formContainer.getStyle().set("margin-bottom", "1em");
 
         return formContainer;
     }
 
-    private Grid createGrid() {
+    private Grid<Person> createGrid() {
         grid = new Grid<>();
-        grid.addSelectionListener(event -> event.getFirstSelectedItem()
-                .ifPresent(this::showDetails));
-        dataProvider = DataProvider.ofCollection(securityService.getInternalUsers());
-        grid.setDataProvider(dataProvider);
+        // Row selection listener removed - details will be shown via action button
+        grid.addThemeName("mobile");
+
+        grid.setId("users");
         grid.setSizeFull();
 
+        // Configure grid columns
         grid.addColumn(Person::getId)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
@@ -180,7 +170,8 @@ public class InternalUsers extends SplitViewFrame {
                 .setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::createUserInfo))
                 .setAutoWidth(true)
-                .setHeader("Name");
+                .setHeader("Name")
+                .setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::createActive))
                 .setAutoWidth(true)
                 .setFlexGrow(0)
@@ -195,6 +186,17 @@ public class InternalUsers extends SplitViewFrame {
                 .setFlexGrow(0)
                 .setHeader("Last Login")
                 .setTextAlign(ColumnTextAlign.END);
+
+        // Add Actions column with eye icon
+        grid.addColumn(new ComponentRenderer<>(this::createActionButtons))
+                .setHeader("Actions")
+                .setWidth("100px")
+                .setFlexGrow(0)
+                .setTextAlign(ColumnTextAlign.CENTER);
+
+        // Initialize with data provider
+        dataProvider = DataProvider.ofCollection(securityService.getInternalUsers());
+        grid.setDataProvider(dataProvider);
 
         return grid;
     }
@@ -222,78 +224,33 @@ public class InternalUsers extends SplitViewFrame {
         return new Span(UIUtils.formatDate(person.getLastModified()));
     }
 
-    private DetailsDrawer createDetailsDrawer() {
-        detailsDrawer = new DetailsDrawer(DetailsDrawer.Position.BOTTOM);
+    private Component createActionButtons(Person person) {
+        // Create layout for buttons
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setSpacing(false);
+        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        layout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
-        // Header
-        detailsDrawerHeader = new DetailsDrawerHeader("");
-        detailsDrawerHeader.addCloseListener(buttonClickEvent -> detailsDrawer.hide());
-        detailsDrawer.setHeader(detailsDrawerHeader);
+        // Create view details button with eye icon
+        Button viewDetailsButton = UIUtils.createButton(VaadinIcon.EYE);
+        viewDetailsButton.addClickListener(e -> showDetails(person));
+        viewDetailsButton.getElement().getThemeList().add("small");
+        viewDetailsButton.getElement().getThemeList().add("tertiary");
+        viewDetailsButton.getElement().setAttribute("title", "View Details");
+        UIUtils.setPointerCursor(viewDetailsButton);
 
-        // Footer
-        DetailsDrawerFooter footer = new DetailsDrawerFooter();
-        footer.addSaveListener(e -> {
-            detailsDrawer.hide();
-            UIUtils.showNotification("Changes saved.");
-        });
-        footer.addCancelListener(e -> detailsDrawer.hide());
-        detailsDrawer.setFooter(footer);
-
-        return detailsDrawer;
+        layout.add(viewDetailsButton);
+        return layout;
     }
+
+    // Details drawer method removed
 
     private void showDetails(Person person) {
-        detailsDrawerHeader.setTitle(person.getName());
-        detailsDrawer.setContent(createDetails(person));
-        detailsDrawer.show();
+        UserDetails userDetails = new UserDetails(person, securityService);
+        userDetails.open();
     }
 
-    private FormLayout createDetails(Person person) {
-        TextField firstName = new TextField();
-        firstName.setValue(person.getFirstName());
-        firstName.setWidthFull();
-
-        TextField lastName = new TextField();
-        lastName.setValue(person.getLastName());
-        lastName.setWidthFull();
-
-        RadioButtonGroup<String> status = new RadioButtonGroup<>();
-        status.setItems("Active", "Inactive");
-        status.setValue(person.getRandomBoolean() ? "Active" : "Inactive");
-
-        TextField username = new TextField();
-        username.setValue(person.getEmail().split("@")[0]);
-        username.setWidthFull();
-
-        TextField email = new TextField();
-        email.setValue(person.getEmail());
-        email.setWidthFull();
-
-        ComboBox<String> role = new ComboBox<>();
-        role.setItems("Admin", "User", "Guest");
-        role.setValue("User");
-        role.setWidthFull();
-
-        // Form layout
-        FormLayout form = new FormLayout();
-        form.addClassNames(LumoStyles.Padding.Bottom.L,
-                LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.S);
-        form.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("0", 1,
-                        FormLayout.ResponsiveStep.LabelsPosition.TOP),
-                new FormLayout.ResponsiveStep("600px", 2,
-                        FormLayout.ResponsiveStep.LabelsPosition.TOP),
-                new FormLayout.ResponsiveStep("1024px", 3,
-                        FormLayout.ResponsiveStep.LabelsPosition.TOP));
-        form.addFormItem(firstName, "First Name");
-        form.addFormItem(lastName, "Last Name");
-        form.addFormItem(username, "Username");
-        form.addFormItem(email, "Email");
-        form.addFormItem(status, "Status");
-        form.addFormItem(role, "Role");
-        form.addFormItem(new Upload(), "Profile Picture");
-        return form;
-    }
+    // Details are now shown in the UserDetails dialog
 
     private void filter() {
         dataProvider.setFilterByValue(Person::getRole, Person.Role.MANAGER);
@@ -361,5 +318,41 @@ public class InternalUsers extends SplitViewFrame {
         // Reset filters
         dataProvider.clearFilters();
         filter(); // Apply default filter
+    }
+
+    private void openCreateUserDialog() {
+        // This would be implemented to open a dialog for creating a new user
+        System.out.println("[DEBUG_LOG] Create user dialog would open here");
+        // Example: CreateUser createUserDialog = new CreateUser(securityService, this::loadUsersData);
+        // createUserDialog.open();
+    }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        getUI().ifPresent(currentUI -> {
+            this.ui = currentUI;
+            Page page = currentUI.getPage();
+            resizeListener = page.addBrowserWindowResizeListener(event -> updateVisibleColumns(event.getWidth()));
+            page.retrieveExtendedClientDetails(details -> updateVisibleColumns(details.getBodyClientWidth()));
+        });
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        if (resizeListener != null) {
+            resizeListener.remove();
+        }
+        super.onDetach(detachEvent);
+    }
+
+    private void updateVisibleColumns(int width) {
+        boolean mobile = width < MOBILE_BREAKPOINT;
+        List<Grid.Column<Person>> columns = grid.getColumns();
+
+        // "Desktop" columns
+        for (Grid.Column<Person> column : columns) {
+            column.setVisible(!mobile);
+        }
     }
 }

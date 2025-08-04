@@ -3,6 +3,7 @@ package com.vaadin.starter.business.ui.components.navigation.bar;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
@@ -23,6 +24,7 @@ import com.vaadin.starter.business.ui.components.navigation.tab.NaviTab;
 import com.vaadin.starter.business.ui.components.navigation.tab.NaviTabs;
 import com.vaadin.starter.business.ui.util.LumoStyles;
 import com.vaadin.starter.business.ui.util.UIUtils;
+import com.vaadin.starter.business.ui.views.Help;
 import com.vaadin.starter.business.ui.views.Home;
 
 import java.util.ArrayList;
@@ -64,6 +66,7 @@ public class AppBar extends FlexBoxLayout {
 		initSearch();
 		initAvatar();
 		initActionItems();
+		initHelpIcon();
 		initContainer();
 		initTabs(tabs);
 	}
@@ -129,9 +132,17 @@ public class AppBar extends FlexBoxLayout {
 		actionItems.setVisible(false);
 	}
 
+	private Button helpIcon;
+
+	private void initHelpIcon() {
+		helpIcon = UIUtils.createButton(VaadinIcon.QUESTION_CIRCLE, ButtonVariant.LUMO_TERTIARY);
+		helpIcon.addClickListener(e -> UI.getCurrent().navigate(Help.class));
+		helpIcon.setAriaLabel("Help");
+	}
+
 	private void initContainer() {
 		container = new FlexBoxLayout(menuIcon, contextIcon, this.title, search,
-				actionItems, avatar);
+				actionItems, helpIcon, avatar);
 		container.addClassName(CLASS_NAME + "__container");
 		container.setAlignItems(FlexComponent.Alignment.CENTER);
 		container.setFlexGrow(1, search);

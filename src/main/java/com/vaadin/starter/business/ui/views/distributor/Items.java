@@ -126,14 +126,16 @@ public class Items extends SplitViewFrame {
         // Create a button layout
         Button resetBtn = new Button("Reset");
         resetBtn.addClickListener(e -> resetFilter());
-        
+        UIUtils.setPointerCursor(resetBtn);
+
         Button searchBtn = new Button("Search");
         searchBtn.addClickListener(e -> applyFilter());
         searchBtn.getElement().getThemeList().add("primary");
-        
+        UIUtils.setPointerCursor(searchBtn);
+
         HorizontalLayout buttonLayout = new HorizontalLayout(resetBtn, searchBtn);
         buttonLayout.setSpacing(true);
-        
+
         Div wrapper = new Div(formLayout, buttonLayout);
         wrapper.addClassName(LumoStyles.Padding.Bottom.L);
         return wrapper;
@@ -151,39 +153,39 @@ public class Items extends SplitViewFrame {
                 .setHeader("Name")
                 .setWidth("200px")
                 .setFlexGrow(1);
-        
+
         grid.addColumn(item -> item.getCategory().getName())
                 .setHeader("Category")
                 .setWidth("120px")
                 .setFlexGrow(0);
-        
+
         grid.addColumn(Item::getVendor)
                 .setHeader("Vendor")
                 .setWidth("150px")
                 .setFlexGrow(1);
-        
+
         grid.addColumn(item -> UIUtils.formatAmount(item.getPrice()))
                 .setHeader("Price")
                 .setWidth("100px")
                 .setFlexGrow(0)
                 .setTextAlign(ColumnTextAlign.END);
-        
+
         grid.addColumn(Item::getStock)
                 .setHeader("Stock")
                 .setWidth("80px")
                 .setFlexGrow(0)
                 .setTextAlign(ColumnTextAlign.END);
-        
+
         grid.addColumn(Item::getSold)
                 .setHeader("Sold")
                 .setWidth("80px")
                 .setFlexGrow(0)
                 .setTextAlign(ColumnTextAlign.END);
-        
+
         grid.addColumn(new ComponentRenderer<>(item -> {
             boolean inStock = item.getStock() > 0;
             Span badge = new Span(inStock ? "In Stock" : "Out of Stock");
-            
+
             String theme = inStock ? "badge success" : "badge error";
             badge.getElement().getThemeList().add(theme);
             return badge;
@@ -271,22 +273,22 @@ public class Items extends SplitViewFrame {
 
     private void filter() {
         dataProvider.clearFilters();
-        
+
         if (nameFilter.getValue() != null && !nameFilter.getValue().isEmpty()) {
             dataProvider.addFilter(item -> 
                     item.getName().toLowerCase().contains(nameFilter.getValue().toLowerCase()));
         }
-        
+
         if (categoryFilter.getValue() != null) {
             dataProvider.addFilter(item -> 
                     item.getCategory().equals(categoryFilter.getValue()));
         }
-        
+
         if (vendorFilter.getValue() != null && !vendorFilter.getValue().isEmpty()) {
             dataProvider.addFilter(item -> 
                     item.getVendor().toLowerCase().contains(vendorFilter.getValue().toLowerCase()));
         }
-        
+
         if (priceMinFilter.getValue() != null && !priceMinFilter.getValue().isEmpty()) {
             try {
                 double minPrice = Double.parseDouble(priceMinFilter.getValue());
@@ -295,7 +297,7 @@ public class Items extends SplitViewFrame {
                 // Ignore invalid number format
             }
         }
-        
+
         if (priceMaxFilter.getValue() != null && !priceMaxFilter.getValue().isEmpty()) {
             try {
                 double maxPrice = Double.parseDouble(priceMaxFilter.getValue());
@@ -304,7 +306,7 @@ public class Items extends SplitViewFrame {
                 // Ignore invalid number format
             }
         }
-        
+
         if (stockFilter.getValue() != null && !stockFilter.getValue().isEmpty()) {
             try {
                 int minStock = Integer.parseInt(stockFilter.getValue());

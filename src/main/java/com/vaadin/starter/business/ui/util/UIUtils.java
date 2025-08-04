@@ -560,4 +560,12 @@ public class UIUtils {
 		}
 	}
 
+	/**
+	 * Sets the cursor to pointer for the given components.
+	 */
+	public static void setPointerCursor(Component... components) {
+		for (Component component : components) {
+			component.getElement().getStyle().set("cursor", "pointer");
+		}
+	}
 }

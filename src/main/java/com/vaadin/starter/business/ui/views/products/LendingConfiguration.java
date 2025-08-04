@@ -1,6 +1,7 @@
 package com.vaadin.starter.business.ui.views.products;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -8,7 +9,11 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -16,18 +21,19 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.starter.business.dummy.Distributor;
+import com.vaadin.starter.business.dummy.DummyData;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
-import com.vaadin.starter.business.ui.components.ListItem;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawer;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerFooter;
 import com.vaadin.starter.business.ui.components.detailsdrawer.DetailsDrawerHeader;
 import com.vaadin.starter.business.ui.layout.size.Horizontal;
-import com.vaadin.starter.business.ui.layout.size.Right;
 import com.vaadin.starter.business.ui.layout.size.Top;
-import com.vaadin.starter.business.ui.layout.size.Vertical;
 import com.vaadin.starter.business.ui.util.LumoStyles;
 import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.BoxSizing;
@@ -36,13 +42,15 @@ import com.vaadin.starter.business.ui.views.SplitViewFrame;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Route(value = "lending-configuration", layout = MainLayout.class)
 @PageTitle("Lending Configuration")
-public class LendingConfiguration extends SplitViewFrame {
+public class LendingConfiguration extends SplitViewFrame implements HasUrlParameter<Long> {
 
     private Grid<LendingConfig> grid;
     private ListDataProvider<LendingConfig> dataProvider;
+    private Distributor distributor;
 
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
@@ -153,17 +161,55 @@ public class LendingConfiguration extends SplitViewFrame {
     }
 
     public LendingConfiguration() {
-        setViewContent(createContent());
+        // Constructor will be called first, but content will be set in setParameter
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
     }
 
+    @Override
+    public void setParameter(BeforeEvent event, Long distributorId) {
+        // Find the distributor by ID
+        Optional<Distributor> optionalDistributor = DummyData.getDistributors().stream()
+                .filter(d -> d.getId().equals(distributorId))
+                .findFirst();
+
+        if (optionalDistributor.isPresent()) {
+            this.distributor = optionalDistributor.get();
+            setViewContent(createContent());
+        } else {
+            Notification notification = new Notification("Distributor not found", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
+            getUI().ifPresent(ui -> ui.navigate(RatesFees.class));
+        }
+    }
+
     private Component createContent() {
-        FlexBoxLayout content = new FlexBoxLayout(createGrid());
+        FlexBoxLayout content = new FlexBoxLayout(createHeader(), createGrid());
         content.setBoxSizing(BoxSizing.BORDER_BOX);
         content.setHeightFull();
         content.setPadding(Horizontal.RESPONSIVE_X, Top.RESPONSIVE_X);
+        content.setFlexDirection(FlexLayout.FlexDirection.COLUMN);
         return content;
+    }
+
+    private Component createHeader() {
+        Span title = new Span("Lending Configuration for " + distributor.getName());
+        title.getElement().getStyle().set("font-size", "var(--lumo-font-size-xl)");
+        title.getElement().getStyle().set("font-weight", "bold");
+
+        Button backButton = new Button("Back to Rates and Fees");
+        backButton.setIcon(VaadinIcon.ARROW_LEFT.create());
+        backButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(RatesFees.class)));
+        UIUtils.setPointerCursor(backButton);
+
+        HorizontalLayout headerLayout = new HorizontalLayout(backButton, title);
+        headerLayout.setWidthFull();
+        headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        headerLayout.setPadding(true);
+
+        return headerLayout;
     }
 
     private Grid createGrid() {
@@ -320,7 +366,7 @@ public class LendingConfiguration extends SplitViewFrame {
         form.addFormItem(riskCategory, "Risk Category");
         form.addFormItem(status, "Status");
         form.addFormItem(description, "Description");
-        
+
         return form;
     }
 }

@@ -169,12 +169,14 @@ public class DistributorDetails extends SplitViewFrame implements HasUrlParamete
             getUI().ifPresent(ui -> ui.navigate("distributor-management"));
         });
         backButton.setIcon(new Icon(VaadinIcon.ARROW_LEFT));
+        UIUtils.setPointerCursor(backButton);
 
         // Edit button
         editButton = new Button("Edit", e -> {
             enableEditMode();
         });
         editButton.setIcon(new Icon(VaadinIcon.EDIT));
+        UIUtils.setPointerCursor(editButton);
 
         // Save button
         saveButton = new Button("Save Changes", e -> {
@@ -182,6 +184,7 @@ public class DistributorDetails extends SplitViewFrame implements HasUrlParamete
         });
         saveButton.getElement().getThemeList().add("primary");
         saveButton.setVisible(false); // Initially hidden
+        UIUtils.setPointerCursor(saveButton);
 
         HorizontalLayout buttonLayout = new HorizontalLayout(backButton, editButton, saveButton);
         buttonLayout.setSpacing(true);
@@ -266,6 +269,7 @@ public class DistributorDetails extends SplitViewFrame implements HasUrlParamete
                 UIUtils.showNotification("Item removed");
             });
             removeButton.addThemeVariants();
+            UIUtils.setPointerCursor(removeButton);
             return removeButton;
         }))
                 .setHeader("Actions")
@@ -276,6 +280,7 @@ public class DistributorDetails extends SplitViewFrame implements HasUrlParamete
         // Add button
         Button addItemButton = new Button("Add Item", e -> showAddItemDialog());
         addItemButton.setIcon(new Icon(VaadinIcon.PLUS));
+        UIUtils.setPointerCursor(addItemButton);
         addItemButton.getElement().getThemeList().add("primary");
 
         VerticalLayout layout = new VerticalLayout(sectionTitle, itemsGrid, addItemButton);
@@ -371,6 +376,7 @@ public class DistributorDetails extends SplitViewFrame implements HasUrlParamete
 
         // Buttons
         Button cancelButton = new Button("Cancel", e -> dialog.close());
+        UIUtils.setPointerCursor(cancelButton);
 
         Button addButton = new Button("Add", e -> {
             // Validate form
@@ -401,6 +407,7 @@ public class DistributorDetails extends SplitViewFrame implements HasUrlParamete
             UIUtils.showNotification("Item added");
         });
         addButton.getElement().getThemeList().add("primary");
+        UIUtils.setPointerCursor(addButton);
 
         HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, addButton);
         buttonLayout.setSpacing(true);

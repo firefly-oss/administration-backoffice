@@ -1,20 +1,27 @@
 package com.vaadin.starter.business.ui.views.channelsandservices;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.starter.business.dummy.ServiceProvider;
@@ -45,6 +52,14 @@ public class ServiceProviders extends SplitViewFrame {
     private DetailsDrawer detailsDrawer;
     private DetailsDrawerHeader detailsDrawerHeader;
 
+    // Search form fields
+    private TextField idFilter;
+    private TextField nameFilter;
+    private TextField contactEmailFilter;
+    private ComboBox<String> statusFilter;
+    private ComboBox<String> serviceTypeFilter;
+    private DatePicker contractExpiryFilter;
+
     private final ChannelsAndServicesService channelsAndServicesService;
 
     public ServiceProviders(ChannelsAndServicesService channelsAndServicesService) {
@@ -53,20 +68,100 @@ public class ServiceProviders extends SplitViewFrame {
         setViewContent(createContent());
         setViewDetails(createDetailsDrawer());
         setViewDetailsPosition(Position.BOTTOM);
+
+        // Initialize with empty filter (show all providers)
+        clearFilter();
     }
 
     private Component createContent() {
-        FlexBoxLayout content = new FlexBoxLayout(createGrid());
+        FlexBoxLayout content = new FlexBoxLayout(createFilterForm(), createGrid());
         content.setBoxSizing(BoxSizing.BORDER_BOX);
         content.setHeightFull();
         content.setPadding(Horizontal.RESPONSIVE_X, Top.RESPONSIVE_X);
+        content.setFlexDirection(FlexLayout.FlexDirection.COLUMN);
         return content;
+    }
+
+    private Component createFilterForm() {
+        // Initialize filter fields
+        idFilter = new TextField();
+        idFilter.setValueChangeMode(ValueChangeMode.EAGER);
+        idFilter.setClearButtonVisible(true);
+
+        nameFilter = new TextField();
+        nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
+        nameFilter.setClearButtonVisible(true);
+
+        contactEmailFilter = new TextField();
+        contactEmailFilter.setValueChangeMode(ValueChangeMode.EAGER);
+        contactEmailFilter.setClearButtonVisible(true);
+
+        statusFilter = new ComboBox<>();
+        statusFilter.setItems("Active", "Pending", "Terminated");
+        statusFilter.setClearButtonVisible(true);
+
+        serviceTypeFilter = new ComboBox<>();
+        String[] types = {
+            "Payment Processing", 
+            "Core Banking", 
+            "Credit Scoring", 
+            "KYC/AML", 
+            "Fraud Detection", 
+            "Digital Onboarding"
+        };
+        serviceTypeFilter.setItems(types);
+        serviceTypeFilter.setClearButtonVisible(true);
+
+        contractExpiryFilter = new DatePicker();
+        contractExpiryFilter.setClearButtonVisible(true);
+
+        // Create buttons
+        Button searchButton = UIUtils.createPrimaryButton("Search");
+        searchButton.addClickListener(e -> applyFilter());
+
+        Button clearButton = UIUtils.createTertiaryButton("Clear");
+        clearButton.addClickListener(e -> clearFilter());
+
+        Button createProviderButton = UIUtils.createSuccessButton("Create Provider");
+        createProviderButton.addClickListener(e -> openCreateProviderDialog());
+
+        // Create a wrapper for search and clear buttons (right side)
+        HorizontalLayout rightButtons = new HorizontalLayout(searchButton, clearButton);
+        rightButtons.setSpacing(true);
+
+        // Create button layout with Create Provider on left and search/clear on right
+        HorizontalLayout buttonLayout = new HorizontalLayout(createProviderButton, rightButtons);
+        buttonLayout.setWidthFull();
+        buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+
+        // Create form layout
+        FormLayout formLayout = new FormLayout();
+        formLayout.addFormItem(idFilter, "ID");
+        formLayout.addFormItem(nameFilter, "Provider Name");
+        formLayout.addFormItem(contactEmailFilter, "Contact Email");
+        formLayout.addFormItem(statusFilter, "Status");
+        formLayout.addFormItem(serviceTypeFilter, "Service Type");
+        formLayout.addFormItem(contractExpiryFilter, "Contract Expiry Before");
+
+        formLayout.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1, FormLayout.ResponsiveStep.LabelsPosition.TOP),
+                new FormLayout.ResponsiveStep("600px", 2, FormLayout.ResponsiveStep.LabelsPosition.TOP),
+                new FormLayout.ResponsiveStep("900px", 3, FormLayout.ResponsiveStep.LabelsPosition.TOP)
+        );
+
+        // Create a container for the form and buttons
+        Div formContainer = new Div(formLayout, buttonLayout);
+        formContainer.getStyle().set("padding", "1em");
+        formContainer.getStyle().set("box-shadow", "0 0 0 1px var(--lumo-contrast-10pct)");
+        formContainer.getStyle().set("border-radius", "var(--lumo-border-radius)");
+        formContainer.getStyle().set("background-color", "var(--lumo-base-color)");
+        formContainer.getStyle().set("margin-bottom", "1em");
+
+        return formContainer;
     }
 
     private Grid createGrid() {
         grid = new Grid<>();
-        grid.addSelectionListener(event -> event.getFirstSelectedItem()
-                .ifPresent(this::showDetails));
         dataProvider = DataProvider.ofCollection(channelsAndServicesService.getServiceProviders());
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
@@ -96,7 +191,38 @@ public class ServiceProviders extends SplitViewFrame {
                 .setHeader("Contract Expiry")
                 .setTextAlign(ColumnTextAlign.END);
 
+        // Add Actions column with configure flows button
+        grid.addColumn(new ComponentRenderer<>(this::createActionButtons))
+                .setHeader("Actions")
+                .setWidth("100px")
+                .setFlexGrow(0)
+                .setTextAlign(ColumnTextAlign.CENTER);
+
         return grid;
+    }
+
+    private Component createActionButtons(ServiceProvider provider) {
+        // Create layout for buttons
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setSpacing(false);
+        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        layout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+
+        // Create configure flows button with connect icon
+        Button configureFlowsButton = UIUtils.createButton(VaadinIcon.CONNECT);
+        configureFlowsButton.addClickListener(e -> navigateToFlowsConfiguration(provider));
+        configureFlowsButton.getElement().getThemeList().add("small");
+        configureFlowsButton.getElement().getThemeList().add("tertiary");
+        configureFlowsButton.getElement().setAttribute("title", "Configure Flows");
+        UIUtils.setPointerCursor(configureFlowsButton);
+
+        layout.add(configureFlowsButton);
+        return layout;
+    }
+
+    private void navigateToFlowsConfiguration(ServiceProvider provider) {
+        // Navigate to the provider flows configuration view
+        UI.getCurrent().navigate(ProviderFlowsConfiguration.class);
     }
 
     private Component createProviderInfo(ServiceProvider provider) {
@@ -231,6 +357,70 @@ public class ServiceProviders extends SplitViewFrame {
         return form;
     }
 
-    // No need for filtering in this view
-    // If filtering is needed, it can be implemented based on ServiceProvider properties
+    private void applyFilter() {
+        dataProvider.clearFilters();
+
+        // Apply ID filter if not empty
+        if (idFilter.getValue() != null && !idFilter.getValue().isEmpty()) {
+            try {
+                Long id = Long.parseLong(idFilter.getValue());
+                dataProvider.setFilter(provider -> provider.getId().equals(id));
+            } catch (NumberFormatException e) {
+                // Ignore invalid number format
+            }
+        }
+
+        // Apply name filter if not empty
+        if (nameFilter.getValue() != null && !nameFilter.getValue().isEmpty()) {
+            String nameFilterValue = nameFilter.getValue().toLowerCase();
+            dataProvider.addFilter(provider -> 
+                provider.getName().toLowerCase().contains(nameFilterValue));
+        }
+
+        // Apply contact email filter if not empty
+        if (contactEmailFilter.getValue() != null && !contactEmailFilter.getValue().isEmpty()) {
+            String emailFilterValue = contactEmailFilter.getValue().toLowerCase();
+            dataProvider.addFilter(provider -> 
+                provider.getContactEmail().toLowerCase().contains(emailFilterValue));
+        }
+
+        // Apply status filter if selected
+        if (statusFilter.getValue() != null) {
+            dataProvider.addFilter(provider -> 
+                statusFilter.getValue().equals(provider.getStatus()));
+        }
+
+        // Apply service type filter if selected
+        if (serviceTypeFilter.getValue() != null) {
+            dataProvider.addFilter(provider -> 
+                serviceTypeFilter.getValue().equals(provider.getServiceType()));
+        }
+
+        // Apply contract expiry filter if selected
+        if (contractExpiryFilter.getValue() != null) {
+            dataProvider.addFilter(provider -> 
+                provider.getContractExpiry() != null && 
+                !provider.getContractExpiry().isAfter(contractExpiryFilter.getValue()));
+        }
+    }
+
+    private void clearFilter() {
+        // Clear all filter fields
+        idFilter.clear();
+        nameFilter.clear();
+        contactEmailFilter.clear();
+        statusFilter.clear();
+        serviceTypeFilter.clear();
+        contractExpiryFilter.clear();
+
+        // Reset filters
+        dataProvider.clearFilters();
+    }
+
+    private void openCreateProviderDialog() {
+        // This would be implemented to open a dialog for creating a new provider
+        System.out.println("[DEBUG_LOG] Create provider dialog would open here");
+        // Example: CreateProvider createProviderDialog = new CreateProvider(channelsAndServicesService, this::refreshData);
+        // createProviderDialog.open();
+    }
 }

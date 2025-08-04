@@ -115,10 +115,12 @@ public class DistributorManagement extends SplitViewFrame {
         // Create a button layout
         Button resetBtn = new Button("Reset");
         resetBtn.addClickListener(e -> resetFilter());
+        UIUtils.setPointerCursor(resetBtn);
 
         Button searchBtn = new Button("Search");
         searchBtn.addClickListener(e -> applyFilter());
         searchBtn.getElement().getThemeList().add("primary");
+        UIUtils.setPointerCursor(searchBtn);
 
         HorizontalLayout buttonLayout = new HorizontalLayout(resetBtn, searchBtn);
         buttonLayout.setSpacing(true);

@@ -30,7 +30,7 @@ public class NavigationConstants {
     // Products and Services
     public static final String PRODUCTS_AND_SERVICES = "Products";
     public static final String PRODUCT_CATALOG = "Product Catalog";
-    public static final String RATES_AND_FEES = "Rates and Fees";
+    public static final String RATES_AND_FEES = "Distributor Rates & Fees";
     public static final String CONTRACT_MANAGEMENT = "Contract Management";
     public static final String LENDING_CONFIGURATION = "Lending Configuration";
 
@@ -68,4 +68,7 @@ public class NavigationConstants {
     public static final String DISTRIBUTOR_MANAGEMENT = "Distributor Management";
     public static final String DISTRIBUTOR_DETAILS = "Distributor Details";
     public static final String ITEMS = "Items";
+
+    // Help
+    public static final String HELP = "Help";
 }
