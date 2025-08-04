@@ -25,12 +25,37 @@ import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.Overflow;
 import com.vaadin.starter.business.ui.views.Home;
 import com.vaadin.starter.business.ui.views.channelsandservices.ServiceProviders;
+import com.vaadin.starter.business.ui.views.masterdata.activity.ActivityCodes;
+import com.vaadin.starter.business.ui.views.masterdata.administrative.AdministrativeDivisions;
+import com.vaadin.starter.business.ui.views.masterdata.asset.AssetTypes;
+import com.vaadin.starter.business.ui.views.masterdata.bank.BankInstitutionCodes;
+import com.vaadin.starter.business.ui.views.masterdata.consent.ConsentCatalogs;
+import com.vaadin.starter.business.ui.views.masterdata.contract.ContractTypes;
+import com.vaadin.starter.business.ui.views.masterdata.country.Countries;
+import com.vaadin.starter.business.ui.views.masterdata.currency.Currencies;
+import com.vaadin.starter.business.ui.views.masterdata.document.DocumentTemplateLocalizations;
+import com.vaadin.starter.business.ui.views.masterdata.document.DocumentTemplateTypes;
+import com.vaadin.starter.business.ui.views.masterdata.document.DocumentTemplates;
+import com.vaadin.starter.business.ui.views.masterdata.identity.IdentityDocumentCategories;
+import com.vaadin.starter.business.ui.views.masterdata.identity.IdentityDocumentLocalizations;
+import com.vaadin.starter.business.ui.views.masterdata.identity.IdentityDocuments;
+import com.vaadin.starter.business.ui.views.masterdata.language.LanguageLocales;
+import com.vaadin.starter.business.ui.views.masterdata.legalform.LegalForms;
+import com.vaadin.starter.business.ui.views.masterdata.lookup.LookupDomains;
+import com.vaadin.starter.business.ui.views.masterdata.lookup.LookupItems;
+import com.vaadin.starter.business.ui.views.masterdata.message.MessageTypes;
+import com.vaadin.starter.business.ui.views.masterdata.notification.NotificationMessageLocalizations;
+import com.vaadin.starter.business.ui.views.masterdata.notification.NotificationMessageTemplates;
+import com.vaadin.starter.business.ui.views.masterdata.notification.NotificationMessages;
+import com.vaadin.starter.business.ui.views.masterdata.relationship.RelationshipTypes;
+import com.vaadin.starter.business.ui.views.masterdata.title.Titles;
+import com.vaadin.starter.business.ui.views.masterdata.transaction.TransactionCategories;
+import com.vaadin.starter.business.ui.views.masterdata.transaction.TransactionCategoryLocalizations;
 import com.vaadin.starter.business.ui.views.products.ProductCatalog;
 import com.vaadin.starter.business.ui.views.products.RatesFees;
 import com.vaadin.starter.business.ui.views.security.InternalUsers;
 import com.vaadin.starter.business.ui.views.security.RolesPermissions;
 import com.vaadin.starter.business.ui.views.systemconfig.GeneralConfiguration;
-import com.vaadin.starter.business.ui.views.systemconfig.MasterData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,8 +174,39 @@ public class MainLayout extends FlexBoxLayout
 				null);
 		systemConfig.setTitle(NavigationConstants.SYSTEM_CONFIGURATION);
 		menu.addNaviItem(systemConfig, NavigationConstants.GENERAL_CONFIGURATION, GeneralConfiguration.class);
-		menu.addNaviItem(systemConfig, NavigationConstants.MASTER_DATA, MasterData.class);
 		systemConfig.setSubItemsVisible(false);
+
+		// Master-data
+		NaviItem masterData = menu.addNaviItem(VaadinIcon.DATABASE, NavigationConstants.MASTER_DATA,
+				null);
+		masterData.setTitle(NavigationConstants.MASTER_DATA);
+		menu.addNaviItem(masterData, NavigationConstants.ACTIVITY_CODES, ActivityCodes.class);
+		menu.addNaviItem(masterData, NavigationConstants.ASSET_TYPES, AssetTypes.class);
+		menu.addNaviItem(masterData, NavigationConstants.BANK_INSTITUTION_CODES, BankInstitutionCodes.class);
+		menu.addNaviItem(masterData, NavigationConstants.CONSENT_CATALOGS, ConsentCatalogs.class);
+		menu.addNaviItem(masterData, NavigationConstants.CONTRACT_TYPES, ContractTypes.class);
+		menu.addNaviItem(masterData, NavigationConstants.COUNTRIES, Countries.class);
+		menu.addNaviItem(masterData, NavigationConstants.CURRENCIES, Currencies.class);
+		menu.addNaviItem(masterData, NavigationConstants.ADMINISTRATIVE_DIVISIONS, AdministrativeDivisions.class);
+		menu.addNaviItem(masterData, NavigationConstants.LEGAL_FORMS, LegalForms.class);
+		menu.addNaviItem(masterData, NavigationConstants.LANGUAGE_LOCALES, LanguageLocales.class);
+		menu.addNaviItem(masterData, NavigationConstants.RELATIONSHIP_TYPES, RelationshipTypes.class);
+		menu.addNaviItem(masterData, NavigationConstants.TITLES, Titles.class);
+		menu.addNaviItem(masterData, NavigationConstants.DOCUMENT_TEMPLATES, DocumentTemplates.class);
+		menu.addNaviItem(masterData, NavigationConstants.DOCUMENT_TEMPLATE_LOCALIZATIONS, DocumentTemplateLocalizations.class);
+		menu.addNaviItem(masterData, NavigationConstants.DOCUMENT_TEMPLATE_TYPES, DocumentTemplateTypes.class);
+		menu.addNaviItem(masterData, NavigationConstants.IDENTITY_DOCUMENTS, IdentityDocuments.class);
+		menu.addNaviItem(masterData, NavigationConstants.IDENTITY_DOCUMENT_CATEGORIES, IdentityDocumentCategories.class);
+		menu.addNaviItem(masterData, NavigationConstants.IDENTITY_DOCUMENT_LOCALIZATIONS, IdentityDocumentLocalizations.class);
+		menu.addNaviItem(masterData, NavigationConstants.LOOKUP_DOMAINS, LookupDomains.class);
+		menu.addNaviItem(masterData, NavigationConstants.LOOKUP_ITEMS, LookupItems.class);
+		menu.addNaviItem(masterData, NavigationConstants.TRANSACTION_CATEGORIES, TransactionCategories.class);
+		menu.addNaviItem(masterData, NavigationConstants.TRANSACTION_CATEGORY_LOCALIZATIONS, TransactionCategoryLocalizations.class);
+		menu.addNaviItem(masterData, NavigationConstants.MESSAGE_TYPES, MessageTypes.class);
+		menu.addNaviItem(masterData, NavigationConstants.NOTIFICATION_MESSAGES, NotificationMessages.class);
+		menu.addNaviItem(masterData, NavigationConstants.NOTIFICATION_MESSAGE_LOCALIZATIONS, NotificationMessageLocalizations.class);
+		menu.addNaviItem(masterData, NavigationConstants.NOTIFICATION_MESSAGE_TEMPLATES, NotificationMessageTemplates.class);
+		masterData.setSubItemsVisible(false);
 	}
 
 	/**
