@@ -26,6 +26,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
+import com.vaadin.starter.business.backend.sdks.services.MasterDataService;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.layout.size.Horizontal;
@@ -33,6 +34,7 @@ import com.vaadin.starter.business.ui.layout.size.Top;
 import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.BoxSizing;
 import com.vaadin.starter.business.ui.views.ViewFrame;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -48,6 +50,9 @@ public class Countries extends ViewFrame {
     private Registration resizeListener;
     private ListDataProvider<Country> dataProvider;
     private UI ui;
+
+    @Autowired
+    private MasterDataService masterDataService;
 
     // Search form fields
     private TextField isoCodeFilter;
@@ -300,8 +305,18 @@ public class Countries extends ViewFrame {
     }
 
     private void openCreateCountryDialog() {
-        // This would be implemented to open a dialog for creating a new country
-        System.out.println("[DEBUG_LOG] Create country dialog would open here");
+        CountryCreationDialog dialog = new CountryCreationDialog(this::addCountry, masterDataService);
+        dialog.open();
+    }
+
+    private void addCountry(Country country) {
+        // In a real application, this would save the country to the backend
+        // For this example, we'll just add it to our mock data list
+        if (dataProvider instanceof ListDataProvider) {
+            ((ListDataProvider<Country>) dataProvider).getItems().add(country);
+            dataProvider.refreshAll();
+            UIUtils.showNotification("Country added: " + country.getCountryName());
+        }
     }
 
     @Override

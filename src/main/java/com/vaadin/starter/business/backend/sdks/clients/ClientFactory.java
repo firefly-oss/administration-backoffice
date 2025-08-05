@@ -19,11 +19,12 @@ public class ClientFactory {
     private final ContractsProperties contractsProperties;
     private final ProductsProperties productsProperties;
     private final DistributorsProperties distributorsProperties;
+    private final MasterDataProperties masterDataProperties;
     private final ObjectMapper objectMapper;
 
     @Autowired
     public ClientFactory(CustomersProperties customersProperties, AccountsProperties accountsProperties,
-                         CardsProperties cardsProperties, ContractsProperties contractsProperties, ProductsProperties productsProperties, DistributorsProperties distributorsProperties,
+                         CardsProperties cardsProperties, ContractsProperties contractsProperties, ProductsProperties productsProperties, DistributorsProperties distributorsProperties, MasterDataProperties masterDataProperties,
                          ObjectMapper objectMapper) {
         this.customersProperties = customersProperties;
         this.accountsProperties = accountsProperties;
@@ -31,6 +32,7 @@ public class ClientFactory {
         this.contractsProperties = contractsProperties;
         this.productsProperties = productsProperties;
         this.distributorsProperties = distributorsProperties;
+        this.masterDataProperties = masterDataProperties;
         this.objectMapper = objectMapper;
     }
 
@@ -105,6 +107,18 @@ public class ClientFactory {
     public com.catalis.core.distributor.sdk.invoker.ApiClient createDistributorsClient() {
         com.catalis.core.distributor.sdk.invoker.ApiClient apiClient = new com.catalis.core.distributor.sdk.invoker.ApiClient();
         apiClient.setBasePath(distributorsProperties.getBasePath());
+        return apiClient;
+    }
+
+    /**
+     * Creates and returns a Master-data service client.
+     *
+     * @return A configured Master-data service client
+     */
+    @Bean
+    public com.catalis.common.reference.master.data.sdk.invoker.ApiClient createMasterDataClient() {
+        com.catalis.common.reference.master.data.sdk.invoker.ApiClient apiClient = new com.catalis.common.reference.master.data.sdk.invoker.ApiClient();
+        apiClient.setBasePath(masterDataProperties.getBasePath());
         return apiClient;
     }
 

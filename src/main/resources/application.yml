@@ -31,6 +31,8 @@ api-configuration:
     base-path: http://common-platform-product-mgmt-dev.common.svc.cluster.local:8080/
   distributors:
     base-path: http://localhost:8084/
+  master-data:
+    base-path: http://localhost:8088/
 
 vaadin:
   async-supported: true
