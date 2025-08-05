@@ -173,7 +173,7 @@ public class ServiceProviders extends SplitViewFrame {
                 .setHeader("ID")
                 .setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::createProviderInfo))
-                .setAutoWidth(true)
+                .setWidth("200px") // Fixed width instead of auto width
                 .setHeader("Provider");
         grid.addColumn(new ComponentRenderer<>(this::createStatus))
                 .setAutoWidth(true)
@@ -205,8 +205,17 @@ public class ServiceProviders extends SplitViewFrame {
         // Create layout for buttons
         HorizontalLayout layout = new HorizontalLayout();
         layout.setSpacing(false);
+        layout.getStyle().set("gap", "0.2em"); // Use smaller gap instead of default spacing
         layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         layout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+
+        // Create view details button with eye icon
+        Button viewDetailsButton = UIUtils.createButton(VaadinIcon.EYE);
+        viewDetailsButton.addClickListener(e -> showDetailsModal(provider));
+        viewDetailsButton.getElement().getThemeList().add("small");
+        viewDetailsButton.getElement().getThemeList().add("tertiary");
+        viewDetailsButton.getElement().setAttribute("title", "View Details");
+        UIUtils.setPointerCursor(viewDetailsButton);
 
         // Create configure flows button with connect icon
         Button configureFlowsButton = UIUtils.createButton(VaadinIcon.CONNECT);
@@ -216,7 +225,16 @@ public class ServiceProviders extends SplitViewFrame {
         configureFlowsButton.getElement().setAttribute("title", "Configure Flows");
         UIUtils.setPointerCursor(configureFlowsButton);
 
-        layout.add(configureFlowsButton);
+        // Create delete button with trash icon
+        Button deleteButton = UIUtils.createButton(VaadinIcon.TRASH);
+        deleteButton.addClickListener(e -> deleteProvider(provider));
+        deleteButton.getElement().getThemeList().add("small");
+        deleteButton.getElement().getThemeList().add("tertiary");
+        deleteButton.getElement().getThemeList().add("error");
+        deleteButton.getElement().setAttribute("title", "Delete Provider");
+        UIUtils.setPointerCursor(deleteButton);
+
+        layout.add(viewDetailsButton, configureFlowsButton, deleteButton);
         return layout;
     }
 
@@ -422,5 +440,24 @@ public class ServiceProviders extends SplitViewFrame {
         System.out.println("[DEBUG_LOG] Create provider dialog would open here");
         // Example: CreateProvider createProviderDialog = new CreateProvider(channelsAndServicesService, this::refreshData);
         // createProviderDialog.open();
+    }
+
+    private void showDetailsModal(ServiceProvider provider) {
+        // Create and open a modal dialog with provider details
+        ProviderDetails providerDetails = new ProviderDetails(provider, channelsAndServicesService);
+        providerDetails.open();
+    }
+
+    private void deleteProvider(ServiceProvider provider) {
+        // In a real application, this would call a service method to delete the provider from the database
+        // Since we're working with mock data and don't have a deleteProvider method in the service,
+        // we'll just remove it from the data provider
+
+        // Remove from grid's data provider
+        dataProvider.getItems().remove(provider);
+        dataProvider.refreshAll();
+
+        // Show success notification
+        UIUtils.showNotification("Provider " + provider.getName() + " deleted successfully");
     }
 }

@@ -227,7 +227,7 @@ public class InternalUsers extends ViewFrame {
     private Component createActionButtons(Person person) {
         // Create layout for buttons
         HorizontalLayout layout = new HorizontalLayout();
-        layout.setSpacing(false);
+         layout.setSpacing(true);
         layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         layout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
@@ -239,7 +239,16 @@ public class InternalUsers extends ViewFrame {
         viewDetailsButton.getElement().setAttribute("title", "View Details");
         UIUtils.setPointerCursor(viewDetailsButton);
 
-        layout.add(viewDetailsButton);
+        // Create delete button with trash icon
+        Button deleteButton = UIUtils.createButton(VaadinIcon.TRASH);
+        deleteButton.addClickListener(e -> deleteUser(person));
+        deleteButton.getElement().getThemeList().add("small");
+        deleteButton.getElement().getThemeList().add("tertiary");
+        deleteButton.getElement().getThemeList().add("error");
+        deleteButton.getElement().setAttribute("title", "Delete User");
+        UIUtils.setPointerCursor(deleteButton);
+
+        layout.add(viewDetailsButton, deleteButton);
         return layout;
     }
 
@@ -325,6 +334,19 @@ public class InternalUsers extends ViewFrame {
         System.out.println("[DEBUG_LOG] Create user dialog would open here");
         // Example: CreateUser createUserDialog = new CreateUser(securityService, this::loadUsersData);
         // createUserDialog.open();
+    }
+
+    private void deleteUser(Person person) {
+        // In a real application, this would call a service method to delete the user from the database
+        // Since we're working with mock data and don't have a deleteUser method in the service,
+        // we'll just remove it from the data provider
+
+        // Remove from grid's data provider
+        dataProvider.getItems().remove(person);
+        dataProvider.refreshAll();
+
+        // Show success notification
+        UIUtils.showNotification("User " + person.getName() + " deleted successfully");
     }
 
     @Override
