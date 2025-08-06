@@ -1,5 +1,6 @@
 package com.vaadin.starter.business.ui.views.masterdata.country;
 
+import com.catalis.common.reference.master.data.sdk.model.CountryDTO;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
@@ -7,10 +8,12 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -19,7 +22,6 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -27,6 +29,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.starter.business.backend.sdks.services.MasterDataService;
+import com.vaadin.starter.business.backend.sdks.services.rest.masterdata.CountryFilterRequest;
 import com.vaadin.starter.business.ui.MainLayout;
 import com.vaadin.starter.business.ui.components.FlexBoxLayout;
 import com.vaadin.starter.business.ui.layout.size.Horizontal;
@@ -37,33 +40,32 @@ import com.vaadin.starter.business.ui.views.ViewFrame;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Route(value = "countries", layout = MainLayout.class)
 @PageTitle("Countries")
 public class Countries extends ViewFrame {
 
     public static final int MOBILE_BREAKPOINT = 480;
-    private Grid<Country> grid;
+    private Grid<CountryDTO> grid;
     private Registration resizeListener;
-    private ListDataProvider<Country> dataProvider;
+    private ListDataProvider<CountryDTO> dataProvider;
     private UI ui;
 
-    @Autowired
-    private MasterDataService masterDataService;
+    private final MasterDataService masterDataService;
 
     // Search form fields
     private TextField isoCodeFilter;
     private TextField countryNameFilter;
-    private TextField regionLkpIdFilter;
+    private ComboBox<CountryDTO.RegionEnum> regionLkpIdFilter;
     private ComboBox<String> statusFilter;
     private DatePicker creationDateFilter;
 
-    public Countries() {
+    @Autowired
+    public Countries(MasterDataService masterDataService) {
+        this.masterDataService = masterDataService;
         setViewContent(createContent());
-
         // Initialize with default filter
         filter();
     }
@@ -87,8 +89,12 @@ public class Countries extends ViewFrame {
         countryNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
         countryNameFilter.setClearButtonVisible(true);
 
-        regionLkpIdFilter = new TextField();
-        regionLkpIdFilter.setValueChangeMode(ValueChangeMode.EAGER);
+        regionLkpIdFilter = new ComboBox<>();
+        regionLkpIdFilter.setItems(CountryDTO.RegionEnum.values());
+        regionLkpIdFilter.setItemLabelGenerator(region -> {
+            if (region == null) return "";
+            return region.name();
+        });
         regionLkpIdFilter.setClearButtonVisible(true);
 
         statusFilter = new ComboBox<>();
@@ -121,7 +127,7 @@ public class Countries extends ViewFrame {
         FormLayout formLayout = new FormLayout();
         formLayout.addFormItem(isoCodeFilter, "ISO Code");
         formLayout.addFormItem(countryNameFilter, "Country Name");
-        formLayout.addFormItem(regionLkpIdFilter, "Region ID");
+        formLayout.addFormItem(regionLkpIdFilter, "Region");
         formLayout.addFormItem(statusFilter, "Status");
         formLayout.addFormItem(creationDateFilter, "Creation Date After");
 
@@ -142,7 +148,7 @@ public class Countries extends ViewFrame {
         return formContainer;
     }
 
-    private Grid<Country> createGrid() {
+    private Grid<CountryDTO> createGrid() {
         grid = new Grid<>();
         grid.addThemeName("mobile");
 
@@ -150,19 +156,19 @@ public class Countries extends ViewFrame {
         grid.setSizeFull();
 
         // Configure grid columns
-        grid.addColumn(Country::getIsoCode)
+        grid.addColumn(CountryDTO::getIsoCode)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setFrozen(true)
                 .setHeader("ISO Code")
                 .setSortable(true);
-        grid.addColumn(Country::getCountryName)
+        grid.addColumn(CountryDTO::getCountryName)
                 .setAutoWidth(true)
                 .setHeader("Country Name")
                 .setSortable(true);
-        grid.addColumn(Country::getRegionLkpId)
+        grid.addColumn(CountryDTO::getRegion)
                 .setAutoWidth(true)
-                .setHeader("Region ID")
+                .setHeader("Region")
                 .setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::createActive))
                 .setAutoWidth(true)
@@ -182,16 +188,16 @@ public class Countries extends ViewFrame {
                 .setFlexGrow(0)
                 .setTextAlign(ColumnTextAlign.CENTER);
 
-        // Initialize with data provider
-        dataProvider = DataProvider.ofCollection(getMockCountries());
+        // Initialize with empty data provider
+        dataProvider = new ListDataProvider<>(List.of());
         grid.setDataProvider(dataProvider);
 
         return grid;
     }
 
-    private Component createActive(Country country) {
+    private Component createActive(CountryDTO country) {
         Icon icon;
-        if (country.isActive()) {
+        if (country.getStatus() != null && country.getStatus() == CountryDTO.StatusEnum.ACTIVE) {
             icon = UIUtils.createPrimaryIcon(VaadinIcon.CHECK);
         } else {
             icon = UIUtils.createDisabledIcon(VaadinIcon.CLOSE);
@@ -199,11 +205,11 @@ public class Countries extends ViewFrame {
         return icon;
     }
 
-    private Component createDate(Country country) {
-        return new Span(UIUtils.formatDate(country.getDateCreated().toLocalDate()));
+    private Component createDate(CountryDTO country) {
+        return new Span(UIUtils.formatDate(Objects.requireNonNull(country.getDateCreated()).toLocalDate()));
     }
 
-    private Component createActionButtons(Country country) {
+    private Component createActionButtons(CountryDTO country) {
         // Create layout for buttons
         HorizontalLayout layout = new HorizontalLayout();
         layout.setSpacing(true);
@@ -231,19 +237,137 @@ public class Countries extends ViewFrame {
         return layout;
     }
 
-    private void showDetails(Country country) {
-        CountryDetails countryDetails = new CountryDetails(country);
+    private void showDetails(CountryDTO country) {
+        CountryDetails countryDetails = new CountryDetails(country, masterDataService, updatedCountry -> {
+            // Reload data from service to ensure consistency
+            loadCountriesData();
+        });
         countryDetails.open();
     }
 
-    private void deleteCountry(Country country) {
-        // This would be implemented to delete the country
-        System.out.println("[DEBUG_LOG] Delete country: " + country.getIsoCode());
+    private void deleteCountry(CountryDTO country) {
+        System.out.println("[DEBUG_LOG] Preparing to delete country: " + country.getIsoCode());
+
+        if (country.getCountryId() == null) {
+            System.out.println("[DEBUG_LOG] Cannot delete country with null ID");
+            UIUtils.showNotification("Cannot delete country with null ID");
+            return;
+        }
+
+        // Create confirmation dialog
+        Dialog confirmDialog = new Dialog();
+        confirmDialog.setCloseOnEsc(false);
+        confirmDialog.setCloseOnOutsideClick(false);
+
+        // Add header
+        H3 header = new H3("Confirm Delete");
+        header.getStyle().set("margin-top", "0");
+
+        // Add confirmation message
+        Span message = new Span("Are you sure you want to delete the country: " + country.getCountryName() + "? This action cannot be undone.");
+        message.getStyle().set("color", "var(--lumo-error-text-color)");
+
+        // Create buttons
+        Button confirmButton = UIUtils.createErrorPrimaryButton("Delete");
+        confirmButton.addClickListener(e -> {
+            confirmDialog.close();
+
+            System.out.println("[DEBUG_LOG] Deleting country with ID: " + country.getCountryId());
+
+            // Call the service to delete the country
+            masterDataService.deleteCountry(country.getCountryId())
+                .subscribe(response -> {
+                    System.out.println("[DEBUG_LOG] Delete response status: " + response.getStatusCode());
+                    if (response.getStatusCode().is2xxSuccessful()) {
+                        ui.access(() -> {
+                            UIUtils.showNotification("Country deleted: " + country.getCountryName());
+                            // Reload data to reflect changes
+                            loadCountriesData();
+                        });
+                    } else {
+                        ui.access(() -> {
+                            UIUtils.showNotification("Failed to delete country: " + country.getCountryName());
+                        });
+                    }
+                }, error -> {
+                    System.out.println("[DEBUG_LOG] Error deleting country: " + error.getMessage());
+                    ui.access(() -> {
+                        UIUtils.showNotification("Error deleting country: " + error.getMessage());
+                    });
+                });
+        });
+
+        Button cancelButton = UIUtils.createTertiaryButton("Cancel");
+        cancelButton.addClickListener(e -> confirmDialog.close());
+
+        // Create button layout
+        HorizontalLayout buttonLayout = new HorizontalLayout(confirmButton, cancelButton);
+        buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        buttonLayout.setSpacing(true);
+        buttonLayout.getStyle().set("margin-top", "20px");
+
+        // Add components to dialog
+        Div content = new Div();
+        content.add(header, message, buttonLayout);
+        content.getStyle().set("padding", "20px");
+        confirmDialog.add(content);
+
+        // Open dialog
+        confirmDialog.open();
     }
 
     private void filter() {
-        // Default filter - show all
-        dataProvider.clearFilters();
+        // Load countries data from service
+        loadCountriesData();
+    }
+
+    private void loadCountriesData() {
+        CountryFilterRequest filterRequest = new CountryFilterRequest();
+        filterRequest.setPaginationPageNumber(0);
+        filterRequest.setPaginationPageSize(100);
+        filterRequest.setPaginationSortBy("country_id");
+        filterRequest.setPaginationSortDirection("DESC");
+
+        System.out.println("[DEBUG_LOG] Starting to load countries data");
+
+        masterDataService.filterCountries(filterRequest)
+                .subscribe(response -> {
+                    System.out.println("[DEBUG_LOG] Response status: " + response.getStatusCode());
+                    if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                        List<CountryDTO> sdkCountries = response.getBody().getContent();
+                        System.out.println("[DEBUG_LOG] Received countries: " + (sdkCountries != null ? sdkCountries.size() : "null"));
+
+                        if (sdkCountries != null && !sdkCountries.isEmpty()) {
+                            System.out.println("[DEBUG_LOG] First country ID: " + sdkCountries.getFirst().getCountryId());
+                        }
+
+                        if (sdkCountries != null) {
+                            // Convert CountryDTO to Country
+
+                            // Use UI.access() to safely update the UI from the async callback
+                            ui.access(() -> {
+                                try {
+                                    dataProvider = new ListDataProvider<>(sdkCountries);
+                                    grid.setDataProvider(dataProvider);
+                                    System.out.println("[DEBUG_LOG] Grid data provider updated successfully with " + sdkCountries.size() + " items");
+                                    ui.push(); // Force UI update to the client
+                                } catch (Exception e) {
+                                    System.out.println("[DEBUG_LOG] Error updating grid: " + e.getMessage());
+                                }
+                            });
+                        }
+                    } else {
+                        System.out.println("[DEBUG_LOG] Response unsuccessful or body is null");
+                    }
+                }, error -> {
+                    System.out.println("[DEBUG_LOG] Error in filterCountries: " + error.getMessage());
+
+                    // Handle error in UI thread
+                    ui.access(() -> {
+                        // You could show a notification here
+                        System.out.println("[DEBUG_LOG] Error handled in UI thread");
+                    });
+                });
     }
 
     private void applyFilter() {
@@ -265,22 +389,18 @@ public class Countries extends ViewFrame {
                 country.getCountryName().toLowerCase().contains(countryNameFilterValue));
         }
 
-        // Apply region ID filter if not empty
-        if (regionLkpIdFilter.getValue() != null && !regionLkpIdFilter.getValue().isEmpty()) {
-            try {
-                Long regionId = Long.parseLong(regionLkpIdFilter.getValue());
-                dataProvider.addFilter(country -> 
-                    country.getRegionLkpId() != null && country.getRegionLkpId().equals(regionId));
-            } catch (NumberFormatException e) {
-                // Ignore invalid number format
-            }
+        // Apply region filter if selected
+        if (regionLkpIdFilter.getValue() != null) {
+            CountryDTO.RegionEnum selectedRegion = regionLkpIdFilter.getValue();
+            dataProvider.addFilter(country ->
+                    country.getRegion() != null && country.getRegion().equals(selectedRegion));
         }
 
         // Apply status filter if selected
         if (statusFilter.getValue() != null) {
             boolean isActive = "Active".equals(statusFilter.getValue());
-            dataProvider.addFilter(country -> 
-                country.isActive() == isActive);
+            dataProvider.addFilter(country ->
+                    Objects.equals(country.getStatus(), isActive ? CountryDTO.StatusEnum.ACTIVE : CountryDTO.StatusEnum.INACTIVE));
         }
 
         // Apply creation date filter if selected
@@ -309,13 +429,16 @@ public class Countries extends ViewFrame {
         dialog.open();
     }
 
-    private void addCountry(Country country) {
-        // In a real application, this would save the country to the backend
-        // For this example, we'll just add it to our mock data list
-        if (dataProvider instanceof ListDataProvider) {
-            ((ListDataProvider<Country>) dataProvider).getItems().add(country);
+    private void addCountry(CountryDTO country) {
+        // TODO: In a future enhancement, this should be updated to use masterDataService.createCountry
+        // For now, we'll just add it to our data provider and reload the data
+        if (dataProvider != null) {
+            ((ListDataProvider<CountryDTO>) dataProvider).getItems().add(country);
             dataProvider.refreshAll();
             UIUtils.showNotification("Country added: " + country.getCountryName());
+
+            // Reload data from service to ensure consistency
+            loadCountriesData();
         }
     }
 
@@ -327,6 +450,10 @@ public class Countries extends ViewFrame {
             Page page = currentUI.getPage();
             resizeListener = page.addBrowserWindowResizeListener(event -> updateVisibleColumns(event.getWidth()));
             page.retrieveExtendedClientDetails(details -> updateVisibleColumns(details.getBodyClientWidth()));
+
+            // Load data after UI is completely initialized
+            System.out.println("[DEBUG_LOG] UI attached, loading countries data");
+            loadCountriesData();
         });
     }
 
@@ -340,89 +467,11 @@ public class Countries extends ViewFrame {
 
     private void updateVisibleColumns(int width) {
         boolean mobile = width < MOBILE_BREAKPOINT;
-        List<Grid.Column<Country>> columns = grid.getColumns();
+        List<Grid.Column<CountryDTO>> columns = grid.getColumns();
 
         // "Desktop" columns
-        for (Grid.Column<Country> column : columns) {
+        for (Grid.Column<CountryDTO> column : columns) {
             column.setVisible(!mobile);
-        }
-    }
-
-    // Mock data for the grid
-    private List<Country> getMockCountries() {
-        List<Country> countries = new ArrayList<>();
-
-        countries.add(new Country(1L, "US", "United States", 1L, true, null, LocalDateTime.now().minusDays(30), LocalDateTime.now().minusDays(5)));
-        countries.add(new Country(2L, "CA", "Canada", 1L, true, null, LocalDateTime.now().minusDays(25), LocalDateTime.now().minusDays(4)));
-        countries.add(new Country(3L, "MX", "Mexico", 1L, false, null, LocalDateTime.now().minusDays(20), LocalDateTime.now().minusDays(3)));
-        countries.add(new Country(4L, "GB", "United Kingdom", 2L, true, null, LocalDateTime.now().minusDays(15), LocalDateTime.now().minusDays(2)));
-        countries.add(new Country(5L, "FR", "France", 2L, true, null, LocalDateTime.now().minusDays(10), LocalDateTime.now().minusDays(1)));
-        countries.add(new Country(6L, "DE", "Germany", 2L, false, null, LocalDateTime.now().minusDays(5), LocalDateTime.now()));
-        countries.add(new Country(7L, "JP", "Japan", 3L, true, null, LocalDateTime.now().minusDays(3), LocalDateTime.now()));
-        countries.add(new Country(8L, "CN", "China", 3L, true, null, LocalDateTime.now().minusDays(2), LocalDateTime.now()));
-        countries.add(new Country(9L, "IN", "India", 3L, false, null, LocalDateTime.now().minusDays(1), LocalDateTime.now()));
-        countries.add(new Country(10L, "BR", "Brazil", 4L, true, null, LocalDateTime.now(), LocalDateTime.now()));
-
-        return countries;
-    }
-
-    // Country model class
-    public static class Country {
-        private Long countryId;
-        private String isoCode;
-        private String countryName;
-        private Long regionLkpId;
-        private Boolean isActive;
-        private String svgFlag;
-        private LocalDateTime dateCreated;
-        private LocalDateTime dateUpdated;
-
-        public Country(Long countryId, String isoCode, String countryName, Long regionLkpId, 
-                      Boolean isActive, String svgFlag, LocalDateTime dateCreated, LocalDateTime dateUpdated) {
-            this.countryId = countryId;
-            this.isoCode = isoCode;
-            this.countryName = countryName;
-            this.regionLkpId = regionLkpId;
-            this.isActive = isActive;
-            this.svgFlag = svgFlag;
-            this.dateCreated = dateCreated;
-            this.dateUpdated = dateUpdated;
-        }
-
-        public Long getCountryId() {
-            return countryId;
-        }
-
-        public String getIsoCode() {
-            return isoCode;
-        }
-
-        public String getCountryName() {
-            return countryName;
-        }
-
-        public Long getRegionLkpId() {
-            return regionLkpId;
-        }
-
-        public Boolean getIsActive() {
-            return isActive;
-        }
-
-        public boolean isActive() {
-            return isActive != null && isActive;
-        }
-
-        public String getSvgFlag() {
-            return svgFlag;
-        }
-
-        public LocalDateTime getDateCreated() {
-            return dateCreated;
-        }
-
-        public LocalDateTime getDateUpdated() {
-            return dateUpdated;
         }
     }
 }

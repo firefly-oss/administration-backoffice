@@ -3,7 +3,9 @@ package com.vaadin.starter.business.backend.sdks.services;
 import com.catalis.common.reference.master.data.sdk.model.ActivityCodeDTO;
 import com.catalis.common.reference.master.data.sdk.model.CountryDTO;
 import com.catalis.common.reference.master.data.sdk.model.PaginationResponse;
+import com.catalis.common.reference.master.data.sdk.model.PaginationResponseCountryDTO;
 import com.vaadin.starter.business.backend.sdks.services.rest.masterdata.ActivityCodeRequest;
+import com.vaadin.starter.business.backend.sdks.services.rest.masterdata.CountryFilterRequest;
 import com.vaadin.starter.business.backend.sdks.services.rest.masterdata.CountryRequest;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
@@ -97,16 +99,8 @@ public interface MasterDataService {
      */
     Mono<ResponseEntity<CountryDTO>> getCountry(Long countryId);
 
-    /**
-     * List countries with pagination.
-     *
-     * @param pageNumber the page number to retrieve
-     * @param pageSize the number of items per page
-     * @param sortBy the field to sort by
-     * @param sortDirection the direction of sorting
-     * @return a Mono with the response entity
-     */
-    Mono<ResponseEntity<PaginationResponse>> listCountries(String pageNumber, String pageSize, String sortBy, String sortDirection);
+
+    Mono<ResponseEntity<PaginationResponseCountryDTO>> filterCountries(CountryFilterRequest countryFilterRequest);
 
     /**
      * Update a country.

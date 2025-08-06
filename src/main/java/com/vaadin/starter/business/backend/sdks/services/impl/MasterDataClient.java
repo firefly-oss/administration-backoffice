@@ -1,14 +1,16 @@
 package com.vaadin.starter.business.backend.sdks.services.impl;
 
 import com.catalis.common.reference.master.data.sdk.api.ActivityCodesApi;
+import com.catalis.common.reference.master.data.sdk.api.CountriesApi;
 import com.catalis.common.reference.master.data.sdk.invoker.ApiClient;
 import com.catalis.common.reference.master.data.sdk.model.ActivityCodeDTO;
 import com.catalis.common.reference.master.data.sdk.model.CountryDTO;
 import com.catalis.common.reference.master.data.sdk.model.PaginationResponse;
+import com.catalis.common.reference.master.data.sdk.model.PaginationResponseCountryDTO;
 import com.vaadin.starter.business.backend.mapper.masterdata.MasterDataMapper;
 import com.vaadin.starter.business.backend.sdks.services.MasterDataService;
-import com.vaadin.starter.business.backend.sdks.services.apis.CountriesApi;
 import com.vaadin.starter.business.backend.sdks.services.rest.masterdata.ActivityCodeRequest;
+import com.vaadin.starter.business.backend.sdks.services.rest.masterdata.CountryFilterRequest;
 import com.vaadin.starter.business.backend.sdks.services.rest.masterdata.CountryRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -85,8 +87,9 @@ public class MasterDataClient implements MasterDataService {
     }
 
     @Override
-    public Mono<ResponseEntity<PaginationResponse>> listCountries(String pageNumber, String pageSize, String sortBy, String sortDirection) {
-        return countriesApi.listCountriesWithHttpInfo(pageNumber, pageSize, sortBy, sortDirection);
+    public Mono<ResponseEntity<PaginationResponseCountryDTO>> filterCountries(CountryFilterRequest countryFilterRequest) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        return countriesApi.filterCountriesWithHttpInfo(masterDataMapper.countryFilterRequestToDto(countryFilterRequest), xIdempotencyKey);
     }
 
     @Override

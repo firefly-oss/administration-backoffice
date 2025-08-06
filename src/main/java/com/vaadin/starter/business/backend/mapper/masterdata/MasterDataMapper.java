@@ -2,7 +2,9 @@ package com.vaadin.starter.business.backend.mapper.masterdata;
 
 import com.catalis.common.reference.master.data.sdk.model.ActivityCodeDTO;
 import com.catalis.common.reference.master.data.sdk.model.CountryDTO;
+import com.catalis.common.reference.master.data.sdk.model.FilterRequestCountryDTO;
 import com.vaadin.starter.business.backend.sdks.services.rest.masterdata.ActivityCodeRequest;
+import com.vaadin.starter.business.backend.sdks.services.rest.masterdata.CountryFilterRequest;
 import com.vaadin.starter.business.backend.sdks.services.rest.masterdata.CountryRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -71,4 +73,5 @@ public interface MasterDataMapper {
         }
     }
 
+    FilterRequestCountryDTO countryFilterRequestToDto(CountryFilterRequest countryFilterRequest);
 }

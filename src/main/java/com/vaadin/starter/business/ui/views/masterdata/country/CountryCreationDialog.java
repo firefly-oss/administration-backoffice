@@ -7,18 +7,26 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.starter.business.backend.sdks.services.MasterDataService;
 import com.vaadin.starter.business.backend.sdks.services.rest.masterdata.CountryRequest;
 import com.vaadin.starter.business.ui.util.LumoStyles;
 import com.vaadin.starter.business.ui.util.UIUtils;
-import com.vaadin.starter.business.ui.views.masterdata.country.Countries.Country;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Dialog for creating a new country.
@@ -29,11 +37,11 @@ public class CountryCreationDialog extends Dialog {
     private TextField countryNameField;
     private ComboBox<CountryDTO.RegionEnum> regionField;
     private ComboBox<String> statusField;
-    private TextField svgFlagField;
+    private String svgFlagContent = ""; // To store the SVG content as a string
 
-    private final Consumer<Country> saveCallback;
+    private final Consumer<CountryDTO> saveCallback;
     private final MasterDataService masterDataService;
-    private UI ui; // Store the current UI instance
+    private final UI ui; // Store the current UI instance
 
     /**
      * Constructor for the CountryCreationDialog.
@@ -41,7 +49,7 @@ public class CountryCreationDialog extends Dialog {
      * @param saveCallback callback to be called when a new country is saved
      * @param masterDataService service for master data operations
      */
-    public CountryCreationDialog(Consumer<Country> saveCallback, MasterDataService masterDataService) {
+    public CountryCreationDialog(Consumer<CountryDTO> saveCallback, MasterDataService masterDataService) {
         this.saveCallback = saveCallback;
         this.masterDataService = masterDataService;
         this.ui = UI.getCurrent(); // Get the current UI instance
@@ -96,10 +104,47 @@ public class CountryCreationDialog extends Dialog {
         statusField.setWidthFull();
         statusField.setRequired(true);
 
-        // SVG Flag Field
-        svgFlagField = new TextField();
-        svgFlagField.setWidthFull();
-        svgFlagField.setHelperText("Enter SVG code or URL");
+        // SVG Flag Upload
+        MemoryBuffer buffer = new MemoryBuffer();
+        Upload svgFlagUpload = new Upload(buffer);
+        svgFlagUpload.setAcceptedFileTypes("image/svg+xml");
+        svgFlagUpload.setWidthFull();
+        svgFlagUpload.setMaxFiles(1);
+
+        // Add listener for successful uploads
+        svgFlagUpload.addSucceededListener(event -> {
+            try {
+                // Read the uploaded file content
+                InputStream inputStream = buffer.getInputStream();
+                svgFlagContent = new BufferedReader(
+                    new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+                    .lines()
+                    .collect(Collectors.joining("\n"));
+
+                Notification notification = new Notification("SVG file uploaded successfully", 3000);
+                notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                notification.open();
+            } catch (Exception e) {
+                Notification notification = new Notification("Error reading SVG file: " + e.getMessage(), 3000);
+                notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                notification.open();
+            }
+        });
+
+        // Add listener for failed uploads
+        svgFlagUpload.addFailedListener(event -> {
+            Notification notification = new Notification("Failed to upload SVG file: " + event.getReason(), 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
+        });
+
+        // Add file type validator
+        svgFlagUpload.addFileRejectedListener(event -> {
+            Notification notification = new Notification(
+                "Invalid file type. Only SVG files are accepted.", 3000);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.open();
+        });
 
         // Form layout
         FormLayout form = new FormLayout();
@@ -114,7 +159,7 @@ public class CountryCreationDialog extends Dialog {
         form.addFormItem(countryNameField, "Country Name");
         form.addFormItem(regionField, "Region");
         form.addFormItem(statusField, "Status");
-        form.addFormItem(svgFlagField, "SVG Flag");
+        form.addFormItem(svgFlagUpload, "SVG Flag");
 
         return form;
     }
@@ -192,7 +237,7 @@ public class CountryCreationDialog extends Dialog {
             String countryName = countryNameField.getValue();
             CountryDTO.RegionEnum region = regionField.getValue();
             Boolean isActive = "Active".equals(statusField.getValue());
-            String svgFlag = svgFlagField.getValue();
+            String svgFlag = svgFlagContent; // Use the SVG content from the uploaded file
 
             LocalDateTime now = LocalDateTime.now();
 
@@ -211,23 +256,10 @@ public class CountryCreationDialog extends Dialog {
                     response -> {
                         // On success
                         if (response != null && response.getBody() != null) {
-                            // Create a Country object for the callback
-                            // Note: We're using the form values for fields that might not be in the CountryDTO
-                            Country newCountry = new Country(
-                                System.currentTimeMillis(), // Using placeholder ID since we don't know if CountryDTO has an ID
-                                isoCode,
-                                countryName,
-                                0L, // Using placeholder for regionLkpId since we're now using RegionEnum
-                                isActive,
-                                svgFlag,
-                                now,
-                                now
-                            );
-
                             // Access UI thread to update UI components
                             ui.access(() -> {
                                 // Call the save callback with the new country
-                                saveCallback.accept(newCountry);
+                                saveCallback.accept(response.getBody());
 
                                 UIUtils.showNotification("Country created successfully.");
                             });

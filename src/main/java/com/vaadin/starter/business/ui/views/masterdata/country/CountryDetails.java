@@ -1,34 +1,49 @@
 package com.vaadin.starter.business.ui.views.masterdata.country;
 
+import com.catalis.common.reference.master.data.sdk.model.CountryDTO;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.server.StreamResource;
+import com.vaadin.starter.business.backend.sdks.services.MasterDataService;
+import com.vaadin.starter.business.backend.sdks.services.rest.masterdata.CountryRequest;
 import com.vaadin.starter.business.ui.util.LumoStyles;
 import com.vaadin.starter.business.ui.util.UIUtils;
-import com.vaadin.starter.business.ui.views.masterdata.country.Countries.Country;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * Dialog for displaying country details.
  */
 public class CountryDetails extends Dialog {
 
-    private final Country country;
+    private final CountryDTO country;
+    private final MasterDataService masterDataService;
+    private final UI ui; // Store the current UI instance
+    private final Consumer<CountryDTO> updateCallback; // Callback to be called when a country is updated
 
+    // Form fields
+    private TextField countryIdField;
     private TextField isoCodeField;
     private TextField countryNameField;
-    private TextField regionLkpIdField;
+    private ComboBox<CountryDTO.RegionEnum> regionField;
     private ComboBox<String> statusField;
-    private TextArea svgFlagField;
+    private Image svgFlagField;
     private DatePicker creationDateField;
     private DatePicker updateDateField;
 
@@ -36,9 +51,14 @@ public class CountryDetails extends Dialog {
      * Constructor for the CountryDetails dialog.
      *
      * @param country the country to display details for
+     * @param masterDataService the service for master data operations
+     * @param updateCallback callback to be called when a country is updated
      */
-    public CountryDetails(Country country) {
+    public CountryDetails(CountryDTO country, MasterDataService masterDataService, Consumer<CountryDTO> updateCallback) {
         this.country = country;
+        this.masterDataService = masterDataService;
+        this.updateCallback = updateCallback;
+        this.ui = UI.getCurrent(); // Get the current UI instance
 
         setWidth("800px");
         setHeight("auto");
@@ -58,7 +78,7 @@ public class CountryDetails extends Dialog {
 
     private FormLayout createForm() {
         // Country ID
-        TextField countryIdField = new TextField();
+        countryIdField = new TextField();
         countryIdField.setValue(country.getCountryId() != null ? country.getCountryId().toString() : "");
         countryIdField.setReadOnly(true);
         countryIdField.setWidthFull();
@@ -73,21 +93,30 @@ public class CountryDetails extends Dialog {
         countryNameField.setValue(country.getCountryName() != null ? country.getCountryName() : "");
         countryNameField.setWidthFull();
 
-        // Region ID
-        regionLkpIdField = new TextField();
-        regionLkpIdField.setValue(country.getRegionLkpId() != null ? country.getRegionLkpId().toString() : "");
-        regionLkpIdField.setWidthFull();
+        // Region - ComboBox with RegionEnum values
+        regionField = new ComboBox<>();
+        regionField.setItems(CountryDTO.RegionEnum.values());
+        regionField.setItemLabelGenerator(region -> {
+            // Format the enum name to make it more readable
+            // Convert NORTH_AMERICA to North America
+            String name = region.name().replace('_', ' ');
+            return name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
+        });
+        regionField.setValue(country.getRegion());
+        regionField.setWidthFull();
 
         // SVG Flag
-        svgFlagField = new TextArea();
-        svgFlagField.setValue(country.getSvgFlag() != null ? country.getSvgFlag() : "");
-        svgFlagField.setWidthFull();
+        StreamResource svgResource = new StreamResource(UUID.randomUUID() + ".svg", () ->
+                new ByteArrayInputStream(Objects.requireNonNull(country.getSvgFlag()).getBytes(StandardCharsets.UTF_8)));
+        svgResource.setContentType("image/svg+xml");
+        svgFlagField = new Image(svgResource, "SVG Image");
+        svgFlagField.setWidth("100px");
         svgFlagField.setHeight("100px");
 
         // Status
         statusField = new ComboBox<>();
         statusField.setItems("Active", "Inactive");
-        statusField.setValue(country.isActive() ? "Active" : "Inactive");
+        statusField.setValue(country.getStatus() != null && country.getStatus() == CountryDTO.StatusEnum.ACTIVE ? "Active" : "Inactive");
         statusField.setWidthFull();
 
         // Creation Date
@@ -114,7 +143,7 @@ public class CountryDetails extends Dialog {
         form.addFormItem(countryIdField, "Country ID");
         form.addFormItem(isoCodeField, "ISO Code");
         form.addFormItem(countryNameField, "Country Name");
-        form.addFormItem(regionLkpIdField, "Region ID");
+        form.addFormItem(regionField, "Region");
         form.addFormItem(statusField, "Status");
         form.addFormItem(svgFlagField, "SVG Flag");
         form.addFormItem(creationDateField, "Creation Date");
@@ -142,12 +171,46 @@ public class CountryDetails extends Dialog {
     }
 
     private void saveCountry() {
-        // In a real application, this would save the country data to the backend
-        // For this example, we'll just show a notification
-        UIUtils.showNotification("Country details saved.");
+        if (country == null || country.getCountryId() == null) {
+            UIUtils.showNotification("Cannot update country: missing country ID");
+            return;
+        }
 
-        // Here you would update the country with the new values
-        // Example: country.setCountryName(countryNameField.getValue());
-        // countryService.updateCountry(country);
+        System.out.println("[DEBUG_LOG] Updating country with ID: " + country.getCountryId());
+
+        // Create CountryRequest from form field values
+        CountryRequest countryRequest = new CountryRequest();
+        countryRequest.setCountryName(countryNameField.getValue());
+        countryRequest.setIsoCode(isoCodeField.getValue());
+        countryRequest.setRegion(regionField.getValue() != null ? regionField.getValue().name() : null);
+        countryRequest.setSvgFlag(country.getSvgFlag()); // SVG flag is not editable in the form
+        countryRequest.setActive("Active".equals(statusField.getValue()));
+        countryRequest.setDateCreated(LocalDateTime.now());
+        countryRequest.setDateUpdated(country.getDateUpdated()); // Keep original update date
+
+        // Call the service to update the country
+        masterDataService.updateCountry(country.getCountryId(), countryRequest)
+            .subscribe(
+                response -> {
+                    // On success
+                    if (response != null && response.getBody() != null) {
+                        // Access UI thread to update UI components
+                        ui.access(() -> {
+                            // Call the update callback with the updated country
+                            updateCallback.accept(response.getBody());
+
+                            // Show success notification
+                            UIUtils.showNotification("Country updated successfully.");
+                        });
+                    }
+                },
+                error -> {
+                    // On error - access UI thread to show notification
+                    System.out.println("[DEBUG_LOG] Error updating country: " + error.getMessage());
+                    ui.access(() -> {
+                        UIUtils.showNotification("Error updating country: " + error.getMessage());
+                    });
+                }
+            );
     }
 }
