@@ -430,13 +430,8 @@ public class Countries extends ViewFrame {
     }
 
     private void addCountry(CountryDTO country) {
-        // TODO: In a future enhancement, this should be updated to use masterDataService.createCountry
-        // For now, we'll just add it to our data provider and reload the data
         if (dataProvider != null) {
-            ((ListDataProvider<CountryDTO>) dataProvider).getItems().add(country);
-            dataProvider.refreshAll();
             UIUtils.showNotification("Country added: " + country.getCountryName());
-
             // Reload data from service to ensure consistency
             loadCountriesData();
         }
