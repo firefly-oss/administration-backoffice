@@ -52,7 +52,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Route(value = "distributor-rates-fees", layout = MainLayout.class)
-@PageTitle("Distributor Rates and Fees")
+@PageTitle("Rates and Fees")
 public class DistributorRatesFees extends ViewFrame implements HasUrlParameter<Long> {
 
     private final ProductService productService;

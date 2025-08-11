@@ -1,0 +1,6 @@
+/* Styles for navigation menu dropdown arrows */
+
+/* Remove background from navigation menu dropdown arrows */
+:host([theme~="tertiary"][theme~="small"]) {
+  background-color: transparent !important;
+}

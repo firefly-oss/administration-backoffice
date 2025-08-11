@@ -1,0 +1,23 @@
+/* Styles for table action buttons */
+
+/* Common style for all action buttons in tables */
+:host([theme~="tertiary"][theme~="small"]) {
+  background-color: rgba(51, 153, 255, 0.1); /* Light blue pastel background */
+  border-radius: var(--lumo-border-radius-m);
+  padding: var(--lumo-space-xs);
+  transition: background-color 0.3s;
+}
+
+:host([theme~="tertiary"][theme~="small"]:hover) {
+  background-color: rgba(51, 153, 255, 0.2); /* Slightly darker on hover */
+}
+
+/* Style for delete buttons in tables */
+:host([theme~="tertiary"][theme~="small"][theme~="error"]) {
+  background-color: rgba(255, 76, 76, 0.1); /* Light red pastel background */
+}
+
+:host([theme~="tertiary"][theme~="small"][theme~="error"]:hover) {
+  background-color: rgba(255, 76, 76, 0.2); /* Slightly darker on hover */
+}
+

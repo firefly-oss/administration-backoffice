@@ -52,6 +52,7 @@ import com.vaadin.starter.business.ui.views.masterdata.title.Titles;
 import com.vaadin.starter.business.ui.views.masterdata.transaction.TransactionCategories;
 import com.vaadin.starter.business.ui.views.masterdata.transaction.TransactionCategoryLocalizations;
 import com.vaadin.starter.business.ui.views.products.ProductCatalog;
+import com.vaadin.starter.business.ui.views.products.ProductManagement;
 import com.vaadin.starter.business.ui.views.products.RatesFees;
 import com.vaadin.starter.business.ui.views.security.InternalUsers;
 import com.vaadin.starter.business.ui.views.security.RolesPermissions;
@@ -61,6 +62,7 @@ import org.slf4j.LoggerFactory;
 
 @CssImport(value = "./styles/components/charts.css", themeFor = "vaadin-chart")
 @CssImport(value = "./styles/components/floating-action-button.css", themeFor = "vaadin-button")
+@CssImport(value = "./styles/components/table-action-buttons.css", themeFor = "vaadin-button")
 @CssImport(value = "./styles/components/grid.css", themeFor = "vaadin-grid")
 @CssImport("./styles/lumo/border-radius.css")
 @CssImport("./styles/lumo/icon-size.css")
@@ -150,6 +152,7 @@ public class MainLayout extends FlexBoxLayout
 		NaviItem products = menu.addNaviItem(VaadinIcon.PACKAGE, NavigationConstants.PRODUCTS_AND_SERVICES,
 				null);
 		products.setTitle(NavigationConstants.PRODUCTS_AND_SERVICES);
+		menu.addNaviItem(products, NavigationConstants.PRODUCT_MANAGEMENT, ProductManagement.class);
 		menu.addNaviItem(products, NavigationConstants.PRODUCT_CATALOG, ProductCatalog.class);
 		menu.addNaviItem(products, NavigationConstants.RATES_AND_FEES, RatesFees.class);
 		products.setSubItemsVisible(false);
