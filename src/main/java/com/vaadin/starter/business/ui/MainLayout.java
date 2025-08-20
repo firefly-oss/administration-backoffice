@@ -31,6 +31,8 @@ import com.vaadin.starter.business.ui.views.masterdata.asset.AssetTypes;
 import com.vaadin.starter.business.ui.views.masterdata.bank.BankInstitutionCodes;
 import com.vaadin.starter.business.ui.views.masterdata.consent.ConsentCatalogs;
 import com.vaadin.starter.business.ui.views.masterdata.contract.ContractTypes;
+import com.vaadin.starter.business.ui.views.masterdata.contract.ContractRoles;
+import com.vaadin.starter.business.ui.views.masterdata.contract.RoleOperationTypes;
 import com.vaadin.starter.business.ui.views.masterdata.country.Countries;
 import com.vaadin.starter.business.ui.views.masterdata.currency.Currencies;
 import com.vaadin.starter.business.ui.views.masterdata.document.DocumentTemplateLocalizations;
@@ -188,6 +190,7 @@ public class MainLayout extends FlexBoxLayout
 		menu.addNaviItem(masterData, NavigationConstants.BANK_INSTITUTION_CODES, BankInstitutionCodes.class);
 		menu.addNaviItem(masterData, NavigationConstants.CONSENT_CATALOGS, ConsentCatalogs.class);
 		menu.addNaviItem(masterData, NavigationConstants.CONTRACT_TYPES, ContractTypes.class);
+		menu.addNaviItem(masterData, NavigationConstants.CONTRACT_ROLES, ContractRoles.class);
 		menu.addNaviItem(masterData, NavigationConstants.COUNTRIES, Countries.class);
 		menu.addNaviItem(masterData, NavigationConstants.CURRENCIES, Currencies.class);
 		menu.addNaviItem(masterData, NavigationConstants.ADMINISTRATIVE_DIVISIONS, AdministrativeDivisions.class);
@@ -209,6 +212,7 @@ public class MainLayout extends FlexBoxLayout
 		menu.addNaviItem(masterData, NavigationConstants.NOTIFICATION_MESSAGES, NotificationMessages.class);
 		menu.addNaviItem(masterData, NavigationConstants.NOTIFICATION_MESSAGE_LOCALIZATIONS, NotificationMessageLocalizations.class);
 		menu.addNaviItem(masterData, NavigationConstants.NOTIFICATION_MESSAGE_TEMPLATES, NotificationMessageTemplates.class);
+		menu.addNaviItem(masterData, NavigationConstants.ROLE_OPERATION_TYPES, RoleOperationTypes.class);
 		masterData.setSubItemsVisible(false);
 	}
 

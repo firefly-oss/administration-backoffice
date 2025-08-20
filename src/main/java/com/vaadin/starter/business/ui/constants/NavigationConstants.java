@@ -57,6 +57,7 @@ public class NavigationConstants {
     public static final String BANK_INSTITUTION_CODES = "Bank Institution Codes";
     public static final String CONSENT_CATALOGS = "Consent Catalogs";
     public static final String CONTRACT_TYPES = "Contract Types";
+    public static final String CONTRACT_ROLES = "Contract Roles";
     public static final String COUNTRIES = "Countries";
     public static final String CURRENCIES = "Currencies";
     public static final String ADMINISTRATIVE_DIVISIONS = "Administrative Divisions";
@@ -86,6 +87,7 @@ public class NavigationConstants {
     public static final String NOTIFICATION_MESSAGE_LOCALIZATION_DETAILS = "Notification Message Localization Details";
     public static final String NOTIFICATION_MESSAGE_TEMPLATES = "Notification Message Templates";
     public static final String NOTIFICATION_MESSAGE_TEMPLATE_DETAILS = "Notification Message Template Details";
+    public static final String ROLE_OPERATION_TYPES = "Role Operation Types";
 
     // Administration Tools
     public static final String ADMINISTRATION_TOOLS = "Administration";
