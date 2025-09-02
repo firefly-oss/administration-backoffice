@@ -4,6 +4,7 @@ import java.util.Collection;
 import com.vaadin.starter.business.backend.VersionInfo;
 import com.vaadin.starter.business.backend.SystemComponent;
 import com.vaadin.starter.business.backend.MaintenanceTask;
+import java.util.UUID;
 
 /**
  * Service interface for admin tools functionality.
@@ -23,7 +24,7 @@ public interface AdminToolsService {
      * @param id the ID of the version to retrieve
      * @return the version with the specified ID, or null if not found
      */
-    VersionInfo getVersion(Long id);
+    VersionInfo getVersion(UUID id);
 
     /**
      * Get all system components for monitoring.
@@ -38,7 +39,7 @@ public interface AdminToolsService {
      * @param id the ID of the system component to retrieve
      * @return the system component with the specified ID, or null if not found
      */
-    SystemComponent getSystemComponent(Long id);
+    SystemComponent getSystemComponent(UUID id);
 
     /**
      * Get all database maintenance tasks.
@@ -53,5 +54,5 @@ public interface AdminToolsService {
      * @param id the ID of the maintenance task to retrieve
      * @return the maintenance task with the specified ID, or null if not found
      */
-    MaintenanceTask getMaintenanceTask(Long id);
+    MaintenanceTask getMaintenanceTask(UUID id);
 }

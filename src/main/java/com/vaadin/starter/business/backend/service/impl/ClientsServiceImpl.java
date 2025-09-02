@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * Implementation of the ClientsService interface.
@@ -16,7 +17,7 @@ import java.util.Random;
 @Service
 public class ClientsServiceImpl implements ClientsService {
 
-    private final Map<Long, Client> clients = new HashMap<>();
+    private final Map<UUID, Client> clients = new HashMap<>();
     private final Random random = new Random(1);
 
     private static final String[] FIRST_NAMES = new String[]{
@@ -61,10 +62,10 @@ public class ClientsServiceImpl implements ClientsService {
      * Initialize the clients data.
      */
     private void initClients() {
-        int startingPoint = 2000;
         for (long i = 0; i < 40; i++) {
-            clients.put(i + startingPoint,
-                    new Client(i + startingPoint, getFullName(), getEmail(), getPhone(),
+            UUID clientId = UUID.randomUUID();
+            clients.put(clientId,
+                    new Client(clientId, getFullName(), getEmail(), getPhone(),
                             getAddress(), getRandomDouble(1000, 50000),
                             getDate(), getImageSource()));
         }
@@ -76,7 +77,7 @@ public class ClientsServiceImpl implements ClientsService {
     }
 
     @Override
-    public Client getClient(Long id) {
+    public Client getClient(UUID id) {
         return clients.get(id);
     }
 

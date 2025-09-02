@@ -39,10 +39,11 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexWrap;
 import com.vaadin.starter.business.ui.views.ViewFrame;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @PageTitle("Account Details")
 @Route(value = "account-details", layout = MainLayout.class)
-public class AccountDetails extends ViewFrame implements HasUrlParameter<Long> {
+public class AccountDetails extends ViewFrame implements HasUrlParameter<UUID> {
 
 	public int RECENT_TRANSACTIONS = 4;
 
@@ -53,7 +54,7 @@ public class AccountDetails extends ViewFrame implements HasUrlParameter<Long> {
 	private BankAccount account;
 
 	@Override
-	public void setParameter(BeforeEvent beforeEvent, Long id) {
+	public void setParameter(BeforeEvent beforeEvent, UUID id) {
 		account = DummyData.getBankAccount(id);
 		setViewContent(createContent());
 	}

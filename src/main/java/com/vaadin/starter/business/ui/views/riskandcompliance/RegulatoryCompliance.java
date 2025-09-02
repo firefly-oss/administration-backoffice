@@ -113,7 +113,7 @@ public class RegulatoryCompliance extends SplitViewFrame {
             "Sarbanes-Oxley"
         };
 
-        String regulation = regulations[(int)(Math.abs(person.getId()) % regulations.length)];
+        String regulation = regulations[(int)(Math.abs(person.getId().hashCode()) % regulations.length)];
 
         ListItem item = new ListItem(
                 new Initials(person.getInitials()), 
@@ -199,7 +199,7 @@ public class RegulatoryCompliance extends SplitViewFrame {
             "Sarbanes-Oxley"
         };
 
-        String regulation = regulations[(int)(Math.abs(person.getId()) % regulations.length)];
+        String regulation = regulations[(int)(Math.abs(person.getId().hashCode()) % regulations.length)];
 
         detailsDrawerHeader.setTitle(regulation);
         detailsDrawer.setContent(createDetails(person, regulation));

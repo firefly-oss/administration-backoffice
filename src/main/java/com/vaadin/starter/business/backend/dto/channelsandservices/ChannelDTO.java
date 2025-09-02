@@ -1,13 +1,14 @@
 package com.vaadin.starter.business.backend.dto.channelsandservices;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Data Transfer Object for Channel.
  */
 public class ChannelDTO {
 
-    private Long id;
+    private UUID id;
     private String name;
     private String description;
     private boolean active;
@@ -34,7 +35,7 @@ public class ChannelDTO {
      * @param endpoint       the endpoint URL
      * @param securityLevel  the security level
      */
-    public ChannelDTO(Long id, String name, String description, boolean active, 
+    public ChannelDTO(UUID id, String name, String description, boolean active, 
                      String integrationType, LocalDateTime lastUpdated, 
                      String endpoint, String securityLevel) {
         this.id = id;
@@ -48,11 +49,11 @@ public class ChannelDTO {
     }
 
     // Getters and setters
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

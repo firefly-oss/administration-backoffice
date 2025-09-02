@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Implementation of the RiskAndComplianceService interface.
@@ -18,9 +19,9 @@ import java.util.Map;
 @Service
 public class RiskAndComplianceServiceImpl implements RiskAndComplianceService {
 
-    private final Map<Long, Person> fraudAlerts = new HashMap<>();
-    private final Map<Long, Person> complianceRecords = new HashMap<>();
-    private final Map<Long, Person> riskModels = new HashMap<>();
+    private final Map<UUID, Person> fraudAlerts = new HashMap<>();
+    private final Map<UUID, Person> complianceRecords = new HashMap<>();
+    private final Map<UUID, Person> riskModels = new HashMap<>();
 
     private final PersonMapper personMapper;
 
@@ -45,7 +46,7 @@ public class RiskAndComplianceServiceImpl implements RiskAndComplianceService {
     }
 
     @Override
-    public Person getFraudAlert(Long id) {
+    public Person getFraudAlert(UUID id) {
         // Convert to DTO and back to domain object to demonstrate the pattern
         PersonDTO dto = personMapper.toDto(fraudAlerts.get(id));
         return personMapper.toEntity(dto);
@@ -59,7 +60,7 @@ public class RiskAndComplianceServiceImpl implements RiskAndComplianceService {
     }
 
     @Override
-    public Person getComplianceRecord(Long id) {
+    public Person getComplianceRecord(UUID id) {
         // Convert to DTO and back to domain object to demonstrate the pattern
         PersonDTO dto = personMapper.toDto(complianceRecords.get(id));
         return personMapper.toEntity(dto);
@@ -73,7 +74,7 @@ public class RiskAndComplianceServiceImpl implements RiskAndComplianceService {
     }
 
     @Override
-    public Person getRiskModel(Long id) {
+    public Person getRiskModel(UUID id) {
         // Convert to DTO and back to domain object to demonstrate the pattern
         PersonDTO dto = personMapper.toDto(riskModels.get(id));
         return personMapper.toEntity(dto);

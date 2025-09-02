@@ -53,6 +53,7 @@ import com.vaadin.starter.business.ui.util.css.TextOverflow;
 import com.vaadin.starter.business.ui.util.css.lumo.BadgeColor;
 import com.vaadin.starter.business.ui.util.css.lumo.BadgeShape;
 import com.vaadin.starter.business.ui.util.css.lumo.BadgeSize;
+import java.util.UUID;
 
 @PageTitle("Clients")
 @Route(value = "clients", layout = MainLayout.class)
@@ -242,7 +243,7 @@ public class Clients extends ViewFrame {
 	}
 
 	private void viewDetails(Client client) {
-		UI.getCurrent().navigate(ClientDetails.class, client.getId());
+		UI.getCurrent().navigate(ClientDetails.class, Long.valueOf(client.getId().hashCode()));
 	}
 
 	@Override
@@ -280,7 +281,7 @@ public class Clients extends ViewFrame {
 		// Apply ID filter
 		if (idFilter.getValue() != null && !idFilter.getValue().isEmpty()) {
 			try {
-				Long id = Long.parseLong(idFilter.getValue());
+				UUID id = UUID.fromString(idFilter.getValue());
 				dataProvider.addFilter(client -> client.getId().equals(id));
 			} catch (NumberFormatException e) {
 				// Invalid ID format, ignore this filter

@@ -2,6 +2,7 @@ package com.vaadin.starter.business.backend.service;
 
 import java.util.Collection;
 import com.vaadin.starter.business.backend.Person;
+import java.util.UUID;
 
 /**
  * Service interface for risk and compliance-related functionality.
@@ -21,7 +22,7 @@ public interface RiskAndComplianceService {
      * @param id the ID of the fraud alert to retrieve
      * @return the fraud alert with the specified ID, or null if not found
      */
-    Person getFraudAlert(Long id);
+    Person getFraudAlert(UUID id);
 
     /**
      * Get all compliance records.
@@ -36,7 +37,7 @@ public interface RiskAndComplianceService {
      * @param id the ID of the compliance record to retrieve
      * @return the compliance record with the specified ID, or null if not found
      */
-    Person getComplianceRecord(Long id);
+    Person getComplianceRecord(UUID id);
 
     /**
      * Get all risk models.
@@ -51,5 +52,5 @@ public interface RiskAndComplianceService {
      * @param id the ID of the risk model to retrieve
      * @return the risk model with the specified ID, or null if not found
      */
-    Person getRiskModel(Long id);
+    Person getRiskModel(UUID id);
 }

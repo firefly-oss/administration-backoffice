@@ -1,13 +1,14 @@
 package com.vaadin.starter.business.backend.dto.clients;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 /**
  * Data Transfer Object for Client.
  */
 public class ClientDTO {
 
-    private Long id;
+    private UUID id;
     private String name;
     private String email;
     private String phone;
@@ -34,7 +35,7 @@ public class ClientDTO {
      * @param registered the registration date
      * @param logoPath   the logo path
      */
-    public ClientDTO(Long id, String name, String email, String phone, String address,
+    public ClientDTO(UUID id, String name, String email, String phone, String address,
                      Double balance, LocalDate registered, String logoPath) {
         this.id = id;
         this.name = name;
@@ -47,11 +48,11 @@ public class ClientDTO {
     }
 
     // Getters and setters
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

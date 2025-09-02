@@ -1,10 +1,11 @@
 package com.vaadin.starter.business.backend;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public class Invoice {
 
-	private final Long id;
+	private final UUID id;
 	private final Status status;
 	private final Order order;
 	private final LocalDate invoiceDate;
@@ -25,7 +26,7 @@ public class Invoice {
 		}
 	}
 
-	public Invoice(Long id, Status status, Order order, LocalDate invoiceDate,
+	public Invoice(UUID id, Status status, Order order, LocalDate invoiceDate,
 	               LocalDate dueDate) {
 		this.id = id;
 		this.status = status;
@@ -34,7 +35,7 @@ public class Invoice {
 		this.dueDate = dueDate;
 	}
 
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 

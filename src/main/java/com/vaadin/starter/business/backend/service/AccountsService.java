@@ -2,6 +2,7 @@ package com.vaadin.starter.business.backend.service;
 
 import java.util.Collection;
 import com.vaadin.starter.business.backend.BankAccount;
+import java.util.UUID;
 
 /**
  * Service interface for managing bank accounts.
@@ -21,5 +22,5 @@ public interface AccountsService {
      * @param id the ID of the bank account to retrieve
      * @return the bank account with the specified ID, or null if not found
      */
-    BankAccount getBankAccount(Long id);
+    BankAccount getBankAccount(UUID id);
 }

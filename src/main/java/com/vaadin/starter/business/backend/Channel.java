@@ -1,13 +1,14 @@
 package com.vaadin.starter.business.backend;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Domain object representing a channel integration.
  */
 public class Channel {
 
-    private Long id;
+    private UUID id;
     private String name;
     private String description;
     private boolean active;
@@ -28,7 +29,7 @@ public class Channel {
      * @param endpoint       the endpoint URL
      * @param securityLevel  the security level
      */
-    public Channel(Long id, String name, String description, boolean active, 
+    public Channel(UUID id, String name, String description, boolean active, 
                   String integrationType, LocalDateTime lastUpdated, 
                   String endpoint, String securityLevel) {
         this.id = id;
@@ -41,7 +42,7 @@ public class Channel {
         this.securityLevel = securityLevel;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 

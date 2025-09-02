@@ -1,13 +1,14 @@
 package com.vaadin.starter.business.backend.dto.channelsandservices;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 /**
  * Data Transfer Object for ServiceProvider.
  */
 public class ServiceProviderDTO {
 
-    private Long id;
+    private UUID id;
     private String name;
     private String description;
     private String status;
@@ -38,7 +39,7 @@ public class ServiceProviderDTO {
      * @param contractExpiry the contract expiry date
      * @param slaLevel      the SLA level
      */
-    public ServiceProviderDTO(Long id, String name, String description, String status, 
+    public ServiceProviderDTO(UUID id, String name, String description, String status, 
                              String serviceType, String contactPerson, String contactEmail, 
                              LocalDate contractStart, LocalDate contractExpiry, String slaLevel) {
         this.id = id;
@@ -54,11 +55,11 @@ public class ServiceProviderDTO {
     }
 
     // Getters and setters
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

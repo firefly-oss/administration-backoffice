@@ -41,6 +41,7 @@ import com.vaadin.starter.business.ui.util.LumoStyles;
 import com.vaadin.starter.business.ui.util.UIUtils;
 import com.vaadin.starter.business.ui.util.css.BoxSizing;
 import com.vaadin.starter.business.ui.views.SplitViewFrame;
+import java.util.UUID;
 
 @Route(value = "internal-users", layout = MainLayout.class)
 @PageTitle("Internal Users")
@@ -305,7 +306,7 @@ public class InternalUsers extends SplitViewFrame {
         // Apply ID filter if not empty
         if (idFilter.getValue() != null && !idFilter.getValue().isEmpty()) {
             try {
-                Long id = Long.parseLong(idFilter.getValue());
+                UUID id = UUID.fromString(idFilter.getValue());
                 dataProvider.setFilter(person -> person.getId().equals(id));
             } catch (NumberFormatException e) {
                 // Ignore invalid number format

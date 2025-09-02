@@ -1,10 +1,11 @@
 package com.vaadin.starter.business.backend;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public class Client {
 
-	private Long id;
+	private UUID id;
 	private String name;
 	private String email;
 	private String phone;
@@ -13,7 +14,7 @@ public class Client {
 	private LocalDate registered;
 	private String path;
 
-	public Client(Long id, String name, String email, String phone, String address,
+	public Client(UUID id, String name, String email, String phone, String address,
 	              Double balance, LocalDate registered, String path) {
 		this.id = id;
 		this.name = name;
@@ -25,7 +26,7 @@ public class Client {
 		this.path = path;
 	}
 
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 

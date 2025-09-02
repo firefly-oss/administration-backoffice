@@ -2,10 +2,11 @@ package com.vaadin.starter.business.backend;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.UUID;
 
 public class MaintenanceTask {
 
-    private Long id;
+    private UUID id;
     private String taskName;
     private String description;
     private String status;
@@ -16,7 +17,7 @@ public class MaintenanceTask {
     private LocalDate lastRun;
     private String managedBy;
 
-    public MaintenanceTask(Long id, String taskName, String description, String status, 
+    public MaintenanceTask(UUID id, String taskName, String description, String status, 
                           String database, String frequency, LocalTime scheduledTime, 
                           String duration, LocalDate lastRun, String managedBy) {
         this.id = id;
@@ -31,7 +32,7 @@ public class MaintenanceTask {
         this.managedBy = managedBy;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 

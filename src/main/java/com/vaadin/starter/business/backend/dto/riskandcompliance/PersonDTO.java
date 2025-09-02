@@ -2,13 +2,14 @@ package com.vaadin.starter.business.backend.dto.riskandcompliance;
 
 import com.vaadin.starter.business.backend.Person;
 import java.time.LocalDate;
+import java.util.UUID;
 
 /**
  * Data Transfer Object for Person in the risk and compliance domain.
  */
 public class PersonDTO {
 
-    private Long id;
+    private UUID id;
     private String firstName;
     private String lastName;
     private Person.Role role;
@@ -35,7 +36,7 @@ public class PersonDTO {
      * @param randomInteger  a random integer value
      * @param lastModified   the date the person was last modified
      */
-    public PersonDTO(Long id, String firstName, String lastName, Person.Role role,
+    public PersonDTO(UUID id, String firstName, String lastName, Person.Role role,
                    String email, boolean randomBoolean, int randomInteger, LocalDate lastModified) {
         this.id = id;
         this.firstName = firstName;
@@ -48,11 +49,11 @@ public class PersonDTO {
     }
 
     // Getters and setters
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

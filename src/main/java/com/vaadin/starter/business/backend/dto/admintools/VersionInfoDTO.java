@@ -1,13 +1,14 @@
 package com.vaadin.starter.business.backend.dto.admintools;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 /**
  * Data Transfer Object for VersionInfo.
  */
 public class VersionInfoDTO {
 
-    private Long id;
+    private UUID id;
     private String versionNumber;
     private String description;
     private String status;
@@ -34,7 +35,7 @@ public class VersionInfoDTO {
      * @param releasedBy    the person who released it
      * @param changeLog     the change log
      */
-    public VersionInfoDTO(Long id, String versionNumber, String description, String status,
+    public VersionInfoDTO(UUID id, String versionNumber, String description, String status,
                         String environment, LocalDate releaseDate, String releasedBy, String changeLog) {
         this.id = id;
         this.versionNumber = versionNumber;
@@ -47,11 +48,11 @@ public class VersionInfoDTO {
     }
 
     // Getters and setters
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

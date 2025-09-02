@@ -1,10 +1,11 @@
 package com.vaadin.starter.business.backend;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class SystemComponent {
 
-    private Long id;
+    private UUID id;
     private String componentName;
     private String serverName;
     private String description;
@@ -15,7 +16,7 @@ public class SystemComponent {
     private String keyMetric;
     private LocalDateTime lastChecked;
 
-    public SystemComponent(Long id, String componentName, String serverName, String description, 
+    public SystemComponent(UUID id, String componentName, String serverName, String description, 
                           String status, String cpuUsage, String memoryUsage, String diskUsage, 
                           String keyMetric, LocalDateTime lastChecked) {
         this.id = id;
@@ -30,7 +31,7 @@ public class SystemComponent {
         this.lastChecked = lastChecked;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 

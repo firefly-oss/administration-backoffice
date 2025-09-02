@@ -1,13 +1,14 @@
 package com.vaadin.starter.business.backend.dto.accounting;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 /**
  * Data Transfer Object for BankAccount.
  */
 public class BankAccountDTO {
 
-    private Long id;
+    private UUID id;
     private String bank;
     private String account;
     private String owner;
@@ -32,7 +33,7 @@ public class BankAccountDTO {
      * @param updated      the last update date
      * @param logoPath     the logo path
      */
-    public BankAccountDTO(Long id, String bank, String account, String owner,
+    public BankAccountDTO(UUID id, String bank, String account, String owner,
                         Double availability, LocalDate updated, String logoPath) {
         this.id = id;
         this.bank = bank;
@@ -44,11 +45,11 @@ public class BankAccountDTO {
     }
 
     // Getters and setters
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

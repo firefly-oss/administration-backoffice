@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * Implementation of the AccountsService interface.
@@ -16,7 +17,7 @@ import java.util.Random;
 @Service
 public class AccountsServiceImpl implements AccountsService {
 
-    private final Map<Long, BankAccount> bankAccounts = new HashMap<>();
+    private final Map<UUID, BankAccount> bankAccounts = new HashMap<>();
     private final Random random = new Random(1);
 
     private static final String[] IBANS = new String[]{
@@ -103,10 +104,10 @@ public class AccountsServiceImpl implements AccountsService {
      * Initialize the bank accounts data.
      */
     private void initBankAccounts() {
-        int startingPoint = 1000;
         for (long i = 0; i < 40; i++) {
-            bankAccounts.put(i + startingPoint,
-                    new BankAccount(i + startingPoint, getBank(), getIBAN(),
+            UUID accountId = UUID.randomUUID();
+            bankAccounts.put(accountId,
+                    new BankAccount(accountId, getBank(), getIBAN(),
                             getCompany(), getRandomDouble(5000, 100000),
                             getDate(), getImageSource()));
         }
@@ -118,7 +119,7 @@ public class AccountsServiceImpl implements AccountsService {
     }
 
     @Override
-    public BankAccount getBankAccount(Long id) {
+    public BankAccount getBankAccount(UUID id) {
         return bankAccounts.get(id);
     }
 

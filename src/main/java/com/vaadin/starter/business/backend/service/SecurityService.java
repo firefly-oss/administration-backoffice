@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.vaadin.starter.business.backend.Person;
 import com.vaadin.starter.business.backend.dto.security.RoleDTO;
 import com.vaadin.starter.business.backend.dto.security.PolicyDTO;
+import java.util.UUID;
 
 /**
  * Service interface for managing security-related entities.
@@ -24,7 +25,7 @@ public interface SecurityService {
      * @param id the ID of the user to retrieve
      * @return the user with the specified ID, or null if not found
      */
-    Person getInternalUser(Long id);
+    Person getInternalUser(UUID id);
     
     /**
      * Get all roles and permissions.

@@ -4,10 +4,11 @@ import com.vaadin.starter.business.ui.util.css.lumo.BadgeColor;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.UUID;
 
 public class Order {
 
-	private final Long id;
+	private final UUID id;
 	private final Status status;
 	private final Collection<Item> items;
 	private final String customer;
@@ -47,7 +48,7 @@ public class Order {
 		}
 	}
 
-	public Order(Long id, Status status, Collection<Item> items,
+	public Order(UUID id, Status status, Collection<Item> items,
 	             String customer, LocalDate date) {
 		this.id = id;
 		this.status = status;
@@ -57,7 +58,7 @@ public class Order {
 		this.value = items.stream().mapToDouble(Item::getPrice).sum();
 	}
 
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 

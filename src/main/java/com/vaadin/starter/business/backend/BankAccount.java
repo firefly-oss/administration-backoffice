@@ -1,10 +1,11 @@
 package com.vaadin.starter.business.backend;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public class BankAccount {
 
-	private Long id;
+	private UUID id;
 	private String bank;
 	private String account;
 	private String owner;
@@ -12,7 +13,7 @@ public class BankAccount {
 	private LocalDate updated;
 	private String path;
 
-	public BankAccount(Long id, String bank, String account, String company,
+	public BankAccount(UUID id, String bank, String account, String company,
 	                   Double availability, LocalDate updated, String path) {
 		this.id = id;
 		this.bank = bank;
@@ -23,7 +24,7 @@ public class BankAccount {
 		this.path = path;
 	}
 
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 

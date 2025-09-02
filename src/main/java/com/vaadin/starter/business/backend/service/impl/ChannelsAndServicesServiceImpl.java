@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * Implementation of the ChannelsAndServicesService interface.
@@ -26,8 +27,8 @@ public class ChannelsAndServicesServiceImpl implements ChannelsAndServicesServic
     private final ChannelMapper channelMapper;
     private final ServiceProviderMapper serviceProviderMapper;
     
-    private final Map<Long, Channel> channels = new HashMap<>();
-    private final Map<Long, ServiceProvider> serviceProviders = new HashMap<>();
+    private final Map<UUID, Channel> channels = new HashMap<>();
+    private final Map<UUID, ServiceProvider> serviceProviders = new HashMap<>();
     
     private final Random random = new Random();
     
@@ -112,7 +113,7 @@ public class ChannelsAndServicesServiceImpl implements ChannelsAndServicesServic
     }
 
     @Override
-    public Channel getChannel(Long id) {
+    public Channel getChannel(UUID id) {
         // Convert to DTO and back to domain object to demonstrate the pattern
         ChannelDTO dto = channelMapper.toDto(channels.get(id));
         return channelMapper.toEntity(dto);
@@ -126,7 +127,7 @@ public class ChannelsAndServicesServiceImpl implements ChannelsAndServicesServic
     }
 
     @Override
-    public ServiceProvider getServiceProvider(Long id) {
+    public ServiceProvider getServiceProvider(UUID id) {
         // Convert to DTO and back to domain object to demonstrate the pattern
         ServiceProviderDTO dto = serviceProviderMapper.toDto(serviceProviders.get(id));
         return serviceProviderMapper.toEntity(dto);
@@ -136,17 +137,16 @@ public class ChannelsAndServicesServiceImpl implements ChannelsAndServicesServic
      * Initialize channel data.
      */
     private void initChannels() {
-        int startingPoint = 3000;
         for (long i = 0; i < 20; i++) {
-            long id = i + startingPoint;
+            UUID id = UUID.randomUUID();
             
-            String name = CHANNEL_NAMES[(int)(Math.abs(id) % CHANNEL_NAMES.length)];
+            String name = CHANNEL_NAMES[(int)(Math.abs(i) % CHANNEL_NAMES.length)];
             String description = "Integration for " + name + " with backend systems.";
             boolean active = random.nextBoolean();
-            String integrationType = INTEGRATION_TYPES[(int)(Math.abs(id) % INTEGRATION_TYPES.length)];
+            String integrationType = INTEGRATION_TYPES[(int)(Math.abs(i) % INTEGRATION_TYPES.length)];
             LocalDateTime lastUpdated = LocalDateTime.now().minusDays(random.nextInt(30));
             String endpoint = "https://api.example.com/v1/" + name.toLowerCase().replace(" ", "-");
-            String securityLevel = SECURITY_LEVELS[(int)(Math.abs(id) % SECURITY_LEVELS.length)];
+            String securityLevel = SECURITY_LEVELS[(int)(Math.abs(i) % SECURITY_LEVELS.length)];
             
             channels.put(id, new Channel(id, name, description, active, integrationType, 
                     lastUpdated, endpoint, securityLevel));
@@ -157,14 +157,13 @@ public class ChannelsAndServicesServiceImpl implements ChannelsAndServicesServic
      * Initialize service provider data.
      */
     private void initServiceProviders() {
-        int startingPoint = 4000;
         for (long i = 0; i < 20; i++) {
-            long id = i + startingPoint;
+            UUID id = UUID.randomUUID();
             
-            String name = PROVIDER_NAMES[(int)(Math.abs(id) % PROVIDER_NAMES.length)];
+            String name = PROVIDER_NAMES[(int)(Math.abs(i) % PROVIDER_NAMES.length)];
             String description = "Service provider for financial services and technology solutions.";
-            String status = STATUSES[(int)(Math.abs(id) % STATUSES.length)];
-            String serviceType = SERVICE_TYPES[(int)(Math.abs(id) % SERVICE_TYPES.length)];
+            String status = STATUSES[(int)(Math.abs(i) % STATUSES.length)];
+            String serviceType = SERVICE_TYPES[(int)(Math.abs(i) % SERVICE_TYPES.length)];
             
             // Generate contact information
             String contactPerson = "Contact Person " + (i + 1);
@@ -174,7 +173,7 @@ public class ChannelsAndServicesServiceImpl implements ChannelsAndServicesServic
             LocalDate contractStart = LocalDate.now().minusDays(random.nextInt(365));
             LocalDate contractExpiry = LocalDate.now().plusDays(30 + random.nextInt(335));
             
-            String slaLevel = SLA_LEVELS[(int)(Math.abs(id) % SLA_LEVELS.length)];
+            String slaLevel = SLA_LEVELS[(int)(Math.abs(i) % SLA_LEVELS.length)];
             
             serviceProviders.put(id, new ServiceProvider(id, name, description, status, serviceType,
                     contactPerson, contactEmail, contractStart, contractExpiry, slaLevel));

@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * Implementation of the AdminToolsService interface.
@@ -27,9 +28,9 @@ import java.util.Random;
 @Service
 public class AdminToolsServiceImpl implements AdminToolsService {
 
-    private final Map<Long, VersionInfo> versions = new HashMap<>();
-    private final Map<Long, SystemComponent> systemComponents = new HashMap<>();
-    private final Map<Long, MaintenanceTask> maintenanceTasks = new HashMap<>();
+    private final Map<UUID, VersionInfo> versions = new HashMap<>();
+    private final Map<UUID, SystemComponent> systemComponents = new HashMap<>();
+    private final Map<UUID, MaintenanceTask> maintenanceTasks = new HashMap<>();
     private final Random random = new Random(1);
 
     private final VersionInfoMapper versionInfoMapper;
@@ -92,7 +93,7 @@ public class AdminToolsServiceImpl implements AdminToolsService {
     }
 
     @Override
-    public VersionInfo getVersion(Long id) {
+    public VersionInfo getVersion(UUID id) {
         // Convert to DTO and back to domain object to demonstrate the pattern
         VersionInfoDTO dto = versionInfoMapper.toDto(versions.get(id));
         return versionInfoMapper.toEntity(dto);
@@ -106,7 +107,7 @@ public class AdminToolsServiceImpl implements AdminToolsService {
     }
 
     @Override
-    public SystemComponent getSystemComponent(Long id) {
+    public SystemComponent getSystemComponent(UUID id) {
         // Convert to DTO and back to domain object to demonstrate the pattern
         SystemComponentDTO dto = systemComponentMapper.toDto(systemComponents.get(id));
         return systemComponentMapper.toEntity(dto);
@@ -120,7 +121,7 @@ public class AdminToolsServiceImpl implements AdminToolsService {
     }
 
     @Override
-    public MaintenanceTask getMaintenanceTask(Long id) {
+    public MaintenanceTask getMaintenanceTask(UUID id) {
         // Convert to DTO and back to domain object to demonstrate the pattern
         MaintenanceTaskDTO dto = maintenanceTaskMapper.toDto(maintenanceTasks.get(id));
         return maintenanceTaskMapper.toEntity(dto);
@@ -130,24 +131,23 @@ public class AdminToolsServiceImpl implements AdminToolsService {
      * Initialize version information data.
      */
     private void initVersions() {
-        int startingPoint = 1000;
         for (long i = 0; i < 20; i++) {
-            long id = i + startingPoint;
+            UUID id = UUID.randomUUID();
 
             // Generate a version number like 2.3.1, 3.0.0, etc.
-            int major = 1 + (int)(Math.abs(id) % 5);
-            int minor = (int)(Math.abs(id) % 10);
-            int patch = (int)(Math.abs(id) % 5);
+            int major = 1 + (int)(Math.abs(i) % 5);
+            int minor = (int)(Math.abs(i) % 10);
+            int patch = (int)(Math.abs(i) % 5);
             String versionNumber = major + "." + minor + "." + patch;
 
             String description = "This version includes new features, bug fixes, and performance improvements.";
-            String status = VERSION_STATUSES[(int)(Math.abs(id) % VERSION_STATUSES.length)];
-            String environment = ENVIRONMENTS[(int)(Math.abs(id) % ENVIRONMENTS.length)];
+            String status = VERSION_STATUSES[(int)(Math.abs(i) % VERSION_STATUSES.length)];
+            String environment = ENVIRONMENTS[(int)(Math.abs(i) % ENVIRONMENTS.length)];
 
             LocalDate releaseDate = LocalDate.now().plusDays(random.nextBoolean() ? 
                     -random.nextInt(180) : random.nextInt(180));
 
-            String releasedBy = NAMES[(int)(Math.abs(id) % NAMES.length)];
+            String releasedBy = NAMES[(int)(Math.abs(i) % NAMES.length)];
             String changeLog = "- Added new feature X\n- Fixed bug in module Y\n- Improved performance of Z";
 
             versions.put(id, new VersionInfo(id, versionNumber, description, status, 
@@ -159,20 +159,19 @@ public class AdminToolsServiceImpl implements AdminToolsService {
      * Initialize system component data.
      */
     private void initSystemComponents() {
-        int startingPoint = 2000;
         for (long i = 0; i < 20; i++) {
-            long id = i + startingPoint;
+            UUID id = UUID.randomUUID();
 
-            String componentName = SYSTEM_COMPONENTS[(int)(Math.abs(id) % SYSTEM_COMPONENTS.length)];
+            String componentName = SYSTEM_COMPONENTS[(int)(Math.abs(i) % SYSTEM_COMPONENTS.length)];
             String serverName = "server-" + (random.nextInt(100) + 1) + ".example.com";
             String description = "System component providing critical functionality for the application infrastructure.";
-            String status = SYSTEM_STATUSES[(int)(Math.abs(id) % SYSTEM_STATUSES.length)];
+            String status = SYSTEM_STATUSES[(int)(Math.abs(i) % SYSTEM_STATUSES.length)];
 
             String cpuUsage = (10 + random.nextInt(80)) + "%";
             String memoryUsage = (20 + random.nextInt(70)) + "%";
             String diskUsage = (30 + random.nextInt(60)) + "%";
 
-            String keyMetric = METRICS[(int)(Math.abs(id) % METRICS.length)];
+            String keyMetric = METRICS[(int)(Math.abs(i) % METRICS.length)];
             LocalDateTime lastChecked = LocalDateTime.now().minusHours(random.nextInt(24));
 
             systemComponents.put(id, new SystemComponent(id, componentName, serverName, description, 
@@ -184,22 +183,21 @@ public class AdminToolsServiceImpl implements AdminToolsService {
      * Initialize maintenance task data.
      */
     private void initMaintenanceTasks() {
-        int startingPoint = 3000;
         for (long i = 0; i < 20; i++) {
-            long id = i + startingPoint;
+            UUID id = UUID.randomUUID();
 
-            String taskName = MAINTENANCE_TASKS[(int)(Math.abs(id) % MAINTENANCE_TASKS.length)];
+            String taskName = MAINTENANCE_TASKS[(int)(Math.abs(i) % MAINTENANCE_TASKS.length)];
             String description = "Database maintenance task to ensure optimal performance and data integrity.";
-            String status = MAINTENANCE_STATUSES[(int)(Math.abs(id) % MAINTENANCE_STATUSES.length)];
-            String database = DATABASES[(int)(Math.abs(id) % DATABASES.length)];
-            String frequency = FREQUENCIES[(int)(Math.abs(id) % FREQUENCIES.length)];
+            String status = MAINTENANCE_STATUSES[(int)(Math.abs(i) % MAINTENANCE_STATUSES.length)];
+            String database = DATABASES[(int)(Math.abs(i) % DATABASES.length)];
+            String frequency = FREQUENCIES[(int)(Math.abs(i) % FREQUENCIES.length)];
 
             LocalTime scheduledTime = LocalTime.of(random.nextInt(24), 0);
             String duration = (5 + random.nextInt(55)) + " minutes";
             LocalDate lastRun = LocalDate.now().minusDays(random.nextInt(10) + 1);
 
-            String name = NAMES[(int)(Math.abs(id) % NAMES.length)];
-            String domain = EMAIL_DOMAINS[(int)(Math.abs(id) % EMAIL_DOMAINS.length)];
+            String name = NAMES[(int)(Math.abs(i) % NAMES.length)];
+            String domain = EMAIL_DOMAINS[(int)(Math.abs(i) % EMAIL_DOMAINS.length)];
             String managedBy = name.toLowerCase().replace(" ", ".") + "@" + domain;
 
             maintenanceTasks.put(id, new MaintenanceTask(id, taskName, description, status, 

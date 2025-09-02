@@ -1,6 +1,7 @@
 package com.vaadin.starter.business.backend;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public class Person {
 
@@ -8,7 +9,7 @@ public class Person {
 		DESIGNER, DEVELOPER, MANAGER, TRADER, PAYMENT_HANDLER, ACCOUNTANT
 	}
 
-	private Long id;
+	private UUID id;
 	private String firstName;
 	private String lastName;
 	private Role role;
@@ -17,7 +18,7 @@ public class Person {
 	private int randomInteger;
 	private LocalDate lastModified;
 
-	public Person(Long id, String firstName, String lastName, Role role,
+	public Person(UUID id, String firstName, String lastName, Role role,
 	              String email, boolean randomBoolean, int randomInteger,
 	              LocalDate lastModified) {
 		this.id = id;
@@ -30,7 +31,7 @@ public class Person {
 		this.lastModified = lastModified;
 	}
 
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 

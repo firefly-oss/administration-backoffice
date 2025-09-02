@@ -1,6 +1,7 @@
 package com.vaadin.starter.business.backend;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public class Transaction {
 
@@ -18,7 +19,7 @@ public class Transaction {
 		}
 	}
 
-	private Long id;
+	private UUID id;
 	private Status status;
 	private String company;
 	private String iban;
@@ -26,7 +27,7 @@ public class Transaction {
 	private boolean attachment;
 	private LocalDate date;
 
-	public Transaction(Long id, Status status, String company, String iban,
+	public Transaction(UUID id, Status status, String company, String iban,
 	                   Double amount, boolean attachment, LocalDate date) {
 		this.id = id;
 		this.status = status;
@@ -37,7 +38,7 @@ public class Transaction {
 		this.date = date;
 	}
 
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 

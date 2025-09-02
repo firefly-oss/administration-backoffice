@@ -1,13 +1,14 @@
 package com.vaadin.starter.business.backend.dto.admintools;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Data Transfer Object for SystemComponent.
  */
 public class SystemComponentDTO {
 
-    private Long id;
+    private UUID id;
     private String componentName;
     private String serverName;
     private String description;
@@ -38,7 +39,7 @@ public class SystemComponentDTO {
      * @param keyMetric     the key metric
      * @param lastChecked   the last checked timestamp
      */
-    public SystemComponentDTO(Long id, String componentName, String serverName, String description,
+    public SystemComponentDTO(UUID id, String componentName, String serverName, String description,
                             String status, String cpuUsage, String memoryUsage, String diskUsage,
                             String keyMetric, LocalDateTime lastChecked) {
         this.id = id;
@@ -54,11 +55,11 @@ public class SystemComponentDTO {
     }
 
     // Getters and setters
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

@@ -1,10 +1,11 @@
 package com.vaadin.starter.business.backend;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public class VersionInfo {
 
-    private Long id;
+    private UUID id;
     private String versionNumber;
     private String description;
     private String status;
@@ -13,7 +14,7 @@ public class VersionInfo {
     private String releasedBy;
     private String changeLog;
 
-    public VersionInfo(Long id, String versionNumber, String description, String status, 
+    public VersionInfo(UUID id, String versionNumber, String description, String status, 
                       String environment, LocalDate releaseDate, String releasedBy, String changeLog) {
         this.id = id;
         this.versionNumber = versionNumber;
@@ -25,7 +26,7 @@ public class VersionInfo {
         this.changeLog = changeLog;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 

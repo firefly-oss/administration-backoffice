@@ -41,6 +41,7 @@ import com.vaadin.starter.business.ui.views.ViewFrame;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @PageTitle("Client Details")
 @Route(value = "client-details", layout = MainLayout.class)
@@ -63,7 +64,7 @@ public class ClientDetails extends ViewFrame implements HasUrlParameter<Long> {
 
 	@Override
 	public void setParameter(BeforeEvent beforeEvent, Long id) {
-		client = clientsService.getClient(id);
+		client = clientsService.getClient(UUID.fromString(id.toString()));
 		setViewContent(createContent());
 	}
 

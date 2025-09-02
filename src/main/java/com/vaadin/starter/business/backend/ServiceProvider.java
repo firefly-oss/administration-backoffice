@@ -1,13 +1,14 @@
 package com.vaadin.starter.business.backend;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 /**
  * Domain object representing a service provider.
  */
 public class ServiceProvider {
 
-    private Long id;
+    private UUID id;
     private String name;
     private String description;
     private String status;
@@ -32,7 +33,7 @@ public class ServiceProvider {
      * @param contractExpiry the contract expiry date
      * @param slaLevel      the SLA level
      */
-    public ServiceProvider(Long id, String name, String description, String status, 
+    public ServiceProvider(UUID id, String name, String description, String status, 
                           String serviceType, String contactPerson, String contactEmail, 
                           LocalDate contractStart, LocalDate contractExpiry, String slaLevel) {
         this.id = id;
@@ -47,7 +48,7 @@ public class ServiceProvider {
         this.slaLevel = slaLevel;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 

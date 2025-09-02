@@ -5,6 +5,7 @@ import com.vaadin.starter.business.ui.util.UIUtils;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.UUID;
 
 public class DummyData {
 
@@ -197,7 +198,7 @@ public class DummyData {
 		for (i = 0; i < 100; i++) {
 			String firstName = getFirstName();
 			String lastName = getLastName();
-			PERSONS.put(i, new Person(i, firstName, lastName, getRole(),
+			PERSONS.put(i, new Person(UUID.randomUUID(), firstName, lastName, getRole(),
 					firstName.toLowerCase() + "." + lastName.toLowerCase()
 							+ "@email.com",
 					random.nextBoolean(), random.nextInt(500000), getDate()));
@@ -206,7 +207,7 @@ public class DummyData {
 		/* === TRANSACTIONS ==== */
 
 		for (i = 0; i < 40; i++) {
-			TRANSACTIONS.put(i, new Transaction(i + getRandomInt(0, 9999),
+			TRANSACTIONS.put(i, new Transaction(UUID.randomUUID(),
 					getTransactionStatus(), getCompany(), getIBAN(),
 					getAmount(), random.nextBoolean(), getPastDate(90)));
 		}
@@ -216,7 +217,7 @@ public class DummyData {
 		int startingPoint = 1000;
 		for (i = 0; i < 40; i++) {
 			BANK_ACCOUNTS.put(i + startingPoint,
-					new BankAccount(i + startingPoint, getBank(), getIBAN(),
+					new BankAccount(UUID.randomUUID(), getBank(), getIBAN(),
 							getCompany(), getRandomDouble(5000, 100000),
 							getDate(), DummyData.getImageSource()));
 		}
@@ -360,11 +361,11 @@ public class DummyData {
 		/* === ORDERS & INVOICES === */
 
 		for (i = 0; i < 40; i++) {
-			Order order = new Order(i + getRandomInt(0, 9999), getOrderStatus(),
+			Order order = new Order(UUID.randomUUID(), getOrderStatus(),
 					getOrderItems(), getCompany(), getDate());
 			ORDERS.put(i, order);
 
-			Invoice invoice = new Invoice(i + getRandomInt(0, 9999),
+			Invoice invoice = new Invoice(UUID.randomUUID(),
 					getInvoiceStatus(), order, getPastDate(30),
 					getFutureDate(30));
 			INVOICES.put(i, invoice);
@@ -468,7 +469,7 @@ public class DummyData {
 
 	/* === REPORT === */
 
-	public static Report getReport(Long id) {
+	public static Report getReport(UUID id) {
 		// Return the report with the given id
 		return REPORTS.get(id);
 	}
@@ -510,7 +511,7 @@ public class DummyData {
 		return BANK_ACCOUNTS.values();
 	}
 
-	public static BankAccount getBankAccount(Long id) {
+	public static BankAccount getBankAccount(UUID id) {
 		return BANK_ACCOUNTS.get(id);
 	}
 

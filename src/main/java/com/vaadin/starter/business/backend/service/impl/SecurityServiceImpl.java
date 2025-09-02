@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 /**
  * Implementation of the SecurityService interface.
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 @Service
 public class SecurityServiceImpl implements SecurityService {
 
-    private final Map<Long, Person> internalUsers = new HashMap<>();
+    private final Map<UUID, Person> internalUsers = new HashMap<>();
     private final Map<String, Role> roles = new HashMap<>();
     private final Map<String, Policy> policies = new HashMap<>();
     
@@ -95,7 +96,7 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public Person getInternalUser(Long id) {
+    public Person getInternalUser(UUID id) {
         return internalUsers.get(id);
     }
 
